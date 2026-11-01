@@ -9,8 +9,11 @@ import 'package:english_buddy/core/database/skills_seed_data.dart';
 import 'package:english_buddy/core/services/anti_bot_service.dart';
 import 'package:english_buddy/core/services/auth_service.dart';
 import 'package:english_buddy/core/services/dictionary_api_service.dart';
+import 'package:english_buddy/core/services/ai_chat_service.dart';
 import 'package:english_buddy/core/utils/ui_helpers.dart';
+import 'package:english_buddy/data/models/chat_message_model.dart';
 import 'package:english_buddy/data/models/exam_model.dart';
+import 'package:english_buddy/providers/ai_chat_provider.dart';
 import 'package:english_buddy/data/models/game_record_model.dart';
 import 'package:english_buddy/data/models/online_dictionary_result.dart';
 import 'package:english_buddy/data/models/skill_exercise_model.dart';
@@ -24,6 +27,8 @@ import 'package:english_buddy/presentation/screens/games/space_typer/models/spac
 import 'package:english_buddy/presentation/screens/games/common/game_difficulty.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('SeedData & Vocabulary Corpus Tests', () {
     test('SeedData contains exactly 3,000 words across 8 topics', () {
       expect(SeedData.topics.length, 8);
@@ -1288,6 +1293,88 @@ In conclusion, although artificial intelligence undoubtedly serves as an extraor
       expect(fillQ.isCorrectAnswer('gallagher'), true);
       expect(fillQ.isCorrectAnswer('Gallagher '), true);
       expect(fillQ.isCorrectAnswer('Smith'), false);
+    });
+  });
+
+  group('AI Chatbox & English Learning Assistant Tests', () {
+    test('1. ChatMessage serialization, deserialization, and state flags work accurately', () {
+      final now = DateTime.now();
+      final userMsg = ChatMessage(
+        id: 'msg_1',
+        text: 'Giải thích giúp mình thì Hiện tại hoàn thành',
+        sender: ChatMessageSender.user,
+        timestamp: now,
+        status: ChatMessageStatus.sent,
+      );
+
+      expect(userMsg.isUser, true);
+      expect(userMsg.isAi, false);
+      expect(userMsg.isSending, false);
+      expect(userMsg.hasError, false);
+
+      final map = userMsg.toMap();
+      expect(map['id'], 'msg_1');
+      expect(map['sender'], 'user');
+      expect(map['text'], 'Giải thích giúp mình thì Hiện tại hoàn thành');
+
+      final reconstructed = ChatMessage.fromMap(map);
+      expect(reconstructed.id, 'msg_1');
+      expect(reconstructed.isUser, true);
+      expect(reconstructed.text, userMsg.text);
+      expect(reconstructed.status, ChatMessageStatus.sent);
+
+      final aiErrorMsg = ChatMessage(
+        id: 'msg_2',
+        text: '',
+        sender: ChatMessageSender.ai,
+        timestamp: now,
+        status: ChatMessageStatus.error,
+        errorMessage: 'Lỗi timeout',
+      );
+
+      expect(aiErrorMsg.isAi, true);
+      expect(aiErrorMsg.hasError, true);
+      expect(aiErrorMsg.errorMessage, 'Lỗi timeout');
+
+      final copied = aiErrorMsg.copyWith(
+        text: 'Đã phản hồi thành công',
+        status: ChatMessageStatus.sent,
+        errorMessage: null,
+      );
+      expect(copied.text, 'Đã phản hồi thành công');
+      expect(copied.status, ChatMessageStatus.sent);
+      expect(copied.hasError, false);
+    });
+
+    test('2. AiChatService validates input strings and unconfigured state safely', () async {
+      final service = AiChatService();
+
+      // Tin nhắn rỗng hoặc chỉ có khoảng trắng
+      final emptyResult = await service.sendMessage(message: '   ');
+      expect(emptyResult.isSuccess, false);
+      expect(emptyResult.errorMessage, contains('không được để trống'));
+
+      // Tin nhắn vượt quá 2000 ký tự
+      final longText = 'A' * 2001;
+      final longResult = await service.sendMessage(message: longText);
+      expect(longResult.isSuccess, false);
+      expect(longResult.errorMessage, contains('quá dài'));
+    });
+
+    test('3. AiChatProvider manages message state, loading, and clearChat cleanly', () async {
+      final provider = AiChatProvider();
+
+      expect(provider.messages.isEmpty, true);
+      expect(provider.isLoading, false);
+
+      // Khi gửi tin nhắn rỗng, provider bỏ qua không làm thay đổi trạng thái
+      await provider.sendMessage('   ');
+      expect(provider.messages.isEmpty, true);
+
+      // Thử gọi clearChat
+      await provider.clearChat();
+      expect(provider.messages.isEmpty, true);
+      expect(provider.lastError, isNull);
     });
   });
 }

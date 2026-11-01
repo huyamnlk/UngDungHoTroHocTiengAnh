@@ -101,9 +101,21 @@
   - Dữ liệu học tập trong SQLite vẫn tách biệt với phiên xác thực; đồng bộ dữ liệu đám mây chưa được triển khai.
   - Khi đăng nhập hoặc đăng xuất, **100% tiến độ học cục bộ được giữ nguyên**, không bao giờ bị xóa hay ghi đè.
 
+### 1.5. Trợ lý AI Học Tiếng Anh Thông Minh (`AiChatScreen`, `AiChatService`, `AiChatProvider`)
+- **Phạm vi chức năng tập trung & Minh bạch sư phạm**:
+  - Giải đáp thắc mắc của người học về ngữ pháp, quy tắc câu, phát âm (IPA/trọng âm) và từ vựng trong ngữ cảnh thực tế.
+  - Phân tích sâu cấu trúc câu và dịch đối chiếu hai chiều Anh – Việt kèm ví dụ trực quan.
+  - Góp ý bài viết (Writing feedback): chỉ ra lỗi sai ngữ pháp, gợi ý diễn đạt tự nhiên hơn và mở rộng vốn từ học thuật/giao tiếp khi người học yêu cầu.
+  - Tuyệt đối không thay thế hệ thống luyện thi hay quiz bằng chatbot tự tạo câu hỏi thi giả.
+- **Trải nghiệm Đa nền tảng (Mobile, Web & Desktop)**:
+  - Lối vào thuận tiện: Nút nổi **"Hỏi AI"** (`FloatingActionButton`) luôn sẵn sàng trên cả Mobile lẫn Desktop/Web, lối tắt trực tiếp trong **Mobile Drawer**, biểu tượng trên thanh tiêu đề và thẻ hành động nhanh trên **Trang chủ**. Giữ nguyên 100% 13 mục điều hướng và phân quyền Admin.
+  - Phím tắt thông minh: Nhấn `Enter` gửi tin nhắn tức thì trên Desktop/Web (`Shift + Enter` xuống dòng); phím `Enter` tự động xuống dòng trên bàn phím cảm ứng điện thoại.
+  - Tự động cuộn đến tin nhắn mới nhất, hiển thị hoạt ảnh AI đang soạn phản hồi và bong bóng báo lỗi chi tiết kèm nút **"Thử gửi lại"**.
+  - Lưu trữ lịch sử cục bộ trên thiết bị qua `SharedPreferences`, cho phép người học xem lại bất kỳ lúc nào hoặc bấm nút **"Xóa cuộc trò chuyện"** với hộp thoại xác nhận rõ ràng.
+
 ---
 
-## 🔐 2. Cấu hình Dịch vụ Xác thực (Firebase / Google OAuth) & Anti-Bot cho Chủ Dự Án
+## 🔐 2. Cấu hình Dịch vụ Xác thực, Anti-Bot & Trợ lý AI Backend cho Chủ Dự Án
 
 Ứng dụng đọc cấu hình qua biến môi trường biên dịch `--dart-define` (không lưu khóa bí mật trong mã nguồn). Khi chưa truyền các biến này, giao diện Đăng nhập / Tạo tài khoản sẽ hiển thị bảng chẩn đoán cấu hình chi tiết và giữ nguyên chế độ học Offline đầy đủ chức năng.
 
@@ -116,6 +128,7 @@
 | `CAPTCHA_PROVIDER` | Nhà cung cấp Anti-Bot | Hiện hỗ trợ Cloudflare Turnstile trên Web |
 | `CAPTCHA_SITE_KEY` | Public Site Key của Turnstile (hiển thị ở client) | Chỉ dùng Site Key công khai, **không** dùng Secret Key |
 | `CAPTCHA_VERIFY_URL` | Endpoint Backend nhận `token` từ client và gọi `siteverify` | Ví dụ: `https://api.yourdomain.com/auth/verify-captcha` |
+| `AI_CHAT_BACKEND_URL` | *(Tùy chọn)* Endpoint gọi Trợ lý AI qua Cloudflare Worker | Ví dụ: `https://api.yourdomain.com/api/chat` (tự động suy ra từ `CAPTCHA_VERIFY_URL` nếu bỏ trống) |
 | `BOOTSTRAP_ADMIN_EMAIL` | *(Tùy chọn)* Email tài khoản được cấp quyền `admin` đầu tiên khi đăng nhập | Không hardcode email hay mật khẩu admin trong mã nguồn |
 | `BOOTSTRAP_ADMIN_UID` | *(Tùy chọn)* UID Firebase được cấp quyền `admin` đầu tiên khi đăng nhập | Thay thế hoặc kết hợp với Firebase Custom Claims / `ADMIN_EMAILS` trên server |
 
@@ -130,6 +143,19 @@
    - Tạo widget tại Cloudflare Turnstile để nhận **Site Key** (đưa vào `--dart-define=CAPTCHA_SITE_KEY=...`) và **Secret Key** (chỉ lưu trong biến môi trường của Backend/Cloud Function).
    - Có sẵn mẫu Worker tại `backend/turnstile-worker.js`. Deploy Worker, đặt `TURNSTILE_SECRET`, `ALLOWED_ORIGINS` và (khuyến nghị) `ALLOWED_HOSTNAMES` làm secret/variable, rồi truyền URL Worker làm `CAPTCHA_VERIFY_URL`. Không đưa Turnstile secret vào ứng dụng Flutter.
    - Widget Turnstile và nút Google chính thức được tích hợp trên Web; Android cần CAPTCHA trong WebView trước khi bật đăng ký có anti-bot. Windows native chưa hỗ trợ OAuth/CAPTCHA trong cấu hình này. Đăng nhập email/password bằng email có thể hoạt động trên Android khi cấu hình Firebase.
+4. **Thiết lập Trợ lý AI trên Cloudflare Worker (Server-Side AI Architecture)**:
+   - Worker tại `backend/turnstile-worker.js` cung cấp sẵn các route `/api/chat` và `/chat` (GET kiểm tra trạng thái cấu hình, POST gửi tin nhắn).
+   - **Các biến môi trường & Secrets phía Server (Cloudflare Dashboard / `wrangler secret put`)**:
+     - `GEMINI_API_KEY`: API Key của Google Gemini (khuyến nghị `gemini-1.5-flash` để phản hồi nhanh, tối ưu chi phí).
+     - `OPENAI_API_KEY`: *(Dự phòng)* Khóa OpenAI nếu sử dụng `gpt-4o-mini` hoặc endpoint tương thích.
+     - `AI_MODEL`: *(Tùy chọn)* Model chỉ định (mặc định: `gemini-1.5-flash` hoặc `gpt-4o-mini`).
+     - `REQUIRE_AUTH_FOR_CHAT`: *(Tùy chọn)* Đặt `true` nếu muốn chỉ cho phép tài khoản đã đăng nhập gọi AI (xác thực Firebase Bearer Token). Mặc định `false` cho phép cả học viên khách (guest learner).
+     - `ALLOWED_ORIGINS`: Danh sách domain/origin được phép gọi (ví dụ `http://localhost:7357,https://yourdomain.com` hoặc `*`).
+   - **Nguyên tắc bảo mật**:
+     - Tuyệt đối không lưu khóa API của nhà cung cấp AI trong mã nguồn Flutter, `--dart-define`, database SQLite hay log.
+     - Giữ System Prompt chuẩn sư phạm cố định tại server, client không thể tùy tiện sửa đổi.
+     - Giới hạn nội dung tin nhắn tối đa 2.000 ký tự và tối đa 20 lượt hội thoại gần nhất; timeout gọi AI 25 giây.
+     - Khi chưa cấu hình khóa API trên server hoặc client chưa trỏ URL, ứng dụng thông báo rõ ràng và không trả về câu trả lời giả mạo.
 
 ---
 
@@ -182,14 +208,15 @@ flutter run -d android
 flutter run -d windows
 ```
 
-### Chạy ứng dụng kèm cấu hình Firebase Auth, Google OAuth & Anti-Bot Server:
+### Chạy ứng dụng kèm cấu hình Firebase Auth, Google OAuth, Anti-Bot & Trợ lý AI Backend:
 ```bash
 flutter run -d chrome \
   --dart-define=FIREBASE_API_KEY=your_firebase_web_api_key \
   --dart-define=GOOGLE_OAUTH_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com \
   --dart-define=CAPTCHA_PROVIDER=cloudflare_turnstile \
   --dart-define=CAPTCHA_SITE_KEY=your_public_turnstile_site_key \
-  --dart-define=CAPTCHA_VERIFY_URL=https://your-backend.example.com/api/verify-captcha
+  --dart-define=CAPTCHA_VERIFY_URL=https://your-backend.example.com/api/verify-captcha \
+  --dart-define=AI_CHAT_BACKEND_URL=https://your-backend.example.com/api/chat
 ```
 
 ### Kiểm tra chất lượng mã nguồn & Chạy bộ kiểm thử tự động:

@@ -30,6 +30,7 @@ class AuthProvider extends ChangeNotifier {
   AuthenticatedUser? get currentUser => _currentUser;
   UserProfileModel? get currentProfile => _currentProfile;
   bool get isAuthenticated => _currentUser != null;
+  String? get idToken => _currentUser?.idToken;
   bool get isInitializingAuth => _isInitializingAuth;
 
   /// Chỉ trả về true khi đã đăng nhập thực sự VÀ có vai trò 'admin'

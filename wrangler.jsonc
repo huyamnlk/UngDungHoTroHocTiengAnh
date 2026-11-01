@@ -1,5 +1,8 @@
 {
   "name": "english-buddy-turnstile",
   "compatibility_date": "2026-10-19",
-  "main": ".\\backend\\turnstile-worker.js"
+  "main": ".\\backend\\turnstile-worker.js",
+  "ai": {
+    "binding": "AI"
+  }
 }

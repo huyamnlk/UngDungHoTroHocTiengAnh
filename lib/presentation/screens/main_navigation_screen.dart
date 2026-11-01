@@ -9,6 +9,7 @@ import '../../providers/study_provider.dart';
 import '../widgets/app_sidebar.dart';
 import '../widgets/top_profile_menu_button.dart';
 import 'admin/admin_screen.dart';
+import 'chat/ai_chat_screen.dart';
 import 'dictionary/dictionary_screen.dart';
 import 'exam/exam_hub_screen.dart';
 import 'home/home_screen.dart';
@@ -195,6 +196,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     if (isWideScreen) {
       return Scaffold(
         backgroundColor: context.scaffoldBg,
+        floatingActionButton: _buildAiChatFab(context),
         body: Row(
           children: [
             AppSidebar(
@@ -226,6 +228,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       key: _mobileScaffoldKey,
       backgroundColor: context.scaffoldBg,
       drawer: _buildMobileDrawer(context, navItems),
+      floatingActionButton: _buildAiChatFab(context),
       body: Column(
         children: [
           SafeArea(
@@ -259,8 +262,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  IconButton(
+                    tooltip: 'Trợ lý AI English Buddy',
+                    icon: const Icon(
+                      Icons.smart_toy_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AiChatScreen()),
+                      );
+                    },
+                  ),
                   if (effectiveIndex != 0) ...[
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     const TopProfileMenuButton(compact: true),
                   ],
                 ],
@@ -377,6 +394,73 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               ),
             ),
             Divider(height: 1, color: context.borderCol),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AiChatScreen()),
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.smart_toy_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Trợ lý AI English Buddy',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            Text(
+                              'Hỏi đáp ngữ pháp & góp ý bài viết',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: context.textSecondaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 13,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -436,6 +520,27 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAiChatFab(BuildContext context) {
+    return FloatingActionButton.extended(
+      heroTag: 'ai_chat_fab',
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AiChatScreen()),
+        );
+      },
+      icon: const Icon(Icons.smart_toy_rounded, size: 20),
+      label: const Text(
+        'Hỏi AI',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+      ),
+      backgroundColor: AppColors.primary,
+      foregroundColor: Colors.white,
+      elevation: 3,
+      tooltip: 'Trò chuyện cùng Trợ lý AI English Buddy',
     );
   }
 }

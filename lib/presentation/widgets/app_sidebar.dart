@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/study_provider.dart';
+import '../screens/chat/ai_chat_screen.dart';
 
 class SidebarNavItem {
   final int index;
@@ -239,7 +240,123 @@ class AppSidebar extends StatelessWidget {
                 ),
               ),
             ),
+
+            // 3. Footer: Lối vào nhanh Trợ lý AI English Buddy
+            Divider(height: 1, color: context.borderCol),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isCollapsed ? 8 : 12,
+                vertical: 8,
+              ),
+              child: _buildAiAssistantButton(context),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAiAssistantButton(BuildContext context) {
+    if (isCollapsed) {
+      return Tooltip(
+        message: 'Trợ lý AI English Buddy (Hỏi đáp & Sửa lỗi)',
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AiChatScreen()),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.25),
+                ),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.smart_toy_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AiChatScreen()),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.smart_toy_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Trợ lý AI Buddy',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.bold,
+                        color: context.primaryAccent,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Hỏi đáp ngữ pháp & dịch',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: context.textSecondaryColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 11,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
         ),
       ),
     );

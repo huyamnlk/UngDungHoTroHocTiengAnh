@@ -8,6 +8,7 @@ import 'core/database/database_helper.dart';
 import 'core/services/settings_service.dart';
 import 'core/services/tts_service.dart';
 import 'presentation/screens/main_navigation_screen.dart';
+import 'providers/ai_chat_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dictionary_provider.dart';
 import 'providers/games_provider.dart';
@@ -72,6 +73,9 @@ class EnglishBuddyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider()..initAuthSession(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AiChatProvider()..init(),
         ),
       ],
       child: Consumer<ThemeProvider>(

@@ -11,6 +11,7 @@ import 'package:english_buddy/core/services/auth_service.dart';
 import 'package:english_buddy/data/models/word_model.dart';
 import 'package:english_buddy/presentation/screens/admin/admin_screen.dart';
 import 'package:english_buddy/presentation/screens/auth/auth_screen.dart';
+import 'package:english_buddy/presentation/screens/chat/ai_chat_screen.dart';
 import 'package:english_buddy/presentation/screens/home/home_screen.dart';
 import 'package:english_buddy/presentation/screens/main_navigation_screen.dart';
 import 'package:english_buddy/presentation/screens/profile/profile_screen.dart';
@@ -27,6 +28,7 @@ import 'package:english_buddy/presentation/widgets/custom_button.dart';
 import 'package:english_buddy/presentation/widgets/interactive_card.dart';
 import 'package:english_buddy/presentation/widgets/stat_card.dart';
 import 'package:english_buddy/presentation/widgets/word_card_tile.dart';
+import 'package:english_buddy/providers/ai_chat_provider.dart';
 import 'package:english_buddy/providers/auth_provider.dart';
 import 'package:english_buddy/providers/dictionary_provider.dart';
 import 'package:english_buddy/providers/games_provider.dart';
@@ -1101,6 +1103,74 @@ void main() {
     tester.view.physicalSize = const Size(360, 480);
     await tester.pump();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('AiChatScreen renders app bar, status indicator, prompt suggestions, and input field', (WidgetTester tester) async {
+    final chatProvider = AiChatProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider.value(value: chatProvider),
+        ],
+        child: const MaterialApp(
+          home: AiChatScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Trợ lý AI English Buddy'), findsOneWidget);
+    expect(find.text('Hỏi đáp ngữ pháp • Dịch câu • Góp ý bài viết'), findsOneWidget);
+    expect(find.text('Chào bạn! Mình có thể giúp gì cho việc học tiếng Anh?'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byIcon(Icons.send_rounded), findsOneWidget);
+
+    // Gõ nội dung vào ô nhập liệu
+    await tester.enterText(find.byType(TextField), 'Hello AI');
+    await tester.pump();
+
+    // Nút gửi sáng lên và có thể bấm
+    final sendBtn = find.byTooltip('Gửi câu hỏi');
+    expect(sendBtn, findsOneWidget);
+
+    // Bấm nút info trên AppBar
+    final infoBtn = find.byTooltip('Thông tin Trợ lý AI');
+    expect(infoBtn, findsOneWidget);
+    await tester.tap(infoBtn);
+    await tester.pumpAndSettle();
+    expect(find.text('Về Trợ lý AI English Buddy'), findsOneWidget);
+    expect(find.text('Đã hiểu'), findsOneWidget);
+    await tester.tap(find.text('Đã hiểu'));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('MainNavigationScreen displays AI Assistant FAB and entry points', (WidgetTester tester) async {
+    final studyProvider = StudyProvider();
+    final authProvider = AuthProvider();
+    final chatProvider = AiChatProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider.value(value: studyProvider),
+          ChangeNotifierProvider.value(value: authProvider),
+          ChangeNotifierProvider.value(value: chatProvider),
+        ],
+        child: const MaterialApp(
+          home: MainNavigationScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // FAB Hỏi AI hiện diện trên giao diện
+    expect(find.byKey(const Key('ai_chat_fab')), findsNothing); // heroTag only
+    expect(find.text('Hỏi AI'), findsOneWidget);
+    expect(find.byIcon(Icons.smart_toy_rounded), findsAtLeast(1));
   });
 }
 

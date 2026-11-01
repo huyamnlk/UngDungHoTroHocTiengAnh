@@ -11,6 +11,7 @@ import '../../../providers/study_provider.dart';
 import '../../widgets/interactive_card.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/top_profile_menu_button.dart';
+import '../chat/ai_chat_screen.dart';
 import '../quiz/quiz_setup_screen.dart';
 import '../review/word_detail_screen.dart';
 import '../topics/topic_detail_screen.dart';
@@ -882,6 +883,20 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        _buildActionTile(
+          context,
+          title: 'Trợ lý AI English Buddy',
+          subtitle: 'Giải đáp ngữ pháp, tra từ, góp ý bài viết',
+          icon: Icons.smart_toy_rounded,
+          color: const Color(0xFF6366F1),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AiChatScreen()),
+            );
+          },
         ),
       ],
     );

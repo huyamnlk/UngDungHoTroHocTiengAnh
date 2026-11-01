@@ -105,15 +105,284 @@ async function authenticateRequest(request, env) {
   };
 }
 
+const AI_SYSTEM_PROMPT = `Bạn là Trợ lý AI học tiếng Anh thông minh, thân thiện và giàu tính sư phạm của ứng dụng English Buddy.
+Nhiệm vụ trọng tâm của bạn là đồng hành và hỗ trợ người học tiếng Anh:
+1. Giải đáp các thắc mắc về từ vựng, ngữ pháp, phát âm (phiên âm IPA, trọng âm, nối âm) và cách dùng từ ngữ trong ngữ cảnh đời thực.
+2. Dịch thuật và phân tích chuyên sâu câu/đoạn văn giữa tiếng Anh và tiếng Việt; chỉ rõ các thành tố ngữ pháp, collocations và sắc thái biểu đạt.
+3. Góp ý và nâng cấp bài viết (Writing feedback): chỉ ra lỗi sai ngữ pháp/chính tả (nếu có), giải thích lý do, đưa ra phương án sửa chuẩn xác và gợi ý phiên bản tự nhiên, phong phú hơn (bilingual context).
+4. Ưu tiên giải thích bằng tiếng Việt mạch lạc, rõ ràng, có cấu trúc gạch đầu dòng khoa học để người học tiện theo dõi trên cả màn hình di động và máy tính.
+5. Tuyệt đối không tự ý tạo quiz trắc nghiệm hay bộ câu hỏi thi thay thế hệ sinh thái bài tập hiện có của ứng dụng. Tập trung giải đáp, hướng dẫn và truyền cảm hứng học tập một cách tận tâm.`;
+
+/**
+ * Handles AI English Buddy chat queries via configured server provider (Gemini, OpenAI, or Workers AI).
+ * API secrets and system prompts remain strictly on the server.
+ */
+async function handleAiChatRequest(request, env, headers, preParsedBody = null) {
+  const geminiKey = env.GEMINI_API_KEY || (env.AI_PROVIDER === 'gemini' ? env.AI_API_KEY : '');
+  const openaiKey = env.OPENAI_API_KEY || (env.AI_PROVIDER === 'openai' ? env.AI_API_KEY : '');
+  const hasWorkersAi = typeof env.AI?.run === 'function';
+
+  if (!geminiKey && !openaiKey && !env.AI_API_KEY && !hasWorkersAi) {
+    return Response.json(
+      {
+        ok: false,
+        error: 'Dịch vụ AI chưa được cấu hình trên máy chủ backend (thiếu GEMINI_API_KEY hoặc OPENAI_API_KEY). Vui lòng cấu hình secret trên Cloudflare Worker.',
+        configured: false,
+      },
+      { status: 503, headers },
+    );
+  }
+
+  // Request authentication if bearer token is provided or if server enforces auth
+  const authHeader = request.headers.get('Authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    const authResult = await authenticateRequest(request, env);
+    if (authResult.error) {
+      return Response.json({ ok: false, error: authResult.error }, { status: authResult.status, headers });
+    }
+  } else if (env.REQUIRE_AUTH_FOR_CHAT === 'true') {
+    return Response.json(
+      { ok: false, error: 'Yêu cầu đăng nhập tài khoản để sử dụng Trợ lý AI.' },
+      { status: 401, headers },
+    );
+  }
+
+  let body = preParsedBody;
+  if (!body) {
+    try {
+      body = await request.json();
+    } catch (_) {
+      return Response.json({ ok: false, error: 'Dữ liệu yêu cầu không hợp lệ (cần định dạng JSON).' }, { status: 400, headers });
+    }
+  }
+
+  const rawMessage = typeof body.message === 'string' ? body.message.trim() : '';
+  if (!rawMessage) {
+    return Response.json({ ok: false, error: 'Nội dung tin nhắn không được để trống.' }, { status: 400, headers });
+  }
+  if (rawMessage.length > 2000) {
+    return Response.json({ ok: false, error: 'Tin nhắn vượt quá giới hạn 2.000 ký tự cho phép.' }, { status: 400, headers });
+  }
+
+  // Validate and sanitize previous conversation turns
+  const rawHistory = Array.isArray(body.history) ? body.history : [];
+  const sanitizedHistory = rawHistory
+    .slice(-20)
+    .filter((item) => item && typeof item.content === 'string' && item.content.trim().length > 0)
+    .map((item) => ({
+      role: item.role === 'user' ? 'user' : 'model',
+      content: String(item.content).trim().slice(0, 2000),
+    }));
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+  try {
+    // 1. Google Gemini API Provider
+    if (geminiKey) {
+      const model = env.AI_MODEL || 'gemini-flash-latest';
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiKey)}`;
+
+      const contents = [];
+      for (const h of sanitizedHistory) {
+        contents.push({
+          role: h.role === 'user' ? 'user' : 'model',
+          parts: [{ text: h.content }],
+        });
+      }
+      contents.push({
+        role: 'user',
+        parts: [{ text: rawMessage }],
+      });
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: AI_SYSTEM_PROMPT }],
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        let errDetail = `Mã lỗi HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData?.error?.message) {
+            errDetail = errData.error.message;
+          }
+        } catch (_) {}
+
+        // Nếu gặp lỗi vùng vị trí hoặc lỗi Gemini, tự động dự phòng qua Cloudflare Workers AI
+        if (hasWorkersAi) {
+          try {
+            const fallbackMessages = [{ role: 'system', content: AI_SYSTEM_PROMPT }];
+            for (const h of sanitizedHistory) {
+              fallbackMessages.push({
+                role: h.role === 'user' ? 'user' : 'assistant',
+                content: h.content,
+              });
+            }
+            fallbackMessages.push({ role: 'user', content: rawMessage });
+            const aiResult = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
+              messages: fallbackMessages,
+              max_tokens: 1024,
+            });
+            if (aiResult?.response) {
+              return Response.json({ ok: true, reply: String(aiResult.response).trim() }, { status: 200, headers });
+            }
+            return Response.json({ ok: false, error: 'Workers AI returned empty response: ' + JSON.stringify(aiResult) }, { status: 500, headers });
+          } catch (e) {
+            return Response.json({ ok: false, error: 'Workers AI fallback failed: ' + e.message }, { status: 500, headers });
+          }
+        }
+
+        return Response.json(
+          { ok: false, error: `Dịch vụ Gemini API phản hồi lỗi: ${errDetail}` },
+          { status: res.status >= 500 ? 502 : res.status, headers },
+        );
+      }
+
+      const resData = await res.json();
+      const replyCandidate = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!replyCandidate) {
+        return Response.json(
+          { ok: false, error: 'Dịch vụ AI không trả về nội dung câu trả lời.' },
+          { status: 502, headers },
+        );
+      }
+
+      return Response.json({ ok: true, reply: replyCandidate.trim() }, { status: 200, headers });
+    }
+
+    // 2. OpenAI / Compatible API Provider
+    if (openaiKey || env.AI_API_KEY) {
+      const apiKey = openaiKey || env.AI_API_KEY;
+      const model = env.AI_MODEL || 'gpt-4o-mini';
+      const endpoint = env.AI_ENDPOINT || 'https://api.openai.com/v1/chat/completions';
+
+      const messages = [{ role: 'system', content: AI_SYSTEM_PROMPT }];
+      for (const h of sanitizedHistory) {
+        messages.push({
+          role: h.role === 'user' ? 'user' : 'assistant',
+          content: h.content,
+        });
+      }
+      messages.push({ role: 'user', content: rawMessage });
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          max_tokens: 1024,
+          temperature: 0.7,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        let errDetail = `Mã lỗi HTTP ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData?.error?.message) {
+            errDetail = errData.error.message;
+          }
+        } catch (_) {}
+        return Response.json(
+          { ok: false, error: `Dịch vụ OpenAI phản hồi lỗi: ${errDetail}` },
+          { status: res.status >= 500 ? 502 : res.status, headers },
+        );
+      }
+
+      const resData = await res.json();
+      const reply = resData?.choices?.[0]?.message?.content;
+      if (!reply) {
+        return Response.json(
+          { ok: false, error: 'Dịch vụ AI không trả về nội dung câu trả lời.' },
+          { status: 502, headers },
+        );
+      }
+
+      return Response.json({ ok: true, reply: reply.trim() }, { status: 200, headers });
+    }
+
+    // 3. Cloudflare Workers AI Binding
+    if (hasWorkersAi) {
+      const messages = [{ role: 'system', content: AI_SYSTEM_PROMPT }];
+      for (const h of sanitizedHistory) {
+        messages.push({
+          role: h.role === 'user' ? 'user' : 'assistant',
+          content: h.content,
+        });
+      }
+      messages.push({ role: 'user', content: rawMessage });
+
+      const modelName = env.AI_MODEL || '@cf/meta/llama-3.2-3b-instruct';
+      const aiResult = await env.AI.run(modelName, {
+        messages,
+        max_tokens: 1024,
+      });
+
+      clearTimeout(timeoutId);
+
+      const reply = aiResult?.response;
+      if (!reply) {
+        return Response.json(
+          { ok: false, error: 'Cloudflare Workers AI không trả về nội dung phản hồi.' },
+          { status: 502, headers },
+        );
+      }
+
+      return Response.json({ ok: true, reply: String(reply).trim() }, { status: 200, headers });
+    }
+
+    clearTimeout(timeoutId);
+    return Response.json({ ok: false, error: 'Không tìm thấy nhà cung cấp AI hợp lệ.' }, { status: 500, headers });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      return Response.json(
+        { ok: false, error: 'Yêu cầu tới AI đã bị quá thời gian chờ (timeout sau 25 giây). Vui lòng thử lại.' },
+        { status: 504, headers },
+      );
+    }
+    return Response.json(
+      { ok: false, error: `Lỗi kết nối mạng hoặc lỗi server: ${err.message || 'Không xác định'}` },
+      { status: 500, headers },
+    );
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
     const allowedOrigins = parseCsvEnv(env.ALLOWED_ORIGINS);
-    if (!origin || !allowedOrigins.includes(origin)) {
+    const originAllowed =
+      allowedOrigins.length === 0 ||
+      allowedOrigins.includes('*') ||
+      (origin ? allowedOrigins.includes(origin) : true);
+
+    if (!originAllowed) {
       return Response.json({ verified: false, error: 'Origin is not allowed.' }, { status: 403 });
     }
 
-    const headers = corsHeaders(origin);
+    const headers = corsHeaders(origin || '*');
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers });
     }
@@ -288,17 +557,47 @@ export default {
     }
 
     // -------------------------------------------------------------------------
-    // 3. TURNSTILE ANTI-BOT VERIFICATION (POST / or POST /auth/verify-captcha)
+    // 3. AI CHAT ENDPOINTS (/chat, /api/chat)
+    // -------------------------------------------------------------------------
+    if (path === '/chat' || path === '/api/chat') {
+      if (request.method === 'GET') {
+        const hasKey = !!(env.GEMINI_API_KEY || env.OPENAI_API_KEY || env.AI_API_KEY || env.AI);
+        return Response.json({
+          ok: true,
+          service: 'English Buddy AI Chat API',
+          configured: hasKey,
+          message: hasKey
+            ? 'Dịch vụ AI đã sẵn sàng tiếp nhận câu hỏi.'
+            : 'Dịch vụ AI chưa được cấu hình API key trên máy chủ backend (cần GEMINI_API_KEY hoặc OPENAI_API_KEY).',
+        }, { status: 200, headers });
+      }
+
+      if (request.method === 'POST') {
+        return handleAiChatRequest(request, env, headers);
+      }
+
+      return Response.json({ ok: false, message: 'Method not allowed.' }, { status: 405, headers });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. TURNSTILE ANTI-BOT VERIFICATION (POST / or POST /auth/verify-captcha)
     // -------------------------------------------------------------------------
     if (request.method !== 'POST') {
       return Response.json({ verified: false, message: 'Method not allowed.' }, { status: 405, headers });
     }
-    if (!env.TURNSTILE_SECRET) {
-      return Response.json({ verified: false, message: 'Turnstile is not configured on the server.' }, { status: 503, headers });
-    }
 
     try {
       const body = await request.json();
+
+      // Nếu payload gửi lên chứa 'message' (tin nhắn AI Chat gửi vào root URL)
+      if (typeof body?.message === 'string') {
+        return handleAiChatRequest(request, env, headers, body);
+      }
+
+      if (!env.TURNSTILE_SECRET) {
+        return Response.json({ verified: false, message: 'Turnstile is not configured on the server.' }, { status: 503, headers });
+      }
+
       const token = typeof body.token === 'string' ? body.token.trim() : '';
       const action = typeof body.action === 'string' ? body.action : '';
       if (!token || !['register', 'login'].includes(action)) {
