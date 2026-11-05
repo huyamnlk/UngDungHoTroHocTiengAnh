@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../providers/stats_provider.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -31,7 +31,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Thống kê & Tiến độ'),
+        title: Text(context.l10n.statsTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -77,13 +77,13 @@ class _StatsScreenState extends State<StatsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.insights_rounded, color: Colors.white, size: 24),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.insights_rounded, color: Colors.white, size: 24),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'Tiến độ học tập tổng thể',
-                                    style: TextStyle(
+                                    context.l10n.statsOverallProgress,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -107,7 +107,10 @@ class _StatsScreenState extends State<StatsScreen> {
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Text(
-                                      'Đã thuộc ${statsProvider.masteredWords}/${statsProvider.totalWords} từ vựng',
+                                      context.l10n.statsMasteredRatio(
+                                        statsProvider.masteredWords,
+                                        statsProvider.totalWords,
+                                      ),
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,
@@ -138,7 +141,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       children: [
                         Expanded(
                           child: StatCard(
-                            title: 'Tổng từ vựng',
+                            title: context.l10n.statsTotalWords,
                             value: '${statsProvider.totalWords}',
                             icon: Icons.menu_book_rounded,
                             color: AppColors.primary,
@@ -147,7 +150,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: StatCard(
-                            title: 'Đã thuộc lòng',
+                            title: context.l10n.statsMasteredWords,
                             value: '${statsProvider.masteredWords}',
                             icon: Icons.check_circle_rounded,
                             color: AppColors.success,
@@ -160,7 +163,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       children: [
                         Expanded(
                           child: StatCard(
-                            title: 'Cần ôn tập',
+                            title: context.l10n.statsNeedReviewWords,
                             value: '${statsProvider.learningWords}',
                             icon: Icons.replay_rounded,
                             color: AppColors.warning,
@@ -169,7 +172,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: StatCard(
-                            title: 'Từ yêu thích',
+                            title: context.l10n.statsFavoriteWords,
                             value: '${statsProvider.favoriteWords}',
                             icon: Icons.favorite_rounded,
                             color: AppColors.danger,
@@ -191,7 +194,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tiến độ theo từng chủ đề',
+                            context.l10n.statsTopicProgress,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -218,7 +221,11 @@ class _StatsScreenState extends State<StatsScreen> {
                                         ),
                                       ),
                                       Text(
-                                        '${t.masteredWords}/${t.totalWords} từ (${(t.progressPercentage * 100).toInt()}%)',
+                                        context.l10n.statsTopicWordsProgress(
+                                          t.masteredWords,
+                                          t.totalWords,
+                                          (t.progressPercentage * 100).toInt(),
+                                        ),
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
@@ -261,7 +268,7 @@ class _StatsScreenState extends State<StatsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Lịch sử thi trắc nghiệm',
+                                context.l10n.statsQuizHistory,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -270,7 +277,9 @@ class _StatsScreenState extends State<StatsScreen> {
                               ),
                               if (statsProvider.quizHistories.isNotEmpty)
                                 Text(
-                                  'ĐTB: ${statsProvider.averageQuizScore.toStringAsFixed(0)}%',
+                                  context.l10n.statsAverageScore(
+                                    statsProvider.averageQuizScore.toStringAsFixed(0),
+                                  ),
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
@@ -285,7 +294,7 @@ class _StatsScreenState extends State<StatsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 16.0),
                               child: Center(
                                 child: Text(
-                                  'Chưa có bài thi nào. Hãy tham gia Quiz để kiểm tra phản xạ nhé!',
+                                  context.l10n.statsEmptyQuiz,
                                   style: TextStyle(fontSize: 13, color: context.textMutedColor),
                                   textAlign: TextAlign.center,
                                 ),
@@ -331,7 +340,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            UiHelpers.formatDateTime(h.completedAt),
+                                            UiHelpers.formatDateTime(h.completedAt, context: context),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: context.textSecondaryColor,
@@ -352,7 +361,10 @@ class _StatsScreenState extends State<StatsScreen> {
                                           ),
                                         ),
                                         Text(
-                                          '${h.correctAnswers}/${h.totalQuestions} câu',
+                                          context.l10n.statsQuizQuestionsCount(
+                                            h.correctAnswers,
+                                            h.totalQuestions,
+                                          ),
                                           style: TextStyle(
                                             fontSize: 11,
                                             color: context.textMutedColor,
@@ -371,7 +383,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
                     // Nút Reset Database
                     CustomButton(
-                      text: 'Khôi phục dữ liệu ban đầu',
+                      text: context.l10n.statsResetButton,
                       icon: Icons.restore_rounded,
                       backgroundColor: context.isDark ? AppColors.darkCard : Colors.grey.shade300,
                       textColor: context.isDark ? AppColors.darkTextPrimary : Colors.grey.shade800,
@@ -381,14 +393,12 @@ class _StatsScreenState extends State<StatsScreen> {
                           context: context,
                           builder: (ctx) => AlertDialog(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            title: const Text('Khôi phục dữ liệu?'),
-                            content: const Text(
-                              'Toàn bộ trạng thái học, lịch sử thi và từ vựng tự thêm sẽ được đặt lại về dữ liệu ban đầu của ứng dụng.',
-                            ),
+                            title: Text(context.l10n.statsResetTitle),
+                            content: Text(context.l10n.statsResetMessage),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Hủy'),
+                                child: Text(context.l10n.actionCancel),
                               ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
@@ -399,11 +409,11 @@ class _StatsScreenState extends State<StatsScreen> {
                                   if (!mounted) return;
                                   UiHelpers.showSnackBar(
                                     parentContext,
-                                    message: 'Đã khôi phục dữ liệu ban đầu thành công!',
+                                    message: parentContext.l10n.statsResetSuccess,
                                     isSuccess: true,
                                   );
                                 },
-                                child: const Text('Xác nhận đặt lại'),
+                                child: Text(context.l10n.statsResetConfirm),
                               ),
                             ],
                           ),

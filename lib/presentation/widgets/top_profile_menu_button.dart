@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../providers/auth_provider.dart';
 import '../screens/admin/admin_screen.dart';
 import '../screens/auth/auth_screen.dart';
@@ -10,6 +11,7 @@ import 'user_avatar_widget.dart';
 
 enum _TopProfileMenuAction {
   editProfile,
+  retryProfile,
   adminPanel,
   signOut,
 }
@@ -67,7 +69,7 @@ class TopProfileMenuButton extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Xác nhận đăng xuất',
+                  dialogContext.l10n.confirmSignOutTitle,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -78,9 +80,7 @@ class TopProfileMenuButton extends StatelessWidget {
             ],
           ),
           content: Text(
-            userEmail != null && userEmail.isNotEmpty
-                ? 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản "$userEmail"?\n\nPhiên đăng nhập và token hiện tại sẽ được xóa. Tiến độ học tập cục bộ trên thiết bị vẫn được bảo toàn.'
-                : 'Bạn có chắc chắn muốn đăng xuất tài khoản và quay về màn hình đăng nhập không?',
+            dialogContext.l10n.confirmSignOutMessage(userEmail ?? ''),
             style: TextStyle(
               fontSize: 13.5,
               height: 1.45,
@@ -91,7 +91,7 @@ class TopProfileMenuButton extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
               child: Text(
-                'Hủy',
+                dialogContext.l10n.actionCancel,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: dialogContext.textSecondaryColor,
@@ -108,9 +108,9 @@ class TopProfileMenuButton extends StatelessWidget {
               ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
               icon: const Icon(Icons.logout_rounded, size: 17),
-              label: const Text(
-                'Đăng xuất',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                dialogContext.l10n.signOut,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -143,6 +143,7 @@ class TopProfileMenuButton extends StatelessWidget {
     // 1. Trạng thái Đang kiểm tra / Xác minh phiên: Hiển thị chỉ báo tải mượt mà
     if (authProvider != null && authProvider.isInitializingAuth) {
       return Container(
+        key: const Key('top_profile_initializing_indicator'),
         height: 38,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
@@ -167,74 +168,95 @@ class TopProfileMenuButton extends StatelessWidget {
 
     // 2. Trạng thái CHƯA ĐĂNG NHẬP (Khách): Không hiển thị menu tài khoản, "Chỉnh sửa hồ sơ" hay "Đăng xuất"
     if (!isAuthenticated || user == null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FilledButton.tonalIcon(
-            key: const Key('top_login_button'),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AuthScreen()),
-              );
-            },
-            style: FilledButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                horizontal: compact ? 10 : 14,
-                vertical: 8,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: const Icon(Icons.login_rounded, size: 16),
-            label: const Text(
-              'Đăng nhập',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-          ),
-          if (!compact) ...[
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              key: const Key('top_register_button'),
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 38),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton.tonalIcon(
+              key: const Key('top_login_button'),
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AuthScreen(initialRegisterMode: true),
-                  ),
+                  MaterialPageRoute(builder: (_) => const AuthScreen()),
                 );
               },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 38),
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? 10 : 14,
                   vertical: 8,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                side: BorderSide(color: context.borderCol),
               ),
-              icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
-              label: const Text(
-                'Đăng ký',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              icon: const Icon(Icons.login_rounded, size: 16),
+              label: Text(
+                context.l10n.signIn,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
+            if (!compact) ...[
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                key: const Key('top_register_button'),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const AuthScreen(initialRegisterMode: true),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 38),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(color: context.borderCol),
+                ),
+                icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
+                label: Text(
+                  context.l10n.signUp,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       );
     }
 
     // 3. Trạng thái ĐÃ ĐĂNG NHẬP: Hiển thị ảnh đại diện, tên và menu đầy đủ
     final profile = authProvider?.currentProfile;
     final isAdmin = authProvider?.isAdmin ?? false;
-    final displayName = user.displayName;
+    final hasProfileLoadError = authProvider?.hasProfileLoadError ?? false;
+    final displayName = (profile?.displayName.trim().isNotEmpty == true)
+        ? profile!.displayName.trim()
+        : (user.displayName.trim().isNotEmpty
+            ? user.displayName.trim()
+            : (user.email.contains('@')
+                ? user.email.split('@').first
+                : 'Learner'));
     final email = user.email;
-    final avatarData = profile?.avatarData ?? 'preset:scholar_blue';
-    final cefrLevel = profile?.cefrLevel ?? 'A1';
+    final avatarData = (profile?.avatarData.trim().isNotEmpty == true)
+        ? profile!.avatarData.trim()
+        : (isAdmin ? 'preset:admin_shield' : 'preset:scholar_blue');
+    final cefrLevel = (profile?.cefrLevel.trim().isNotEmpty == true)
+        ? profile!.cefrLevel.trim()
+        : 'A1';
 
     return PopupMenuButton<_TopProfileMenuAction>(
       key: const Key('top_profile_avatar_menu_button'),
-      tooltip: 'Tài khoản ($displayName)',
+      tooltip: context.l10n.accountMenuHeader(displayName),
       offset: const Offset(0, 48),
       color: context.cardBg,
       surfaceTintColor: Colors.transparent,
@@ -247,6 +269,9 @@ class TopProfileMenuButton extends StatelessWidget {
         switch (action) {
           case _TopProfileMenuAction.editProfile:
             openEditProfile(context);
+            break;
+          case _TopProfileMenuAction.retryProfile:
+            authProvider?.retryLoadProfile();
             break;
           case _TopProfileMenuAction.adminPanel:
             if (isAdmin) {
@@ -330,6 +355,33 @@ class TopProfileMenuButton extends StatelessWidget {
         ),
         const PopupMenuDivider(height: 8),
 
+        if (hasProfileLoadError)
+          PopupMenuItem<_TopProfileMenuAction>(
+            key: const Key('top_profile_retry_menu_item'),
+            value: _TopProfileMenuAction.retryProfile,
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.refresh_rounded,
+                  size: 20,
+                  color: AppColors.warning,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    menuContext.l10n.actionRetry,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: menuContext.textPrimaryColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
         // Mục Chỉnh sửa hồ sơ
         PopupMenuItem<_TopProfileMenuAction>(
           value: _TopProfileMenuAction.editProfile,
@@ -342,7 +394,7 @@ class TopProfileMenuButton extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Chỉnh sửa hồ sơ',
+                menuContext.l10n.editProfile,
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
@@ -366,7 +418,7 @@ class TopProfileMenuButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Khu vực Quản trị',
+                  menuContext.l10n.adminArea,
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
@@ -380,19 +432,19 @@ class TopProfileMenuButton extends StatelessWidget {
         const PopupMenuDivider(height: 8),
 
         // Mục Đăng xuất (Chỉ khi đã đăng nhập)
-        const PopupMenuItem<_TopProfileMenuAction>(
+        PopupMenuItem<_TopProfileMenuAction>(
           value: _TopProfileMenuAction.signOut,
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.logout_rounded,
                 size: 20,
                 color: AppColors.danger,
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
-                'Đăng xuất',
-                style: TextStyle(
+                menuContext.l10n.signOut,
+                style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
                   color: AppColors.danger,
@@ -403,9 +455,10 @@ class TopProfileMenuButton extends StatelessWidget {
         ),
       ],
       child: Container(
+        constraints: const BoxConstraints(minHeight: 38),
         padding: EdgeInsets.symmetric(
           horizontal: compact ? 6 : 8,
-          vertical: 5,
+          vertical: 4,
         ),
         decoration: BoxDecoration(
           color: context.cardBg,
@@ -418,7 +471,7 @@ class TopProfileMenuButton extends StatelessWidget {
             UserAvatarWidget(
               avatarData: avatarData,
               displayName: displayName,
-              size: 30,
+              size: 28,
               showAdminBadge: isAdmin,
             ),
             if (!compact) ...[

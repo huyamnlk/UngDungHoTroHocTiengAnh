@@ -4,9 +4,11 @@ import '../core/database/database_helper.dart';
 import '../core/database/exam_seed_data.dart';
 import '../core/database/shadowing_seed_data.dart';
 import '../core/database/skills_seed_data.dart';
+import '../core/services/auth_service.dart';
 import '../data/models/exam_model.dart';
 import '../data/models/shadowing_model.dart';
 import '../data/models/skill_exercise_model.dart';
+import 'study_provider.dart';
 
 class SkillsProvider extends ChangeNotifier {
   final DatabaseHelper _dbHelper;
@@ -158,6 +160,7 @@ class SkillsProvider extends ChangeNotifier {
     required double score,
     String userSubmission = '',
     String detailsJson = '',
+    String? deduplicationScope,
   }) async {
     try {
       await _dbHelper.saveSkillScore(
@@ -168,13 +171,26 @@ class SkillsProvider extends ChangeNotifier {
         userSubmission: userSubmission,
         detailsJson: detailsJson,
       );
+      await _dbHelper.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType:
+            skillType.trim().toLowerCase() == 'shadowing' ? 'shadowing' : 'skill',
+        itemId: '${skillType.trim().toLowerCase()}_$exerciseId',
+        wordCount: 0,
+        activityCount: 1,
+        deduplicationScope: deduplicationScope,
+      );
+      StudyProvider.notifyActivityRecorded();
       await loadSkillScores();
     } catch (e) {
       debugPrint('Error saving skill score: $e');
     }
   }
 
-  Future<void> recordExamAttempt(ExamAttemptModel attempt) async {
+  Future<void> recordExamAttempt(
+    ExamAttemptModel attempt, {
+    String? deduplicationScope,
+  }) async {
     try {
       await _dbHelper.saveExamAttempt(
         examId: attempt.examId,
@@ -187,6 +203,15 @@ class SkillsProvider extends ChangeNotifier {
         durationSeconds: attempt.durationSeconds,
         answersJson: jsonEncode(attempt.userAnswers),
       );
+      await _dbHelper.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType: 'exam',
+        itemId: 'exam_${attempt.examId}',
+        wordCount: 0,
+        activityCount: 1,
+        deduplicationScope: deduplicationScope ?? attempt.completedAt,
+      );
+      StudyProvider.notifyActivityRecorded();
       await loadSkillScores();
     } catch (e) {
       debugPrint('Error saving exam attempt: $e');

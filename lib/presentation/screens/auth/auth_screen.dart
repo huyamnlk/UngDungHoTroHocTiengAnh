@@ -17,6 +17,7 @@ import '../../widgets/user_avatar_widget.dart';
 import '../admin/admin_screen.dart';
 import '../main_navigation_screen.dart';
 import '../profile/profile_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class AuthScreen extends StatefulWidget {
   final bool initialRegisterMode;
@@ -123,6 +124,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
         await _googleSdkInitFuture;
         _isGoogleSdkInitialized = true;
+        AuthService.markGooglePluginInitialized(true);
       }
       _googleAuthSubscription?.cancel();
       _googleAuthSubscription = google.authenticationEvents.listen(
@@ -290,29 +292,50 @@ class _AuthScreenState extends State<AuthScreen> {
     FocusScope.of(context).unfocus();
     if (_isRegisterMode) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        authProvider.reportExternalError('Mật khẩu xác nhận không khớp!');
+        authProvider.reportExternalError(context.l10n.authPasswordMismatch);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Mật khẩu xác nhận không khớp!'),
+          SnackBar(
+            content: Text(context.l10n.authPasswordMismatch),
             backgroundColor: AppColors.danger,
           ),
         );
         return;
       }
       setState(() => _isSubmitting = true);
+      final registeredUsername = _usernameController.text.trim();
+      final registeredEmail = _emailController.text.trim();
       try {
         final ok = await authProvider.register(
-          username: _usernameController.text,
-          email: _emailController.text,
+          username: registeredUsername,
+          email: registeredEmail,
           password: _passwordController.text,
         );
         if (!mounted) return;
-        if (ok &&
-            authProvider.isAuthenticated &&
-            authProvider.currentUser != null) {
+        if (ok) {
+          // Xóa hoàn toàn mật khẩu và xác nhận mật khẩu khỏi form; không lưu mật khẩu
           _passwordController.clear();
           _confirmPasswordController.clear();
-          _navigateToHomeOnSuccess();
+
+          // Điền sẵn username hoặc email vừa đăng ký vào ô đăng nhập
+          _identifierController.text = registeredUsername.isNotEmpty
+              ? registeredUsername
+              : registeredEmail;
+
+          // Chuyển sang tab Đăng nhập
+          setState(() {
+            _isRegisterMode = false;
+            _captchaWidgetGeneration++;
+          });
+
+          // Hiển thị thông báo: "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục."
+          final successMsg = context.l10n.authRegisterSuccessPleaseLogin;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(successMsg),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 4),
+            ),
+          );
           return;
         }
       } finally {
@@ -356,7 +379,7 @@ class _AuthScreenState extends State<AuthScreen> {
         title: Text(
           authProvider.isAuthenticated
               ? 'Tài khoản & Đồng bộ dữ liệu'
-              : (_isRegisterMode ? 'Tạo tài khoản mới' : 'Đăng nhập tài khoản'),
+              : (_isRegisterMode ? context.l10n.authSignUpTitle : context.l10n.authSignInTitle),
         ),
         backgroundColor: context.surfaceBg,
         elevation: 0,
@@ -370,12 +393,18 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Logo ứng dụng English Buddy (căn giữa hoàn hảo phía trên biểu mẫu đăng nhập / đăng ký)
+                // Logo ứng dụng English Buddy (bản đầy đủ, căn giữa phía trên biểu mẫu đăng nhập / đăng ký)
                 Center(
                   child: Container(
                     margin: const EdgeInsets.only(top: 4, bottom: 22),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(26),
+                      color: const Color(0xFFF8FEFE),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.22),
+                        width: 1.5,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.22),
@@ -384,20 +413,21 @@ class _AuthScreenState extends State<AuthScreen> {
                           offset: const Offset(0, 8),
                         ),
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.35),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(22),
                       child: Image.asset(
                         'assets/images/app_logo.png',
                         key: const Key('auth_screen_app_logo'),
-                        width: 112,
-                        height: 112,
-                        fit: BoxFit.cover,
+                        width: 124,
+                        height: 124,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
                         errorBuilder: (_, _, _) => const Icon(
                           Icons.school_rounded,
                           size: 64,
@@ -561,7 +591,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   );
                 },
                 icon: const Icon(Icons.edit_note_rounded, size: 18),
-                label: const Text('Chỉnh sửa Profile'),
+                label: Text(context.l10n.profileEdit),
               ),
               if (isAdmin)
                 FilledButton.tonalIcon(
@@ -575,13 +605,13 @@ class _AuthScreenState extends State<AuthScreen> {
                     Icons.admin_panel_settings_rounded,
                     size: 18,
                   ),
-                  label: const Text('Khu vực Quản trị (Admin)'),
+                  label: Text(context.l10n.adminTitle),
                 ),
             ],
           ),
           const SizedBox(height: 14),
           CustomButton(
-            text: 'Đăng xuất tài khoản',
+            text: context.l10n.authLogout,
             icon: Icons.logout_rounded,
             isOutlined: true,
             onPressed: () => authProvider.signOut(),
@@ -609,7 +639,7 @@ class _AuthScreenState extends State<AuthScreen> {
             children: [
               Expanded(
                 child: ChoiceChip(
-                  label: const Center(child: Text('Đăng nhập')),
+                  label: Center(child: Text(context.l10n.signIn)),
                   selected: !_isRegisterMode,
                   onSelected: isBusy
                       ? null
@@ -622,7 +652,7 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: ChoiceChip(
-                  label: const Center(child: Text('Tạo tài khoản mới')),
+                  label: Center(child: Text(context.l10n.signUp)),
                   selected: _isRegisterMode,
                   onSelected: isBusy
                       ? null
@@ -697,10 +727,10 @@ class _AuthScreenState extends State<AuthScreen> {
               enabled: !isBusy,
               keyboardType: TextInputType.emailAddress,
               style: TextStyle(color: context.textPrimaryColor),
-              decoration: const InputDecoration(
-                labelText: 'Tên tài khoản hoặc Email',
-                hintText: 'Nhập email (vd: learner@gmail.com) hoặc username',
-                prefixIcon: Icon(Icons.person_outline_rounded),
+              decoration: InputDecoration(
+                labelText: context.l10n.authAccountOrEmail,
+                hintText: context.l10n.authAccountOrEmail,
+                prefixIcon: const Icon(Icons.person_outline_rounded),
               ),
             ),
             const SizedBox(height: 14),
@@ -709,10 +739,10 @@ class _AuthScreenState extends State<AuthScreen> {
               controller: _usernameController,
               enabled: !isBusy,
               style: TextStyle(color: context.textPrimaryColor),
-              decoration: const InputDecoration(
-                labelText: 'Tên tài khoản / Tên hiển thị',
-                hintText: 'Nhập tên tài khoản của bạn',
-                prefixIcon: Icon(Icons.badge_outlined),
+              decoration: InputDecoration(
+                labelText: context.l10n.authDisplayName,
+                hintText: context.l10n.authDisplayName,
+                prefixIcon: const Icon(Icons.badge_outlined),
               ),
             ),
             const SizedBox(height: 14),
@@ -721,10 +751,10 @@ class _AuthScreenState extends State<AuthScreen> {
               enabled: !isBusy,
               keyboardType: TextInputType.emailAddress,
               style: TextStyle(color: context.textPrimaryColor),
-              decoration: const InputDecoration(
-                labelText: 'Địa chỉ Email',
-                hintText: 'Nhập địa chỉ email hợp lệ',
-                prefixIcon: Icon(Icons.alternate_email_rounded),
+              decoration: InputDecoration(
+                labelText: context.l10n.authEmail,
+                hintText: context.l10n.authInvalidEmail,
+                prefixIcon: const Icon(Icons.alternate_email_rounded),
               ),
             ),
             const SizedBox(height: 14),
@@ -736,10 +766,10 @@ class _AuthScreenState extends State<AuthScreen> {
             obscureText: _obscurePassword,
             style: TextStyle(color: context.textPrimaryColor),
             decoration: InputDecoration(
-              labelText: 'Mật khẩu',
+              labelText: context.l10n.authPassword,
               hintText: _isRegisterMode
-                  ? 'Tối thiểu 8 ký tự (không lưu văn bản thuần cục bộ)'
-                  : 'Nhập mật khẩu của bạn',
+                  ? context.l10n.authMinPassword
+                  : context.l10n.authPassword,
               prefixIcon: const Icon(Icons.lock_outline_rounded),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -763,8 +793,8 @@ class _AuthScreenState extends State<AuthScreen> {
               obscureText: _obscureConfirmPassword,
               style: TextStyle(color: context.textPrimaryColor),
               decoration: InputDecoration(
-                labelText: 'Xác nhận mật khẩu',
-                hintText: 'Nhập lại mật khẩu',
+                labelText: context.l10n.authConfirmPassword,
+                hintText: context.l10n.authConfirmPassword,
                 prefixIcon: const Icon(Icons.lock_reset_rounded),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -790,7 +820,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
           // Nút Đăng nhập / Tạo tài khoản
           CustomButton(
-            text: _isRegisterMode ? 'Tạo tài khoản' : 'Đăng nhập',
+            text: _isRegisterMode ? context.l10n.authRegister : context.l10n.authLogin,
             icon: _isRegisterMode
                 ? Icons.person_add_alt_1_rounded
                 : Icons.login_rounded,
@@ -805,7 +835,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
-                  'HOẶC',
+                  context.l10n.authOr,
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.bold,
@@ -845,8 +875,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
               label: Text(
                 isBusy
-                    ? 'Đang xử lý xác thực...'
-                    : 'Tiếp tục với Google / Gmail',
+                    ? context.l10n.authProcessing
+                    : context.l10n.authGoogleSignIn,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               style: OutlinedButton.styleFrom(

@@ -5,6 +5,7 @@ import '../../../data/models/shadowing_model.dart';
 import '../../../providers/skills_provider.dart';
 import '../../widgets/interactive_card.dart';
 import 'shadowing_practice_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class ShadowingHubScreen extends StatefulWidget {
   const ShadowingHubScreen({super.key});
@@ -36,7 +37,7 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Luyện nói đuổi theo (Shadowing Studio)'),
+        title: Text(context.l10n.shadowingHubTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -75,22 +76,22 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Phương pháp Shadowing 4 Bước Chuẩn Ngữ Điệu',
-                              style: TextStyle(
+                              context.l10n.shadowingMethodTitle,
+                              style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              '1. Nghe mẫu (1.0x) → 2. Nghe chậm & phân tích nối âm (0.75x) → 3. Nói đuổi theo đồng bộ → 4. Tự đánh giá trung thực.',
-                              style: TextStyle(
+                              context.l10n.shadowingMethodDesc,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFFE0F2FE),
                                 height: 1.35,
@@ -121,7 +122,7 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
                     ..._levels.map((lvl) {
                       final isSelected = skillsProvider.selectedLevel == lvl;
                       return ChoiceChip(
-                        label: Text(lvl == 'All' ? 'Tất cả' : lvl),
+                        label: Text(lvl == 'All' ? context.l10n.topicFilterAll : lvl),
                         selected: isSelected,
                         onSelected: (_) =>
                             skillsProvider.setSelectedLevel(lvl),
@@ -149,7 +150,7 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
                       final isSelected =
                           skillsProvider.selectedShadowingTopic == t;
                       return ChoiceChip(
-                        label: Text(t == 'All' ? 'Tất cả chủ đề' : t),
+                        label: Text(t == 'All' ? context.l10n.allTopics : t),
                         selected: isSelected,
                         onSelected: (_) =>
                             skillsProvider.setSelectedShadowingTopic(t),
@@ -160,7 +161,7 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
                 const SizedBox(height: 20),
 
                 Text(
-                  'Danh sách bài học Shadowing (${lessons.length} bài)',
+                  context.l10n.shadowingLessonsList(lessons.length),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -353,7 +354,7 @@ class _ShadowingHubScreenState extends State<ShadowingHubScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            'Đã hoàn thành • ${bestScore.round()}%',
+                            context.l10n.skillsCompletedBadge(bestScore.round()),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,

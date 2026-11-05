@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/study_provider.dart';
 
@@ -28,11 +28,12 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final studyProvider = Provider.of<StudyProvider>(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Chi tiết từ vựng'),
+        title: Text(l10n.wordDetailTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -51,7 +52,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
               });
               UiHelpers.showSnackBar(
                 currentContext,
-                message: _currentWord.isFavorite ? 'Đã thêm vào mục Yêu thích' : 'Đã bỏ yêu thích',
+                message: _currentWord.isFavorite ? l10n.wordDetailAddedFav : l10n.wordDetailRemovedFav,
               );
             },
           ),
@@ -150,14 +151,14 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         color: context.primaryContainerCol,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.volume_up_rounded, color: AppColors.primary, size: 22),
-                          SizedBox(width: 8),
+                          const Icon(Icons.volume_up_rounded, color: AppColors.primary, size: 22),
+                          const SizedBox(width: 8),
                           Text(
-                            'Phát âm chuẩn',
-                            style: TextStyle(
+                            l10n.homeListenPronunciation,
+                            style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
@@ -173,7 +174,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
 
                   // Nghĩa tiếng Việt
                   Text(
-                    'ĐỊNH NGHĨA TIẾNG VIỆT',
+                    l10n.wordDetailVietnameseDef,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -237,7 +238,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         const Icon(Icons.format_quote_rounded, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Ví dụ ngữ cảnh thực tế',
+                          l10n.wordDetailRealWorldExample,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -299,7 +300,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                           const Icon(Icons.compare_arrows_rounded, color: AppColors.success, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            'Từ đồng nghĩa: ${_currentWord.synonyms}',
+                            l10n.wordDetailSynonyms(_currentWord.synonyms),
                             style: TextStyle(fontSize: 13, color: context.textPrimaryColor),
                           ),
                         ],
@@ -312,7 +313,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                           const Icon(Icons.not_interested_rounded, color: AppColors.danger, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            'Từ trái nghĩa: ${_currentWord.antonyms}',
+                            l10n.wordDetailAntonyms(_currentWord.antonyms),
                             style: TextStyle(fontSize: 13, color: context.textPrimaryColor),
                           ),
                         ],
@@ -345,7 +346,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Mẹo ghi nhớ & phát âm',
+                            l10n.wordDetailTips,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -382,7 +383,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tiến trình Spaced Repetition (SRS)',
+                    l10n.wordDetailSrsTitle,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -393,12 +394,12 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                   Row(
                     children: [
                       Text(
-                        'Số lần ôn: ${_currentWord.reviewCount}',
+                        l10n.wordDetailReviewCount(_currentWord.reviewCount),
                         style: TextStyle(fontSize: 13, color: context.textSecondaryColor),
                       ),
                       const Spacer(),
                       Text(
-                        'Khoảng cách: ${_currentWord.intervalDays} ngày',
+                        l10n.wordDetailInterval(_currentWord.intervalDays),
                         style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -410,7 +411,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                     children: [
                       Expanded(
                         child: _buildStatusChoice(
-                          label: 'Chưa học',
+                          label: l10n.topicFilterNew,
                           isSelected: _currentWord.status == AppConstants.statusNew,
                           color: AppColors.statusNew,
                           onTap: () async {
@@ -424,7 +425,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildStatusChoice(
-                          label: 'Cần ôn',
+                          label: l10n.topicFilterReview,
                           isSelected: _currentWord.status == AppConstants.statusLearning,
                           color: AppColors.statusReview,
                           onTap: () async {
@@ -438,7 +439,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildStatusChoice(
-                          label: 'Đã thuộc',
+                          label: l10n.topicFilterMastered,
                           isSelected: _currentWord.status == AppConstants.statusMastered,
                           color: AppColors.statusMastered,
                           onTap: () async {

@@ -1,0 +1,1 @@
+﻿Trong chế độ luyện tập, người học có thể mở gợi ý và lời giải ngay tại câu đang làm. Nhóm xem đáp án mẫu, chuyển sang câu tiếp theo và đổi phần nghe. Các nút Câu trước, Câu tiếp theo cùng bảng số giúp di chuyển thuận tiện mà không phải làm tuần tự từ đầu.

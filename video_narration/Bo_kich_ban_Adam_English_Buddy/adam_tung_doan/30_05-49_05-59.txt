@@ -1,0 +1,1 @@
+﻿Nhóm nhập một đoạn văn để minh họa thao tác. Bộ đếm từ cập nhật ngay; hệ thống báo đã đủ độ dài, nhưng chưa có các từ khóa mục tiêu. Khi làm bài thực tế, nội dung cần bám đúng chủ đề email.

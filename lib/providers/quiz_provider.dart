@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import '../core/constants/app_constants.dart';
+import '../core/database/database_helper.dart';
+import '../core/services/auth_service.dart';
 import '../data/models/quiz_history_model.dart';
 import '../data/models/quiz_question_model.dart';
 import '../data/repositories/quiz_repository.dart';
 import '../data/repositories/vocabulary_repository.dart';
+import 'study_provider.dart';
 
 class UserQuizAnswer {
   final QuizQuestionModel question;
@@ -40,6 +43,7 @@ class QuizProvider extends ChangeNotifier {
 
   int? _activeTopicId;
   String _activeTopicName = 'Tổng hợp';
+  String _sessionAttemptId = '';
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -81,6 +85,7 @@ class QuizProvider extends ChangeNotifier {
     _isCompleted = false;
     _activeTopicId = topicId;
     _activeTopicName = topicName;
+    _sessionAttemptId = 'quiz_${DateTime.now().microsecondsSinceEpoch}';
     notifyListeners();
 
     try {
@@ -157,6 +162,7 @@ class QuizProvider extends ChangeNotifier {
 
   Future<void> _saveResult() async {
     try {
+      final now = DateTime.now();
       final history = QuizHistoryModel(
         id: 0,
         topicId: _activeTopicId,
@@ -164,9 +170,21 @@ class QuizProvider extends ChangeNotifier {
         totalQuestions: _questions.length,
         correctAnswers: _correctCount,
         scorePercentage: scorePercentage,
-        completedAt: DateTime.now().toIso8601String(),
+        completedAt: now.toIso8601String(),
       );
       await _quizRepository.saveQuizResult(history);
+      await DatabaseHelper.instance.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType: 'quiz',
+        itemId: 'topic_${_activeTopicId ?? 0}',
+        wordCount: 0,
+        activityCount: 1,
+        deduplicationScope: _sessionAttemptId.isNotEmpty
+            ? _sessionAttemptId
+            : DatabaseHelper.formatLocalDateKey(now),
+        timestamp: now,
+      );
+      StudyProvider.notifyActivityRecorded();
     } catch (e) {
       debugPrint('Error saving quiz result: $e');
     }

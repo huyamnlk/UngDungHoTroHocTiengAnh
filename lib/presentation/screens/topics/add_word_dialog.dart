@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -69,7 +69,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
       Navigator.of(context).pop(true);
       UiHelpers.showSnackBar(
         context,
-        message: 'Đã thêm từ "${newWord.term}" thành công!',
+        message: context.l10n.addWordSuccess(newWord.term),
         isSuccess: true,
       );
     }
@@ -77,6 +77,8 @@ class _AddWordDialogState extends State<AddWordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: context.cardBg,
@@ -98,7 +100,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Thêm từ mới',
+                          l10n.addWordTitle,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -106,7 +108,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
                           ),
                         ),
                         Text(
-                          'Vào: ${widget.topicName}',
+                          l10n.addWordTopicTarget(widget.topicName),
                           style: const TextStyle(fontSize: 13, color: AppColors.primary),
                         ),
                       ],
@@ -126,10 +128,10 @@ class _AddWordDialogState extends State<AddWordDialog> {
                       TextFormField(
                         controller: _termController,
                         style: TextStyle(color: context.textPrimaryColor),
-                        decoration: _inputDecoration('Từ tiếng Anh *', 'Ví dụ: Innovation'),
+                        decoration: _inputDecoration(l10n.addWordEnglishLabel, l10n.addWordEnglishHint),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Vui lòng nhập từ tiếng Anh';
+                            return l10n.addWordRequiredEnglish;
                           }
                           return null;
                         },
@@ -142,7 +144,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
                             child: TextFormField(
                               controller: _ipaController,
                               style: TextStyle(color: context.textPrimaryColor),
-                              decoration: _inputDecoration('Phiên âm IPA', '/ɪn.əˈveɪ.ʃən/'),
+                              decoration: _inputDecoration(l10n.addWordIpaLabel, l10n.addWordIpaHint),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -152,7 +154,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
                               initialValue: _selectedPos,
                               dropdownColor: context.cardBg,
                               style: TextStyle(color: context.textPrimaryColor),
-                              decoration: _inputDecoration('Loại từ', ''),
+                              decoration: _inputDecoration(l10n.addWordPartOfSpeechLabel, ''),
                               items: _partsOfSpeech.map((pos) {
                                 return DropdownMenuItem(
                                   value: pos,
@@ -170,10 +172,10 @@ class _AddWordDialogState extends State<AddWordDialog> {
                       TextFormField(
                         controller: _meaningController,
                         style: TextStyle(color: context.textPrimaryColor),
-                        decoration: _inputDecoration('Nghĩa tiếng Việt *', 'Ví dụ: Sự đổi mới, cách tân'),
+                        decoration: _inputDecoration(l10n.addWordMeaningLabel, l10n.addWordMeaningHint),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Vui lòng nhập nghĩa tiếng Việt';
+                            return l10n.addWordRequiredMeaning;
                           }
                           return null;
                         },
@@ -182,21 +184,21 @@ class _AddWordDialogState extends State<AddWordDialog> {
                       TextFormField(
                         controller: _exampleEnController,
                         style: TextStyle(color: context.textPrimaryColor),
-                        decoration: _inputDecoration('Câu ví dụ (English)', 'Ví dụ: Innovation drives technology.'),
+                        decoration: _inputDecoration(l10n.addWordExampleEnLabel, l10n.addWordExampleEnHint),
                         maxLines: 2,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _exampleViController,
                         style: TextStyle(color: context.textPrimaryColor),
-                        decoration: _inputDecoration('Dịch nghĩa câu ví dụ', 'Ví dụ: Sự đổi mới thúc đẩy công nghệ.'),
+                        decoration: _inputDecoration(l10n.addWordExampleViLabel, l10n.addWordExampleViHint),
                         maxLines: 2,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _guideController,
                         style: TextStyle(color: context.textPrimaryColor),
-                        decoration: _inputDecoration('Ghi chú / Mẹo phát âm', 'Ví dụ: Nhấn âm 3 "vay"'),
+                        decoration: _inputDecoration(l10n.addWordNotesLabel, l10n.addWordNotesHint),
                       ),
                     ],
                   ),
@@ -204,7 +206,7 @@ class _AddWordDialogState extends State<AddWordDialog> {
               ),
               const SizedBox(height: 16),
               CustomButton(
-                text: 'Lưu từ vựng',
+                text: l10n.addWordSaveButton,
                 icon: Icons.save_rounded,
                 onPressed: _submit,
               ),

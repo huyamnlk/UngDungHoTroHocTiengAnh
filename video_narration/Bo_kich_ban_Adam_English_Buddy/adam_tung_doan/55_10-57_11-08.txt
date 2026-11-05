@@ -1,0 +1,1 @@
+﻿Chọn đúng giúp tăng điểm và chuyển sang mục tiêu mới. Nhóm lần lượt tìm từ theo nghĩa đang hiển thị, trong khi các giọt khác tiếp tục rơi. Thanh trạng thái ghi nhận số lần bắt trúng, chuỗi đúng và số mạng để người chơi theo dõi.

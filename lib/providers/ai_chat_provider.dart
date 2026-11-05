@@ -70,17 +70,25 @@ class AiChatProvider extends ChangeNotifier {
     }
   }
 
+  AiChatErrorType _lastErrorType = AiChatErrorType.none;
+  AiChatErrorType get lastErrorType => _lastErrorType;
+
   /// Gửi câu hỏi đến Trợ lý AI
-  Future<void> sendMessage(String text, {String? idToken}) async {
+  Future<void> sendMessage(
+    String text, {
+    String? idToken,
+    Future<String?> Function()? onRefreshToken,
+  }) async {
     final query = text.trim();
     if (query.isEmpty || _isLoading) return;
 
     _lastError = null;
+    _lastErrorType = AiChatErrorType.none;
     final now = DateTime.now();
 
     // 1. Thêm tin nhắn của người học
     final userMessage = ChatMessage(
-      id: 'user_${now.millisecondsSinceEpoch}',
+      id: 'user_${now.microsecondsSinceEpoch}',
       text: query,
       sender: ChatMessageSender.user,
       timestamp: now,
@@ -88,7 +96,7 @@ class AiChatProvider extends ChangeNotifier {
     );
 
     // 2. Tạo placeholder tin nhắn đang xử lý của AI
-    final aiPlaceholderId = 'ai_${now.millisecondsSinceEpoch}';
+    final aiPlaceholderId = 'ai_${now.microsecondsSinceEpoch}';
     final aiPlaceholder = ChatMessage(
       id: aiPlaceholderId,
       text: '',
@@ -103,67 +111,161 @@ class AiChatProvider extends ChangeNotifier {
     notifyListeners();
     await _saveHistoryToStorage();
 
-    // 3. Gọi dịch vụ Backend Worker
-    final result = await _service.sendMessage(
-      message: query,
-      history: _messages.sublist(0, _messages.length - 1),
-      idToken: idToken,
-    );
+    try {
+      // 3. Gọi dịch vụ Backend Worker
+      final result = await _service.sendMessage(
+        message: query,
+        history: _messages.sublist(0, _messages.length - 1),
+        idToken: idToken,
+        onRefreshToken: onRefreshToken,
+      );
 
-    _isLoading = false;
-
-    // 4. Cập nhật kết quả phản hồi của AI
-    final aiIndex = _messages.indexWhere((m) => m.id == aiPlaceholderId);
-    if (aiIndex != -1) {
-      if (result.isSuccess && result.reply != null) {
-        _messages[aiIndex] = _messages[aiIndex].copyWith(
-          text: result.reply!,
-          status: ChatMessageStatus.sent,
-          errorMessage: null,
-        );
-      } else {
-        final err = result.errorMessage ?? 'Không nhận được phản hồi từ AI.';
+      // 4. Cập nhật kết quả phản hồi của AI
+      final aiIndex = _messages.indexWhere((m) => m.id == aiPlaceholderId);
+      if (aiIndex != -1) {
+        if (result.isSuccess && result.reply != null) {
+          _messages[aiIndex] = _messages[aiIndex].copyWith(
+            text: result.reply!,
+            status: ChatMessageStatus.sent,
+            errorMessage: null,
+          );
+          _lastError = null;
+          _lastErrorType = AiChatErrorType.none;
+        } else {
+          final err = result.errorMessage ?? 'Không nhận được phản hồi từ AI.';
+          _messages[aiIndex] = _messages[aiIndex].copyWith(
+            text: '',
+            status: ChatMessageStatus.error,
+            errorMessage: err,
+          );
+          _lastError = err;
+          _lastErrorType = result.errorType;
+        }
+      }
+    } catch (e) {
+      final err = 'Đã xảy ra lỗi khi xử lý phản hồi AI: $e';
+      final aiIndex = _messages.indexWhere((m) => m.id == aiPlaceholderId);
+      if (aiIndex != -1) {
         _messages[aiIndex] = _messages[aiIndex].copyWith(
           text: '',
           status: ChatMessageStatus.error,
           errorMessage: err,
         );
-        _lastError = err;
       }
+      _lastError = err;
+      _lastErrorType = AiChatErrorType.unknown;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      await _saveHistoryToStorage();
     }
-
-    notifyListeners();
-    await _saveHistoryToStorage();
   }
 
-  /// Thử gửi lại tin nhắn bị lỗi
-  Future<void> retryMessage(String messageId, {String? idToken}) async {
+  /// Thử gửi lại tin nhắn bị lỗi tại chỗ (không nhân bản tin nhắn người dùng)
+  Future<void> retryMessage(
+    String messageId, {
+    String? idToken,
+    Future<String?> Function()? onRefreshToken,
+  }) async {
     if (_isLoading) return;
 
     final targetIndex = _messages.indexWhere((m) => m.id == messageId);
     if (targetIndex == -1) return;
 
-    final targetMessage = _messages[targetIndex];
-    String queryToRetry = '';
+    int userMsgIndex = -1;
+    int aiMsgIndex = -1;
 
-    if (targetMessage.isUser) {
-      queryToRetry = targetMessage.text;
-      // Xóa tin nhắn AI bị lỗi liền sau nếu có
+    if (_messages[targetIndex].isUser) {
+      userMsgIndex = targetIndex;
       if (targetIndex + 1 < _messages.length && _messages[targetIndex + 1].isAi) {
-        _messages.removeAt(targetIndex + 1);
+        aiMsgIndex = targetIndex + 1;
       }
-      _messages.removeAt(targetIndex);
     } else {
-      // Nếu là bubble lỗi của AI, tìm tin nhắn của user ngay trước nó
+      aiMsgIndex = targetIndex;
       if (targetIndex > 0 && _messages[targetIndex - 1].isUser) {
-        queryToRetry = _messages[targetIndex - 1].text;
-        _messages.removeAt(targetIndex); // Xóa bubble lỗi của AI
-        _messages.removeAt(targetIndex - 1); // Xóa tin nhắn user để gửi lại mới
+        userMsgIndex = targetIndex - 1;
       }
     }
 
-    if (queryToRetry.isNotEmpty) {
-      await sendMessage(queryToRetry, idToken: idToken);
+    if (userMsgIndex == -1) return;
+    final queryToRetry = _messages[userMsgIndex].text.trim();
+    if (queryToRetry.isEmpty) return;
+
+    _lastError = null;
+    _lastErrorType = AiChatErrorType.none;
+    _isLoading = true;
+
+    final String aiTargetId;
+    if (aiMsgIndex != -1) {
+      aiTargetId = _messages[aiMsgIndex].id;
+      _messages[aiMsgIndex] = _messages[aiMsgIndex].copyWith(
+        text: '',
+        status: ChatMessageStatus.sending,
+        errorMessage: null,
+      );
+    } else {
+      final now = DateTime.now();
+      aiTargetId = 'ai_${now.microsecondsSinceEpoch}';
+      final placeholder = ChatMessage(
+        id: aiTargetId,
+        text: '',
+        sender: ChatMessageSender.ai,
+        timestamp: now,
+        status: ChatMessageStatus.sending,
+      );
+      aiMsgIndex = userMsgIndex + 1;
+      _messages.insert(aiMsgIndex, placeholder);
+    }
+
+    notifyListeners();
+    await _saveHistoryToStorage();
+
+    try {
+      final historySlice = _messages.sublist(0, userMsgIndex + 1);
+      final result = await _service.sendMessage(
+        message: queryToRetry,
+        history: historySlice,
+        idToken: idToken,
+        onRefreshToken: onRefreshToken,
+      );
+
+      final currentAiIdx = _messages.indexWhere((m) => m.id == aiTargetId);
+      if (currentAiIdx != -1) {
+        if (result.isSuccess && result.reply != null) {
+          _messages[currentAiIdx] = _messages[currentAiIdx].copyWith(
+            text: result.reply!,
+            status: ChatMessageStatus.sent,
+            errorMessage: null,
+          );
+          _lastError = null;
+          _lastErrorType = AiChatErrorType.none;
+        } else {
+          final err = result.errorMessage ?? 'Không nhận được phản hồi từ AI.';
+          _messages[currentAiIdx] = _messages[currentAiIdx].copyWith(
+            text: '',
+            status: ChatMessageStatus.error,
+            errorMessage: err,
+          );
+          _lastError = err;
+          _lastErrorType = result.errorType;
+        }
+      }
+    } catch (e) {
+      final err = 'Đã xảy ra lỗi khi gửi lại câu hỏi: $e';
+      final currentAiIdx = _messages.indexWhere((m) => m.id == aiTargetId);
+      if (currentAiIdx != -1) {
+        _messages[currentAiIdx] = _messages[currentAiIdx].copyWith(
+          text: '',
+          status: ChatMessageStatus.error,
+          errorMessage: err,
+        );
+      }
+      _lastError = err;
+      _lastErrorType = AiChatErrorType.unknown;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      await _saveHistoryToStorage();
     }
   }
 

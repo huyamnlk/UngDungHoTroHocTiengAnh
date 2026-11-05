@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../providers/quiz_provider.dart';
 import '../../widgets/custom_button.dart';
 import 'quiz_play_screen.dart';
@@ -11,6 +12,7 @@ class QuizResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    final l10n = context.l10n;
     final score = quizProvider.scorePercentage;
     final total = quizProvider.questions.length;
     final correct = quizProvider.correctCount;
@@ -21,18 +23,18 @@ class QuizResultScreen extends StatelessWidget {
     IconData feedbackIcon;
 
     if (score >= 80) {
-      feedbackTitle = 'Xuất sắc!';
-      feedbackMessage = 'Bạn nắm rất vững các từ vựng trong bài thi này. Hãy tiếp tục phát huy nhé!';
+      feedbackTitle = l10n.quizResultExcellent;
+      feedbackMessage = l10n.quizResultDescExcellent;
       scoreColor = AppColors.success;
       feedbackIcon = Icons.emoji_events_rounded;
     } else if (score >= 50) {
-      feedbackTitle = 'Khá tốt!';
-      feedbackMessage = 'Bạn đã làm tốt, các từ chưa đúng đã được tự động lưu vào mục "Cần ôn tập" để bạn rèn luyện thêm.';
+      feedbackTitle = l10n.quizResultGood;
+      feedbackMessage = l10n.quizResultDescGood;
       scoreColor = AppColors.warning;
       feedbackIcon = Icons.thumb_up_rounded;
     } else {
-      feedbackTitle = 'Cần cố gắng hơn!';
-      feedbackMessage = 'Đừng nản lòng! Hãy ôn lại qua thẻ ghi nhớ Flashcard rồi thử sức lại nhé.';
+      feedbackTitle = l10n.quizResultNeedsWork;
+      feedbackMessage = l10n.quizResultDescNeedsWork;
       scoreColor = AppColors.danger;
       feedbackIcon = Icons.fitness_center_rounded;
     }
@@ -40,7 +42,7 @@ class QuizResultScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Kết quả bài thi'),
+        title: Text(l10n.quizResultTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -98,7 +100,7 @@ class QuizResultScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Trả lời đúng $correct / $total câu',
+                      l10n.quizResultScore(correct, total),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -122,7 +124,7 @@ class QuizResultScreen extends StatelessWidget {
 
               // Xem lại từng câu hỏi
               Text(
-                'Chi tiết câu trả lời',
+                l10n.quizResultDetails,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -169,7 +171,7 @@ class QuizResultScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Bạn chọn: ${answer.selectedOption}',
+                        l10n.quizResultUserSelected(answer.selectedOption),
                         style: TextStyle(
                           fontSize: 13,
                           color: answer.isCorrect ? AppColors.success : AppColors.danger,
@@ -179,7 +181,7 @@ class QuizResultScreen extends StatelessWidget {
                       if (!answer.isCorrect) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Đáp án đúng: ${answer.question.correctAnswer}',
+                          l10n.quizResultCorrectIs(answer.question.correctAnswer),
                           style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.success,
@@ -205,7 +207,7 @@ class QuizResultScreen extends StatelessWidget {
 
               // Nút hành động
               CustomButton(
-                text: 'Làm lại bài kiểm tra',
+                text: l10n.quizResultRetake,
                 icon: Icons.refresh_rounded,
                 onPressed: () async {
                   await quizProvider.startQuiz(
@@ -223,7 +225,7 @@ class QuizResultScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               CustomButton(
-                text: 'Về trang chủ',
+                text: l10n.quizResultHome,
                 isOutlined: true,
                 onPressed: () {
                   Navigator.popUntil(context, (route) => route.isFirst);

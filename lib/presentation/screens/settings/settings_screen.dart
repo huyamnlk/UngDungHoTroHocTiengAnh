@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/app_languages.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/locale_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../widgets/top_profile_menu_button.dart';
 import '../../widgets/user_avatar_widget.dart';
@@ -34,11 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Cài đặt & Tùy chọn'),
+        title: Text(l10n.settingsTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -55,8 +59,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Mục Chọn Ngôn ngữ (Language Selection)
+                _buildSectionHeader(l10n.settingsLanguageSection),
+                Container(
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: context.borderCol),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                    children: [
+                      ...[
+                        AppLanguages.findByCode('vi'),
+                        AppLanguages.findByCode('en'),
+                        AppLanguages.findByCode('zh'),
+                        AppLanguages.findByCode('ja'),
+                        AppLanguages.findByCode('ko'),
+                        if (!['vi', 'en', 'zh', 'ja', 'ko'].contains(localeProvider.languageCode))
+                          AppLanguages.findByCode(localeProvider.languageCode),
+                      ].map((lang) {
+                        return Column(
+                          children: [
+                            RadioListTile<String>(
+                              title: Row(
+                                children: [
+                                  Text('${lang.flag}  ', style: const TextStyle(fontSize: 18)),
+                                  Text(
+                                    lang.nativeName,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: context.textPrimaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Text(
+                                lang.getSubtitle(localeProvider.languageCode),
+                                style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
+                              ),
+                              value: lang.code,
+                              activeColor: AppColors.primary,
+                              groupValue: localeProvider.languageCode,
+                              onChanged: (val) {
+                                if (val != null) {
+                                  localeProvider.setLocale(Locale(val));
+                                }
+                              },
+                            ),
+                            Divider(height: 1, color: context.borderCol),
+                          ],
+                        );
+                      }),
+                      InkWell(
+                        onTap: () => _showLanguagePicker(context, localeProvider),
+                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: context.primaryContainerCol,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.language_rounded,
+                                  color: AppColors.primary,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.settingsAllLanguages,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: context.textPrimaryColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      l10n.settingsAllLanguagesSubtitle,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: context.textSecondaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: context.textSecondaryColor,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // Mục Tài khoản, Hồ sơ cá nhân & Phân quyền
-                _buildSectionHeader('Hồ sơ cá nhân & Tài khoản'),
+                _buildSectionHeader(l10n.settingsAccountSection),
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, _) {
                     final user = authProvider.currentUser;
@@ -65,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     final isAuthenticated = authProvider.isAuthenticated && user != null;
                     final displayName = isAuthenticated
                         ? user.displayName
-                        : 'Khách (Chưa đăng nhập)';
+                        : l10n.guestUser;
                     final avatarData =
                         profile?.avatarData ?? 'preset:scholar_blue';
                     final cefrLevel = profile?.cefrLevel ?? 'A1';
@@ -160,8 +275,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           isAuthenticated
-                                              ? '${user.email} • Đã xác thực (${user.providerId})'
-                                              : 'Chưa đăng nhập tài khoản. Đăng nhập hoặc tạo tài khoản mới để quản lý hồ sơ và đồng bộ tiến độ.',
+                                              ? l10n.authenticatedAs(user.email, user.providerId)
+                                              : l10n.guestUserDesc,
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: context.textSecondaryColor,
@@ -192,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icons.edit_note_rounded,
                                         size: 18,
                                       ),
-                                      label: const Text('Chỉnh sửa hồ sơ'),
+                                      label: Text(l10n.editProfile),
                                     ),
                                     if (isAdmin)
                                       OutlinedButton.icon(
@@ -209,7 +324,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           size: 18,
                                           color: AppColors.warning,
                                         ),
-                                        label: const Text('Khu vực Quản trị'),
+                                        label: Text(l10n.adminArea),
                                       ),
                                     OutlinedButton.icon(
                                       onPressed: () => TopProfileMenuButton
@@ -224,7 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icons.logout_rounded,
                                         size: 18,
                                       ),
-                                      label: const Text('Đăng xuất'),
+                                      label: Text(l10n.signOut),
                                     ),
                                   ] else ...[
                                     FilledButton.icon(
@@ -240,7 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icons.login_rounded,
                                         size: 18,
                                       ),
-                                      label: const Text('Đăng nhập'),
+                                      label: Text(l10n.signIn),
                                     ),
                                     OutlinedButton.icon(
                                       onPressed: () {
@@ -257,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icons.person_add_alt_1_rounded,
                                         size: 18,
                                       ),
-                                      label: const Text('Tạo tài khoản'),
+                                      label: Text(l10n.signUp),
                                     ),
                                   ],
                                 ],
@@ -272,201 +387,232 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // Mục Giao diện
-                _buildSectionHeader('Giao diện & Chủ đề'),
-          Container(
-            decoration: BoxDecoration(
-              color: context.cardBg,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: context.borderCol),
-            ),
-            child: Column(
-              children: [
-                RadioListTile<ThemeMode>(
-                  title: Text(
-                    'Theo hệ thống',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
+                _buildSectionHeader(l10n.settingsThemeSection),
+                Container(
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: context.borderCol),
                   ),
-                  subtitle: Text(
-                    'Tự động theo cài đặt của thiết bị',
-                    style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                    children: [
+                      RadioListTile<ThemeMode>(
+                        title: Text(
+                          l10n.settingsThemeSystem,
+                          style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
+                        ),
+                        subtitle: Text(
+                          l10n.settingsThemeSystemDesc,
+                          style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
+                        ),
+                        value: ThemeMode.system,
+                        activeColor: AppColors.primary,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (val) {
+                          if (val != null) themeProvider.setThemeMode(val);
+                        },
+                      ),
+                      Divider(height: 1, color: context.borderCol),
+                      RadioListTile<ThemeMode>(
+                        title: Text(
+                          l10n.settingsThemeLight,
+                          style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
+                        ),
+                        value: ThemeMode.light,
+                        activeColor: AppColors.primary,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (val) {
+                          if (val != null) themeProvider.setThemeMode(val);
+                        },
+                      ),
+                      Divider(height: 1, color: context.borderCol),
+                      RadioListTile<ThemeMode>(
+                        title: Text(
+                          l10n.settingsThemeDark,
+                          style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
+                        ),
+                        value: ThemeMode.dark,
+                        activeColor: AppColors.primary,
+                        groupValue: themeProvider.themeMode,
+                        onChanged: (val) {
+                          if (val != null) themeProvider.setThemeMode(val);
+                        },
+                      ),
+                    ],
                   ),
-                  value: ThemeMode.system,
-                  activeColor: AppColors.primary,
-                  groupValue: themeProvider.themeMode,
-                  onChanged: (val) {
-                    if (val != null) themeProvider.setThemeMode(val);
-                  },
+                  ),
                 ),
-                Divider(height: 1, color: context.borderCol),
-                RadioListTile<ThemeMode>(
-                  title: Text(
-                    'Giao diện sáng (Light Mode)',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
-                  ),
-                  value: ThemeMode.light,
-                  activeColor: AppColors.primary,
-                  groupValue: themeProvider.themeMode,
-                  onChanged: (val) {
-                    if (val != null) themeProvider.setThemeMode(val);
-                  },
-                ),
-                Divider(height: 1, color: context.borderCol),
-                RadioListTile<ThemeMode>(
-                  title: Text(
-                    'Giao diện tối (Dark Mode)',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
-                  ),
-                  value: ThemeMode.dark,
-                  activeColor: AppColors.primary,
-                  groupValue: themeProvider.themeMode,
-                  onChanged: (val) {
-                    if (val != null) themeProvider.setThemeMode(val);
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-          // Mục Mục tiêu học tập
-          _buildSectionHeader('Mục tiêu học tập hằng ngày'),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: context.cardBg,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: context.borderCol),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Chọn số lượng từ bạn muốn hoàn thành mỗi ngày:',
-                  style: TextStyle(fontSize: 13, color: context.textSecondaryColor),
+                // Mục Mục tiêu học tập
+                _buildSectionHeader(l10n.settingsDailyGoalSection),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: context.borderCol),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.settingsDailyGoalSubtitle,
+                        style: TextStyle(fontSize: 13, color: context.textSecondaryColor),
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [5, 10, 20].map((goal) {
+                          final isSelected = _dailyGoal == goal;
+                          return Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: InkWell(
+                                onTap: () async {
+                                  setState(() => _dailyGoal = goal);
+                                  await _settingsService.setDailyGoal(goal);
+                                  if (mounted) {
+                                    UiHelpers.showSnackBar(
+                                      context,
+                                      message: l10n.settingsDailyGoalSaved(goal),
+                                      isSuccess: true,
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? context.primaryContainerCol : context.scaffoldBg,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isSelected ? AppColors.primary : context.borderCol,
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    l10n.settingsDailyGoalUnit(goal),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected ? AppColors.primary : context.textPrimaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [5, 10, 20].map((goal) {
-                    final isSelected = _dailyGoal == goal;
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: InkWell(
-                          onTap: () async {
-                            setState(() => _dailyGoal = goal);
-                            await _settingsService.setDailyGoal(goal);
-                            if (mounted) {
-                              UiHelpers.showSnackBar(context, message: 'Đã đặt mục tiêu $goal từ/ngày!');
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected ? context.primaryContainerCol : context.scaffoldBg,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected ? AppColors.primary : context.borderCol,
-                                width: isSelected ? 2 : 1,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '$goal từ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isSelected ? AppColors.primary : context.textPrimaryColor,
-                              ),
-                            ),
+                const SizedBox(height: 24),
+
+                // Âm thanh
+                _buildSectionHeader(l10n.settingsSoundSection),
+                Container(
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: context.borderCol),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: SwitchListTile(
+                    title: Text(
+                      l10n.settingsSoundEnable,
+                      style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
+                    ),
+                    subtitle: Text(
+                      l10n.settingsSoundEnableDesc,
+                      style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
+                    ),
+                    value: _soundEnabled,
+                    activeColor: AppColors.primary,
+                    onChanged: (val) async {
+                      setState(() => _soundEnabled = val);
+                      await _settingsService.setSoundEnabled(val);
+                    },
+                  ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Nguồn dữ liệu & Bản quyền
+                _buildSectionHeader(l10n.settingsCopyrightSection),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: context.borderCol),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.verified_user_rounded, color: AppColors.success, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.settingsCopyrightTitle,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: context.textPrimaryColor),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${l10n.settingsCopyrightDesc1}\n${l10n.settingsCopyrightDesc2}\n${l10n.settingsCopyrightDesc3}',
+                        style: TextStyle(fontSize: 12, color: context.textSecondaryColor, height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Thông tin ứng dụng
+                Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FEFE),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: Image.asset(
+                            'assets/images/app_logo.png',
+                            width: 42,
+                            height: 42,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.high,
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${AppConstants.appName} v1.0.0+1',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: context.textPrimaryColor),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.settingsAppSubtitle,
+                        style: TextStyle(fontSize: 12, color: context.textMutedColor),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Âm thanh
-          _buildSectionHeader('Âm thanh & Phát âm'),
-          Container(
-            decoration: BoxDecoration(
-              color: context.cardBg,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: context.borderCol),
-            ),
-            child: SwitchListTile(
-              title: Text(
-                'Bật âm thanh phát âm',
-                style: TextStyle(fontWeight: FontWeight.w600, color: context.textPrimaryColor),
-              ),
-              subtitle: Text(
-                'Phát âm giọng đọc chuẩn bản xứ Text-to-Speech',
-                style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
-              ),
-              value: _soundEnabled,
-              activeColor: AppColors.primary,
-              onChanged: (val) async {
-                setState(() => _soundEnabled = val);
-                await _settingsService.setSoundEnabled(val);
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Nguồn dữ liệu & Bản quyền
-          _buildSectionHeader('Nguồn dữ liệu & Bản quyền'),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: context.cardBg,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: context.borderCol),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.verified_user_rounded, color: AppColors.success, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Chính sách bản quyền minh bạch',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: context.textPrimaryColor),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  '• Nội dung từ vựng, câu ví dụ và bài tập được nhóm tác giả tự biên soạn nguyên bản, dựa trên tiêu chuẩn phân cấp CEFR (A1–C1) và các khung năng lực ngôn ngữ mở.\n'
-                  '• Không sao chép hàng loạt định nghĩa hay dữ liệu có bản quyền từ Cambridge Dictionary, DOL English hay các nguồn thương mại.\n'
-                  '• Chức năng tra cứu trực tuyến tích hợp từ Free Dictionary API (dữ liệu nguồn mở không yêu cầu API key, tuân thủ giấy phép CC BY-SA 3.0).',
-                  style: TextStyle(fontSize: 12, color: context.textSecondaryColor, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Thông tin ứng dụng
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  '${AppConstants.appName} v1.0.0+1',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: context.textPrimaryColor),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Đồ án môn Lập trình Thiết bị Di động - Flutter & SQLite',
-                  style: TextStyle(fontSize: 12, color: context.textMutedColor),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -482,6 +628,141 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.textSecondaryColor),
       ),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context, LocaleProvider localeProvider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        String query = '';
+        return Consumer<LocaleProvider>(
+          builder: (context, liveLocaleProvider, _) {
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                final currentCode = liveLocaleProvider.languageCode;
+                final l10n = context.l10n;
+                final filtered = AppLanguages.supportedLanguages.where((lang) {
+                  if (query.trim().isEmpty) return true;
+                  final q = query.toLowerCase();
+                  return lang.nativeName.toLowerCase().contains(q) ||
+                      lang.viName.toLowerCase().contains(q) ||
+                      lang.englishName.toLowerCase().contains(q) ||
+                      lang.getSubtitle(currentCode).toLowerCase().contains(q) ||
+                      lang.code.toLowerCase().contains(q);
+                }).toList();
+
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: BoxDecoration(
+                color: context.cardBg,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border.all(color: context.borderCol),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: context.borderCol,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.language_rounded, color: AppColors.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.settingsSelectLanguage,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: context.textPrimaryColor,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: l10n.settingsSearchLanguage,
+                        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                        filled: true,
+                        fillColor: context.scaffoldBg,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: context.borderCol),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: context.borderCol),
+                        ),
+                      ),
+                      onChanged: (val) {
+                        setModalState(() => query = val);
+                      },
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) => Divider(height: 1, indent: 64, color: context.borderCol),
+                      itemBuilder: (context, index) {
+                        final lang = filtered[index];
+                        final isSelected = lang.code == currentCode;
+                        return ListTile(
+                          leading: Text(lang.flag, style: const TextStyle(fontSize: 26)),
+                          title: Text(
+                            lang.nativeName,
+                            style: TextStyle(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                              color: isSelected ? AppColors.primary : context.textPrimaryColor,
+                            ),
+                          ),
+                          subtitle: Text(
+                            lang.getSubtitle(currentCode),
+                            style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
+                          ),
+                          trailing: isSelected
+                              ? const Icon(Icons.check_circle_rounded, color: AppColors.primary)
+                              : null,
+                          onTap: () async {
+                            Navigator.pop(ctx);
+                            await liveLocaleProvider.setLocale(Locale(lang.code));
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              ),
+            );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

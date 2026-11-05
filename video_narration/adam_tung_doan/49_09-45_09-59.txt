@@ -1,0 +1,1 @@
+﻿Khi không còn khả năng chống đỡ, lượt chơi kết thúc. Bảng tổng kết hiển thị độ khó, điểm, cấp độ, tốc độ gõ, độ chính xác và chuỗi đúng. Danh sách từ cần ôn có nút nghe phát âm. Người chơi có thể chơi lại hoặc thoát về trung tâm để chọn trò khác.

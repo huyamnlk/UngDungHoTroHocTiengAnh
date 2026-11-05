@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/exam_model.dart';
 import '../../../data/models/skill_exercise_model.dart';
 import '../../../data/models/word_model.dart';
@@ -101,7 +101,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Kết quả & Giải thích chi tiết'),
+        title: Text(context.l10n.examResultTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -268,7 +268,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                                 Text(
                                   isWriting
                                       ? 'Đánh giá năng lực bài viết (${exam.writingTaskType ?? "Writing"})'
-                                      : 'Số câu đúng: ${attempt.correctAnswers}/${attempt.totalQuestions} câu ($pct%)',
+                                      : context.l10n.examCorrectRatio(attempt.correctAnswers, attempt.totalQuestions, pct),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -364,7 +364,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                                 TextButton(
                                   onPressed: () => setState(
                                       () => _showTranscript = !_showTranscript),
-                                  child: Text(_showTranscript ? 'Thu gọn' : 'Mở rộng'),
+                                  child: Text(_showTranscript ? context.l10n.actionCollapse : context.l10n.actionExpand),
                                 ),
                               ],
                             ),

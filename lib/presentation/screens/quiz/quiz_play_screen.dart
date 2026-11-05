@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/tts_service.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/quiz_question_model.dart';
 import '../../../providers/quiz_provider.dart';
 import '../../../providers/stats_provider.dart';
@@ -29,13 +30,13 @@ class QuizPlayScreen extends StatelessWidget {
       return Scaffold(
         backgroundColor: context.scaffoldBg,
         appBar: AppBar(
-          title: const Text('Thử thách Quiz'),
+          title: Text(context.l10n.quizPlayTitle),
           backgroundColor: context.cardBg,
           foregroundColor: context.textPrimaryColor,
         ),
         body: Center(
           child: Text(
-            quizProvider.errorMessage ?? 'Không thể tải câu hỏi.',
+            quizProvider.errorMessage ?? context.l10n.statusPending,
             style: TextStyle(color: context.textPrimaryColor),
           ),
         ),
@@ -50,17 +51,17 @@ class QuizPlayScreen extends StatelessWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text('Dừng làm bài?'),
-            content: const Text('Kết quả bài thi hiện tại sẽ không được lưu nếu bạn thoát bây giờ.'),
+            title: Text(context.l10n.quizPlayExitTitle),
+            content: Text(context.l10n.quizPlayExitMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Tiếp tục thi'),
+                child: Text(context.l10n.quizPlayContinue),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Thoát'),
+                child: Text(context.l10n.actionExit),
               ),
             ],
           ),
@@ -81,7 +82,7 @@ class QuizPlayScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Text(
-                  'Câu ${quizProvider.currentIndex + 1}/${quizProvider.questions.length}',
+                  context.l10n.quizPlayQuestionCounter(quizProvider.currentIndex + 1, quizProvider.questions.length),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -119,7 +120,7 @@ class QuizPlayScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            _getTypeBadge(question.type),
+                            _getTypeBadge(question.type, context),
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -229,8 +230,8 @@ class QuizPlayScreen extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     quizProvider.selectedOption == question.correctAnswer
-                                        ? 'Chính xác!'
-                                        : 'Chưa chính xác!',
+                                        ? context.l10n.quizPlayCorrect
+                                        : context.l10n.quizPlayIncorrect,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
@@ -268,10 +269,10 @@ class QuizPlayScreen extends StatelessWidget {
                 ),
                 child: CustomButton(
                   text: !quizProvider.isAnswerChecked
-                      ? 'Kiểm tra'
+                      ? context.l10n.quizPlayCheck
                       : (quizProvider.currentIndex < quizProvider.questions.length - 1
-                          ? 'Câu tiếp theo'
-                          : 'Xem kết quả'),
+                          ? context.l10n.quizPlayNext
+                          : context.l10n.quizPlayViewResult),
                   icon: !quizProvider.isAnswerChecked
                       ? Icons.check_rounded
                       : Icons.arrow_forward_rounded,
@@ -383,14 +384,14 @@ class QuizPlayScreen extends StatelessWidget {
     );
   }
 
-  String _getTypeBadge(QuizQuestionType type) {
+  String _getTypeBadge(QuizQuestionType type, BuildContext context) {
     switch (type) {
       case QuizQuestionType.wordToMeaning:
-        return 'Chọn nghĩa tiếng Việt';
+        return context.l10n.quizPlayTypeSelectMeaning;
       case QuizQuestionType.meaningToWord:
-        return 'Chọn từ tiếng Anh';
+        return context.l10n.quizPlayTypeSelectWord;
       case QuizQuestionType.fillBlank:
-        return 'Điền từ vào chỗ trống';
+        return context.l10n.quizPlayTypeFillBlank;
     }
   }
 }

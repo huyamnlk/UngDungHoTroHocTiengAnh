@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../data/models/skill_exercise_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/stats_provider.dart';
@@ -74,9 +75,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
     if (index == 13 && !isAdmin) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Truy cập bị từ chối: Khu vực Quản trị chỉ dành cho tài khoản Admin.',
+            context.l10n.accessDeniedAdminOnly,
           ),
           backgroundColor: AppColors.danger,
         ),
@@ -221,8 +222,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     final navItems = AppSidebar.buildNavigationItems(
       reviewCount: reviewCount,
       isAdmin: isAdmin,
+      context: context,
     );
     final currentNavItem = navItems[effectiveIndex];
+    final l10n = context.l10n;
 
     return Scaffold(
       key: _mobileScaffoldKey,
@@ -242,7 +245,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Mở danh mục 13 kỹ năng & chức năng',
+                    tooltip: l10n.mobileMenuTooltip,
                     onPressed: () =>
                         _mobileScaffoldKey.currentState?.openDrawer(),
                     icon: Icon(
@@ -250,7 +253,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       color: context.textPrimaryColor,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    padding: const EdgeInsets.all(1.5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FEFE),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.22),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.asset(
+                        'assets/images/app_logo.png',
+                        width: 25,
+                        height: 25,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       '${AppConstants.appName} • ${currentNavItem.label}',
@@ -263,7 +288,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Trợ lý AI English Buddy',
+                    tooltip: l10n.aiChatTooltip,
                     icon: const Icon(
                       Icons.smart_toy_rounded,
                       color: AppColors.primary,
@@ -296,25 +321,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           onDestinationSelected: (bottomIdx) =>
               _onTabTapped(_mapMobileBottomBarToIndex(bottomIdx)),
           destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded),
-              label: 'Trang chủ',
+            NavigationDestination(
+              icon: const Icon(Icons.dashboard_outlined),
+              selectedIcon: const Icon(Icons.dashboard_rounded),
+              label: l10n.navHome,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.grid_view_outlined),
-              selectedIcon: Icon(Icons.grid_view_rounded),
-              label: 'Chủ đề',
+            NavigationDestination(
+              icon: const Icon(Icons.grid_view_outlined),
+              selectedIcon: const Icon(Icons.grid_view_rounded),
+              label: l10n.navTopics,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.graphic_eq_outlined),
-              selectedIcon: Icon(Icons.graphic_eq_rounded),
-              label: 'Shadowing',
+            NavigationDestination(
+              icon: const Icon(Icons.graphic_eq_outlined),
+              selectedIcon: const Icon(Icons.graphic_eq_rounded),
+              label: l10n.navShadowing,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories_rounded),
-              label: 'Từ điển',
+            NavigationDestination(
+              icon: const Icon(Icons.auto_stories_outlined),
+              selectedIcon: const Icon(Icons.auto_stories_rounded),
+              label: l10n.navDictionary,
             ),
             NavigationDestination(
               icon: Badge(
@@ -327,7 +352,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                 label: Text('$reviewCount'),
                 child: const Icon(Icons.replay_circle_filled_rounded),
               ),
-              label: 'Ôn tập',
+              label: l10n.navReview,
             ),
           ],
         ),
@@ -356,14 +381,31 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
               child: Row(
                 children: [
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 42,
+                    height: 42,
+                    padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(10),
+                      color: const Color(0xFFF8FEFE),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                      ),
                     ),
-                    child: const Icon(Icons.school_rounded,
-                        color: Colors.white, size: 22),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: Image.asset(
+                        'assets/images/app_logo.png',
+                        width: 38,
+                        height: 38,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                        errorBuilder: (_, _, _) => const Icon(
+                          Icons.school_rounded,
+                          color: AppColors.primary,
+                          size: 22,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -381,7 +423,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                         Text(
                           user != null
                               ? user.email
-                              : 'Chế độ học cục bộ an toàn',
+                              : context.l10n.guestUser,
                           style: TextStyle(
                             fontSize: 11.5,
                             color: context.textSecondaryColor,
@@ -433,16 +475,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Trợ lý AI English Buddy',
-                              style: TextStyle(
+                            Text(
+                              context.l10n.aiChatTitle,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.primary,
                               ),
                             ),
                             Text(
-                              'Hỏi đáp ngữ pháp & góp ý bài viết',
+                              context.l10n.aiChatQuickHelp,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: context.textSecondaryColor,
@@ -533,14 +575,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         );
       },
       icon: const Icon(Icons.smart_toy_rounded, size: 20),
-      label: const Text(
-        'Hỏi AI',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+      label: Text(
+        context.l10n.aiChatAsk,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
       ),
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       elevation: 3,
-      tooltip: 'Trò chuyện cùng Trợ lý AI English Buddy',
+      tooltip: context.l10n.aiChatTooltip,
     );
   }
 }

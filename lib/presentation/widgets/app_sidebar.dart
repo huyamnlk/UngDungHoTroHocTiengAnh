@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/study_provider.dart';
 import '../screens/chat/ai_chat_screen.dart';
@@ -39,84 +40,86 @@ class AppSidebar extends StatelessWidget {
   static List<SidebarNavItem> buildNavigationItems({
     int reviewCount = 0,
     bool isAdmin = false,
+    BuildContext? context,
   }) {
+    final l10n = context?.l10n;
     final items = <SidebarNavItem>[
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 0,
-        label: 'Trang chủ',
+        label: l10n?.navHome ?? 'Trang chủ',
         icon: Icons.dashboard_outlined,
         selectedIcon: Icons.dashboard_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 1,
-        label: 'Chủ đề',
+        label: l10n?.navTopics ?? 'Chủ đề',
         icon: Icons.grid_view_outlined,
         selectedIcon: Icons.grid_view_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 2,
-        label: 'Luyện nghe',
+        label: l10n?.navListening ?? 'Luyện nghe',
         icon: Icons.headphones_outlined,
         selectedIcon: Icons.headphones_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 3,
-        label: 'Luyện đọc',
+        label: l10n?.navReading ?? 'Luyện đọc',
         icon: Icons.menu_book_outlined,
         selectedIcon: Icons.menu_book_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 4,
-        label: 'Luyện viết',
+        label: l10n?.navWriting ?? 'Luyện viết',
         icon: Icons.edit_note_outlined,
         selectedIcon: Icons.edit_note_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 5,
-        label: 'Luyện nói',
+        label: l10n?.navSpeaking ?? 'Luyện nói',
         icon: Icons.record_voice_over_outlined,
         selectedIcon: Icons.record_voice_over_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 6,
-        label: 'Shadowing',
+        label: l10n?.navShadowing ?? 'Shadowing',
         icon: Icons.graphic_eq_outlined,
         selectedIcon: Icons.graphic_eq_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 7,
-        label: 'Từ vựng / Từ điển',
+        label: l10n?.navDictionary ?? 'Từ vựng / Từ điển',
         icon: Icons.auto_stories_outlined,
         selectedIcon: Icons.auto_stories_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 8,
-        label: 'Luyện thi',
+        label: l10n?.navExam ?? 'Luyện thi',
         icon: Icons.workspace_premium_outlined,
         selectedIcon: Icons.workspace_premium_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 9,
-        label: 'Trò chơi',
+        label: l10n?.navGames ?? 'Trò chơi',
         icon: Icons.extension_outlined,
         selectedIcon: Icons.extension_rounded,
       ),
       SidebarNavItem(
         index: 10,
-        label: 'Ôn tập',
+        label: l10n?.navReview ?? 'Ôn tập',
         icon: Icons.replay_rounded,
         selectedIcon: Icons.replay_circle_filled_rounded,
         badgeCount: reviewCount > 0 ? reviewCount : null,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 11,
-        label: 'Thống kê',
+        label: l10n?.navStats ?? 'Thống kê',
         icon: Icons.bar_chart_outlined,
         selectedIcon: Icons.bar_chart_rounded,
       ),
-      const SidebarNavItem(
+      SidebarNavItem(
         index: 12,
-        label: 'Cài đặt',
+        label: l10n?.navSettings ?? 'Cài đặt',
         icon: Icons.settings_outlined,
         selectedIcon: Icons.settings_rounded,
       ),
@@ -124,9 +127,9 @@ class AppSidebar extends StatelessWidget {
 
     if (isAdmin) {
       items.add(
-        const SidebarNavItem(
+        SidebarNavItem(
           index: 13,
-          label: 'Quản trị viên',
+          label: l10n?.navAdmin ?? 'Quản trị viên',
           icon: Icons.admin_panel_settings_outlined,
           selectedIcon: Icons.admin_panel_settings_rounded,
         ),
@@ -157,6 +160,7 @@ class AppSidebar extends StatelessWidget {
     final allItems = buildNavigationItems(
       reviewCount: reviewCount,
       isAdmin: authProvider?.isAdmin ?? false,
+      context: context,
     );
     final learningItems = allItems.sublist(0, 11); // 0..10
     final systemItems = allItems.sublist(11); // 11..12 (và 13 nếu là Admin)
@@ -195,7 +199,7 @@ class AppSidebar extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 12, bottom: 6),
                         child: Text(
-                          'KỸ NĂNG & HỌC TẬP',
+                          context.l10n.navSectionSkills,
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -219,7 +223,7 @@ class AppSidebar extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 12, bottom: 6),
                         child: Text(
-                          'TIẾN ĐỘ & HỆ THỐNG',
+                          context.l10n.navSectionSystem,
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -259,7 +263,7 @@ class AppSidebar extends StatelessWidget {
   Widget _buildAiAssistantButton(BuildContext context) {
     if (isCollapsed) {
       return Tooltip(
-        message: 'Trợ lý AI English Buddy (Hỏi đáp & Sửa lỗi)',
+        message: context.l10n.aiChatDesc,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -331,7 +335,7 @@ class AppSidebar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Trợ lý AI Buddy',
+                      context.l10n.aiChatTooltip,
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.bold,
@@ -340,7 +344,7 @@ class AppSidebar extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Hỏi đáp ngữ pháp & dịch',
+                      context.l10n.aiChatQuickHelp,
                       style: TextStyle(
                         fontSize: 10.5,
                         color: context.textSecondaryColor,
@@ -410,7 +414,7 @@ class AppSidebar extends StatelessWidget {
             )
           else
             Tooltip(
-              message: '${AppConstants.appName} - Mở rộng thanh bên',
+              message: context.l10n.sidebarExpandTooltip,
               child: InkWell(
                 onTap: onToggleCollapse,
                 borderRadius: BorderRadius.circular(12),
@@ -419,7 +423,7 @@ class AppSidebar extends StatelessWidget {
             ),
           if (!isCollapsed)
             Tooltip(
-              message: 'Thu gọn thanh bên',
+              message: context.l10n.sidebarCollapseTooltip,
               child: IconButton(
                 onPressed: onToggleCollapse,
                 icon: Icon(
@@ -444,25 +448,33 @@ class AppSidebar extends StatelessWidget {
 
   Widget _buildLogoBadge() {
     return Container(
-      width: 38,
-      height: 38,
+      key: const Key('sidebar_brand_logo'),
+      width: 42,
+      height: 42,
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(11),
+        color: const Color(0xFFF8FEFE),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
+            color: AppColors.primary.withValues(alpha: 0.22),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(11),
+        borderRadius: BorderRadius.circular(10),
         child: Image.asset(
           'assets/images/app_logo.png',
           width: 38,
           height: 38,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
           errorBuilder: (_, _, _) => Container(
             color: AppColors.primary,
             child: const Icon(

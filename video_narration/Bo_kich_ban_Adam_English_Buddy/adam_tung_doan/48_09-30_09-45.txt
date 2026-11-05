@@ -1,0 +1,1 @@
+﻿Thanh thông tin cho biết điểm, cấp độ, số mạng và trạng thái phòng thủ, kèm nút tạm dừng. Bảng phía dưới theo dõi từ mục tiêu, tốc độ gõ, độ chính xác và radar. Nếu để mục tiêu lọt qua phòng tuyến, khả năng phòng thủ suy giảm. Người chơi cần xử lý kịp thời các từ đang tiến gần đáy.

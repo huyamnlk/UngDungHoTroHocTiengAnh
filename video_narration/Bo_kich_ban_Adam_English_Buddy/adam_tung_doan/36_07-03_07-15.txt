@@ -1,0 +1,1 @@
+﻿Bảng kiểm gồm nhịp điệu, trọng âm, nối âm và ngữ điệu. Nhóm mở toàn bộ lời thoại, rồi chuyển câu để xem hướng dẫn riêng. Trong lượt minh họa này, các ô tự đánh giá chưa được chọn, nên chúng em không xem đây là lượt luyện đã hoàn tất.

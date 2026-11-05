@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/tts_service.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -93,7 +94,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
     if (widget.words.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.title)),
-        body: const Center(child: Text('Không có từ vựng nào để ôn tập.')),
+        body: Center(child: Text(context.l10n.flashcardEmpty)),
       );
     }
 
@@ -178,7 +179,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
                 children: [
                   Expanded(
                     child: CustomButton(
-                      text: 'Cần ôn tập',
+                      text: context.l10n.flashcardNeedReview,
                       icon: Icons.replay_rounded,
                       backgroundColor: AppColors.warning,
                       onPressed: () => _nextCard(false),
@@ -187,7 +188,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
                   const SizedBox(width: 16),
                   Expanded(
                     child: CustomButton(
-                      text: 'Đã nhớ rồi',
+                      text: context.l10n.flashcardMastered,
                       icon: Icons.check_circle_rounded,
                       backgroundColor: AppColors.success,
                       onPressed: () => _nextCard(true),
@@ -278,7 +279,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               Icon(Icons.touch_app_outlined, size: 16, color: context.textMutedColor),
               const SizedBox(width: 6),
               Text(
-                'Chạm thẻ để xem nghĩa',
+                context.l10n.flashcardTapToMeaning,
                 style: TextStyle(
                   fontSize: 13,
                   color: context.textMutedColor,
@@ -312,9 +313,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'NGHĨA TIẾNG VIỆT',
-            style: TextStyle(
+          Text(
+            context.l10n.flashcardVietnameseMeaning,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
@@ -364,7 +365,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               Icon(Icons.touch_app_outlined, size: 16, color: context.textMutedColor),
               const SizedBox(width: 6),
               Text(
-                'Chạm thẻ để lật lại từ',
+                context.l10n.flashcardTapToFlip,
                 style: TextStyle(
                   fontSize: 13,
                   color: context.textMutedColor,
@@ -380,10 +381,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
 
   // Giao diện khi hoàn thành phiên học thẻ
   Widget _buildFinishedView() {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Hoàn thành'),
+        title: Text(l10n.actionDone),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -409,7 +411,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               ),
               const SizedBox(height: 24),
               Text(
-                'Tuyệt vời! Bạn đã hoàn thành!',
+                l10n.flashcardCompletedTitle,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -419,7 +421,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               ),
               const SizedBox(height: 12),
               Text(
-                'Bạn vừa hoàn thành ôn tập ${widget.words.length} thẻ ghi nhớ.',
+                l10n.flashcardCompletedDesc(widget.words.length),
                 style: TextStyle(
                   fontSize: 15,
                   color: context.textSecondaryColor,
@@ -430,14 +432,14 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildResultTag('Đã thuộc', _rememberedCount, AppColors.success),
+                  _buildResultTag(l10n.flashcardMastered, _rememberedCount, AppColors.success),
                   const SizedBox(width: 24),
-                  _buildResultTag('Cần ôn thêm', _needReviewCount, AppColors.warning),
+                  _buildResultTag(l10n.flashcardNeedReview, _needReviewCount, AppColors.warning),
                 ],
               ),
               const SizedBox(height: 48),
               CustomButton(
-                text: 'Ôn lại lần nữa',
+                text: l10n.flashcardReviewAgain,
                 icon: Icons.refresh_rounded,
                 onPressed: () {
                   setState(() {
@@ -451,7 +453,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> with SingleTickerProv
               ),
               const SizedBox(height: 12),
               CustomButton(
-                text: 'Quay về trang trước',
+                text: l10n.flashcardBack,
                 isOutlined: true,
                 onPressed: () => Navigator.pop(context),
               ),

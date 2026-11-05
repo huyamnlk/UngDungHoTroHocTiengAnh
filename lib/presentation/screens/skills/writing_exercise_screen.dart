@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/skill_exercise_model.dart';
 import '../../../providers/skills_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -230,14 +230,14 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                 labelColor: AppColors.primary,
                 unselectedLabelColor: context.textSecondaryColor,
                 indicatorColor: AppColors.primary,
-                tabs: const [
+                tabs: [
                   Tab(
-                    icon: Icon(Icons.sort_by_alpha_rounded, size: 18),
-                    text: '1. Cấu trúc & Sắp xếp câu',
+                    icon: const Icon(Icons.sort_by_alpha_rounded, size: 18),
+                    text: context.l10n.writingTabScramble,
                   ),
                   Tab(
-                    icon: Icon(Icons.edit_document, size: 18),
-                    text: '2. Viết đoạn văn & Rubric',
+                    icon: const Icon(Icons.edit_document, size: 18),
+                    text: context.l10n.writingTabRubric,
                   ),
                 ],
               )
@@ -287,7 +287,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                     ),
                   ),
                   Text(
-                    'Câu ${_currentSentenceIndex + 1}/${widget.exercise.writingSentences.length}',
+                    context.l10n.examQuestionCounter(_currentSentenceIndex + 1, widget.exercise.writingSentences.length),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
@@ -366,7 +366,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                 child: _selectedWords.isEmpty
                     ? Center(
                         child: Text(
-                          'Chạm vào các từ bên dưới để ghép câu...',
+                          context.l10n.writingTapWordToForm,
                           style: TextStyle(
                             color: context.textMutedColor,
                             fontSize: 14,
@@ -452,7 +452,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _isCorrect! ? 'Chính xác!' : 'Chưa chính xác!',
+                            _isCorrect! ? context.l10n.quizPlayCorrect : context.l10n.quizPlayIncorrect,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: _isCorrect!
@@ -481,7 +481,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
               // Nút hành động
               if (!_isAnswerChecked)
                 CustomButton(
-                  text: 'Kiểm tra câu',
+                  text: context.l10n.writingCheckSentence,
                   onPressed: _selectedWords.isEmpty ? null : _checkAnswer,
                 )
               else
@@ -651,7 +651,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Số từ: $wordCount / tối thiểu ${task.minWords} từ',
+                            context.l10n.writingWordCountStatus(wordCount, task.minWords),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -693,7 +693,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                           context,
                           label: wordCount >= task.minWords
                               ? 'Đạt độ dài yêu cầu ($wordCount từ)'
-                              : 'Cần thêm ${task.minWords - wordCount} từ nữa',
+                              : context.l10n.writingNeedMoreWords(task.minWords - wordCount),
                           passed: wordCount >= task.minWords,
                         ),
                         _buildRuleBadge(
@@ -778,7 +778,7 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
               const SizedBox(height: 18),
 
               CustomButton(
-                text: 'Lưu bài viết & Mở khóa Bài mẫu tham khảo',
+                text: context.l10n.writingSaveModelAnswer,
                 icon: Icons.save_rounded,
                 onPressed: () => _saveEssaySubmission(task),
               ),
@@ -799,9 +799,8 @@ class _WritingExerciseScreenState extends State<WritingExerciseScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Bài viết mẫu tham khảo (Model Answer)',
-                            style: TextStyle(
+                          Text(context.l10n.writingModelAnswerTitle,
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: AppColors.primary,

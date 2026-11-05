@@ -1,0 +1,66 @@
+﻿Đoạn,Bắt đầu,Kết thúc,Nội dung,Khung đoạn (giây),Lời đọc mục tiêu (giây),Nghỉ cuối (giây),Ghi chú dựng
+1,00:00,00:14,Chào thầy – đăng ký – đăng nhập,14,13.7,0.3,"Đọc ngay từ đầu video. Màn hình chuyển từ đăng ký sang đăng nhập khoảng 00:08, vào Trang chủ khoảng 00:14. Đây là đoạn đọc nhanh nhất; không thêm một lời mở đầu dài trước đoạn này."
+2,00:14,00:22,Trang chủ sau đăng nhập,8,7.6,0.4,
+3,00:22,00:34,Đổi ngôn ngữ trực tiếp,12,11.2,0.8,
+4,00:34,00:43,Danh sách mười ba ngôn ngữ,9,8.2,0.8,
+5,00:43,00:51,Giao diện – mục tiêu – âm thanh,8,7.5,0.5,
+6,00:51,01:07,Hồ sơ – avatar – tiến độ tuần,16,15.2,0.8,Ảnh đại diện mới xuất hiện khoảng 01:06. Không nói người dùng đã hoàn thành mục tiêu tuần; các chỉ số tuần trong cảnh này đang bằng không.
+7,01:07,01:20,Chỉnh sửa thông tin cá nhân,13,12.2,0.8,"Video sửa tên hiển thị và bio, không thực hiện đổi username. Không đọc rằng username đã được đổi thành công."
+8,01:20,01:29,Lưu hồ sơ,9,8.2,0.8,
+9,01:29,01:39,Các thành phần trang chủ,10,9.3,0.7,
+10,01:39,01:50,Thiết lập Quiz,11,10.2,0.8,
+11,01:50,02:00,Trả lời và kiểm tra đáp án Quiz,10,9.0,1.0,
+12,02:00,02:10,Các dạng câu hỏi và phản hồi sai,10,9.2,0.8,
+13,02:10,02:22,Kết quả Quiz,12,11.2,0.8,
+14,02:22,02:32,Danh sách chủ đề,10,9.3,0.7,
+15,02:32,02:47,Học bằng Flashcard,15,13.6,1.4,"Dành khoảng nghỉ cuối cho thao tác chuyển thẻ. Trong video lần lượt thấy Office, Boss và Email."
+16,02:47,02:53,Danh sách từ và bộ lọc,6,5.6,0.4,Chỉ giới thiệu các điều khiển hiện trên trang; không mô tả một thao tác thêm từ đã hoàn tất vì video không mở form thêm từ.
+17,02:53,03:02,Luyện nghe – trình phát,9,7.5,1.5,"Có thao tác phát âm thanh. Nếu giữ tiếng ứng dụng, giảm nhạc nền và dành khoảng nghỉ cuối đoạn cho âm thanh mẫu."
+18,03:02,03:16,Luyện nghe – trắc nghiệm và điền từ,14,13.2,0.8,
+19,03:16,03:31,Luyện nghe – kết quả và transcript,15,13.8,1.2,
+20,03:31,03:44,Luyện đọc – chọn bài và đọc văn bản,13,12.2,0.8,
+21,03:44,03:55,Luyện đọc – trả lời câu hỏi,11,10.1,0.9,
+22,03:55,04:07,Luyện đọc – xem kết quả và bản dịch,12,11.0,1.0,
+23,04:07,04:20,Luyện viết – hai hình thức,13,12.2,0.8,
+24,04:20,04:34,Sắp xếp câu đầu tiên,14,13.0,1.0,
+25,04:34,04:51,Sắp xếp câu thứ hai,17,15.7,1.3,
+26,04:51,05:01,Sắp xếp câu thứ ba,10,9.2,0.8,
+27,05:01,05:17,Viết đoạn văn – đề bài và yêu cầu,16,14.8,1.2,
+28,05:17,05:33,Viết đoạn văn – bốn tiêu chí tự đánh giá,16,14.8,1.2,
+29,05:33,05:49,Viết đoạn văn – hướng dẫn trước khi nhập,16,14.5,1.5,"Màn hình gần như đứng yên và khung viết còn trống. Đây là lời giải thích ngay trên cảnh chờ, không nói nội dung đã được nhập ở thời điểm này."
+30,05:49,05:59,Nhập đoạn văn minh họa,10,9.2,0.8,"Đoạn văn trong video nói về sinh hoạt hằng ngày, không phải email công sở. Không khẳng định bài này đạt yêu cầu nội dung hoặc đạt điểm cao."
+31,05:59,06:16,Lưu bài viết – bài mẫu – lịch sử,17,15.6,1.4,
+32,06:16,06:29,Luyện nói – nghe mẫu và tự luyện,13,12.0,1.0,
+33,06:29,06:40,Luyện nói – rubric và chuyển câu,11,10.2,0.8,Cuối bài có nút Lưu nhưng cảnh quay rời bài; không nói đã lưu thành công lượt nói này.
+34,06:40,06:51,Shadowing – lọc bài và phân tích câu,11,10.2,0.8,
+35,06:51,07:03,Shadowing – nghe chậm và nói đuổi,12,11.0,1.0,
+36,07:03,07:15,Shadowing – transcript và tự đánh giá,12,11.2,0.8,
+37,07:15,07:29,Từ điển – các bộ lọc,14,13.0,1.0,
+38,07:29,07:44,Từ điển – tra trực tuyến và lưu từ,15,14.1,0.9,
+39,07:44,07:58,Kho luyện thi,14,13.0,1.0,
+40,07:58,08:04,Xem lại bài thi cũ,6,5.6,0.4,
+41,08:04,08:18,Luyện thi nghe – chọn chế độ,14,13.0,1.0,
+42,08:18,08:34,Luyện thi nghe – gợi ý và điều hướng,16,14.9,1.1,
+43,08:34,08:46,Chuyển sang thi đọc tính giờ,12,11.1,0.9,
+44,08:46,08:57,Làm bài thi đọc và xác nhận nộp,11,10.3,0.7,
+45,08:57,09:06,Kết quả thi đọc,9,8.4,0.6,
+46,09:06,09:15,Trung tâm trò chơi – Chiến cơ vũ trụ,9,8.3,0.7,
+47,09:15,09:30,Chiến cơ – gõ từ và bắn mục tiêu,15,13.6,1.4,
+48,09:30,09:45,Chiến cơ – theo dõi trạng thái,15,13.6,1.4,
+49,09:45,09:59,Chiến cơ – kết thúc và ôn từ,14,12.8,1.2,
+50,09:59,10:13,Đấu trường từ vựng – thiết lập,14,13.0,1.0,
+51,10:13,10:28,Đấu trường – phản hồi và combo,15,13.8,1.2,
+52,10:28,10:39,Đấu trường – tiếp tục lượt đấu,11,10.0,1.0,
+53,10:39,10:47,Đấu trường – bảng tổng kết,8,7.3,0.7,
+54,10:47,10:57,Mưa từ vựng – bắt đầu,10,9.2,0.8,
+55,10:57,11:08,Mưa từ vựng – điểm và lượt chơi,11,10.2,0.8,
+56,11:08,11:14,Mưa từ vựng – kết quả,6,5.6,0.4,
+57,11:14,11:23,Ôn tập và yêu thích,9,8.3,0.7,
+58,11:23,11:34,Ôn lại bằng Flashcard,11,10.2,0.8,
+59,11:34,11:47,Thống kê và lịch sử,13,12.1,0.9,"Nút khôi phục chỉ xuất hiện trong video, không được bấm. Không nói dữ liệu đã được khôi phục hoặc xóa."
+60,11:47,11:59,Trợ lý AI – xem hội thoại,12,11.1,0.9,Ví dụ sửa ngữ pháp đầu màn hình là lịch sử có sẵn; không khẳng định vừa gửi trong cảnh này. Không đọc lại lời giải ngữ pháp sai của AI trong lịch sử.
+61,11:59,12:10,Trợ lý AI – yêu cầu diễn đạt dài hơn,11,10.1,0.9,
+62,12:10,12:22,Trợ lý AI – đọc và đối chiếu gợi ý,12,11.0,1.0,"Các nút thông tin và xóa chỉ xuất hiện, không được thao tác. Không mô tả đã xóa lịch sử."
+63,12:22,12:36,Trợ lý AI – bổ sung ngữ cảnh,14,13.0,1.0,
+64,12:36,12:44,Đăng xuất,8,7.5,0.5,
+65,12:44,12:48.733,Lời kết,4.733,4.433,0.3,

@@ -1,0 +1,1 @@
+﻿Bảng tự đánh giá gồm âm cuối, trọng âm, nối âm và ngữ điệu. Nhóm chuyển qua các câu mẫu để quan sát hướng dẫn tương ứng. Điểm trên bảng phản ánh tiêu chí tự chọn; đây không phải điểm nhận dạng giọng nói tự động.

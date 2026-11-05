@@ -1,0 +1,1 @@
+﻿Trang Thống kê tổng hợp tỷ lệ hoàn thành, tổng số từ, số đã nhớ, cần ôn và yêu thích. Bên dưới là tiến độ từng chủ đề cùng lịch sử Quiz. Các số liệu giúp người học nhận biết phần còn yếu. Trang cũng có chức năng khôi phục dữ liệu ban đầu.

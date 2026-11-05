@@ -1,0 +1,1 @@
+﻿Phần viết đoạn văn yêu cầu soạn một email cập nhật tiến độ dự án và đề xuất lịch họp. Đề bài đưa khoảng độ dài cùng các từ khóa mục tiêu. Bên dưới là khung nhập nội dung và bộ đếm từ. Khi chưa nhập, hệ thống hiển thị rõ số từ bằng không và những yêu cầu chưa đáp ứng.

@@ -1,0 +1,1 @@
+﻿Mục Ôn tập tập hợp các từ cần củng cố, bên cạnh tab Yêu thích. Người dùng có thể nghe từng từ hoặc chọn Học thẻ ngay. Những từ từng trả lời sai cũng xuất hiện để luyện lại.

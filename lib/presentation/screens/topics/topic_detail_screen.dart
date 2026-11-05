@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/topic_model.dart';
 import '../../../providers/quiz_provider.dart';
 import '../../../providers/study_provider.dart';
@@ -113,7 +113,7 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              text: 'Học thẻ (${studyProvider.currentTopicWords.length})',
+                              text: context.l10n.topicLearnFlashcard(studyProvider.currentTopicWords.length),
                               icon: Icons.style_rounded,
                               backgroundColor: themeColor,
                               height: 44,
@@ -135,7 +135,7 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: CustomButton(
-                              text: 'Thi Quiz',
+                              text: context.l10n.quizSetupTitle,
                               icon: Icons.quiz_rounded,
                               backgroundColor: AppColors.accent,
                               height: 44,
@@ -166,7 +166,7 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                         style: TextStyle(color: context.textPrimaryColor),
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
-                          hintText: 'Tìm từ tiếng Anh hoặc nghĩa tiếng Việt...',
+                          hintText: context.l10n.topicSearchPlaceholder,
                           hintStyle: TextStyle(fontSize: 14, color: context.textMutedColor),
                           prefixIcon: Icon(Icons.search_rounded, size: 20, color: context.textSecondaryColor),
                           suffixIcon: _searchQuery.isNotEmpty
@@ -193,13 +193,13 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            _buildFilterChip('Tất cả', 'all'),
+                            _buildFilterChip(context.l10n.topicFilterAll, 'all'),
                             const SizedBox(width: 8),
-                            _buildFilterChip('Đã nhớ', 'mastered'),
+                            _buildFilterChip(context.l10n.topicFilterMastered, 'mastered'),
                             const SizedBox(width: 8),
-                            _buildFilterChip('Cần ôn', 'learning'),
+                            _buildFilterChip(context.l10n.topicFilterReview, 'learning'),
                             const SizedBox(width: 8),
-                            _buildFilterChip('Mới', 'new'),
+                            _buildFilterChip(context.l10n.topicFilterNew, 'new'),
                           ],
                         ),
                       ),
@@ -210,10 +210,10 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                 // Danh sách từ vựng
                 Expanded(
                   child: words.isEmpty
-                      ? const EmptyStateView(
+                      ? EmptyStateView(
                           icon: Icons.search_off_rounded,
-                          title: 'Không tìm thấy từ vựng',
-                          description: 'Thử tìm với từ khóa khác hoặc chuyển sang bộ lọc khác.',
+                          title: context.l10n.topicEmptyWord,
+                          description: context.l10n.topicEmptyWordDesc,
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),

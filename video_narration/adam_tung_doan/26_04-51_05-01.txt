@@ -1,0 +1,1 @@
+﻿Với câu đề nghị đổi lịch họp, nhóm tiếp tục thử cách sắp xếp. Sau khi kiểm tra, ứng dụng hiển thị đáp án đúng. Người học có thể đối chiếu cấu trúc đề nghị trước khi chuyển sang phần viết đoạn văn.

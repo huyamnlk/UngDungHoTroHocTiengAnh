@@ -1,0 +1,1 @@
+﻿Hộp chọn mở rộng cung cấp mười ba ngôn ngữ, kèm tên bản địa, ô tìm kiếm và dấu đánh dấu lựa chọn hiện tại. Người dùng cuộn danh sách để tìm ngôn ngữ phù hợp.

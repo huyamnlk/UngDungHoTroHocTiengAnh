@@ -12,11 +12,13 @@ import 'providers/ai_chat_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dictionary_provider.dart';
 import 'providers/games_provider.dart';
+import 'providers/locale_provider.dart';
 import 'providers/quiz_provider.dart';
 import 'providers/skills_provider.dart';
 import 'providers/stats_provider.dart';
 import 'providers/study_provider.dart';
 import 'providers/theme_provider.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +56,9 @@ class EnglishBuddyApp extends StatelessWidget {
           create: (_) => ThemeProvider(),
         ),
         ChangeNotifierProvider(
+          create: (_) => LocaleProvider(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => StudyProvider()..init(),
         ),
         ChangeNotifierProvider(
@@ -78,18 +83,42 @@ class EnglishBuddyApp extends StatelessWidget {
           create: (_) => AiChatProvider()..init(),
         ),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeProvider, localeProvider, child) {
           final fontFamily = GoogleFonts.plusJakartaSans().fontFamily;
+          const fontFallbacks = <String>[
+            'Noto Sans',
+            'Noto Sans JP',
+            'Noto Sans SC',
+            'Noto Sans KR',
+            'Noto Sans Thai',
+            'Segoe UI',
+            'Roboto',
+            'sans-serif',
+          ];
 
           return MaterialApp(
             title: AppConstants.appName,
             debugShowCheckedModeBanner: false,
+            locale: localeProvider.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localeResolutionCallback: (locale, supportedLocales) {
+              if (locale != null) {
+                for (final supported in supportedLocales) {
+                  if (supported.languageCode == locale.languageCode) {
+                    return supported;
+                  }
+                }
+              }
+              return const Locale('vi');
+            },
             themeMode: themeProvider.themeMode,
             // THEME SÁNG (LIGHT)
             theme: ThemeData(
               useMaterial3: true,
               fontFamily: fontFamily,
+              fontFamilyFallback: fontFallbacks,
               brightness: Brightness.light,
               colorScheme: ColorScheme.fromSeed(
                 seedColor: AppColors.primary,
@@ -163,6 +192,7 @@ class EnglishBuddyApp extends StatelessWidget {
             darkTheme: ThemeData(
               useMaterial3: true,
               fontFamily: fontFamily,
+              fontFamilyFallback: fontFallbacks,
               brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(
                 seedColor: AppColors.primary,

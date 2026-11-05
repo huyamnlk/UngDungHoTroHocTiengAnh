@@ -1,0 +1,1 @@
+﻿Nhóm chúng em chào thầy. Chúng em xin giới thiệu ứng dụng học tiếng Anh English Buddy. Người dùng đăng ký bằng tên, email, mật khẩu và xác minh chống bot. Đăng ký thành công, ứng dụng trở về trang đăng nhập. Form cũng có lựa chọn Google. Ở đây, nhóm dùng email và mật khẩu để vào hệ thống.

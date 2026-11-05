@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
+import '../core/database/database_helper.dart';
+import '../core/services/auth_service.dart';
 import '../data/models/game_record_model.dart';
 import '../data/models/word_model.dart';
 import '../data/repositories/game_repository.dart';
 import '../data/repositories/vocabulary_repository.dart';
+import 'study_provider.dart';
 
 class GamesProvider extends ChangeNotifier {
   final GameRepository _gameRepository;
@@ -93,6 +96,17 @@ class GamesProvider extends ChangeNotifier {
   Future<void> recordGameResult(GameRecordModel record) async {
     try {
       await _gameRepository.saveGameRecord(record);
+      await DatabaseHelper.instance.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType: 'game',
+        itemId: 'game_${record.gameType}',
+        wordCount: 0,
+        activityCount: 1,
+        deduplicationScope: record.completedAt.isNotEmpty
+            ? record.completedAt
+            : DatabaseHelper.formatLocalDateKey(DateTime.now()),
+      );
+      StudyProvider.notifyActivityRecorded();
 
       if (record.gameType == 'arena' && record.score > _arenaHighScore) {
         _arenaHighScore = record.score;

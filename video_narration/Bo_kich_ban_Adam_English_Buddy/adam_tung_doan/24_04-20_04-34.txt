@@ -1,0 +1,1 @@
+﻿Khi chọn từng từ, chúng sẽ xuất hiện trong khung trả lời theo đúng thứ tự thao tác. Sau đó, người học bấm Kiểm tra câu. Ở lần thử này, thứ tự chưa đúng nên hệ thống báo lỗi và đưa ra câu chuẩn để người học so sánh, nhận biết vị trí cần sửa.

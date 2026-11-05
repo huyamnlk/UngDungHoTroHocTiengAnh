@@ -1,0 +1,1 @@
+﻿Sau khi lưu, ứng dụng mở bài mẫu tham khảo và hiển thị bản viết vừa lưu trong lịch sử. Người học có thể đọc hoặc nghe bài mẫu, so sánh cách triển khai ý và sử dụng từ khóa. Bản nháp được giữ lại để xem lại. Khi trở về danh sách, lượt luyện viết mới cũng xuất hiện trong phần lịch sử kỹ năng.

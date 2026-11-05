@@ -1,0 +1,1 @@
+﻿Quy trình gồm nghe mẫu, nghe chậm, nói đuổi theo và tự đánh giá. Khi bắt đầu nói đuổi, đồng hồ ghi nhận thời gian thực hành. Giao diện cũng có chức năng kiểm tra micro thiết bị. Người học dừng lượt luyện khi hoàn tất rồi chuyển sang bảng kiểm.

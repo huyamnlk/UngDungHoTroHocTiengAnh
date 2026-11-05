@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/topic_model.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/interactive_card.dart';
@@ -13,11 +13,12 @@ class TopicListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studyProvider = Provider.of<StudyProvider>(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Chủ đề học tập'),
+        title: Text(l10n.topicsTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -63,7 +64,7 @@ class TopicListScreen extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      'Khám phá ${studyProvider.topics.length} chủ đề từ vựng thực tế được phân cấp từ A1 đến C1.',
+                                      l10n.topicsSubtitle(studyProvider.topics.length),
                                       style: TextStyle(
                                         fontSize: 13.5,
                                         fontWeight: FontWeight.w500,
@@ -164,7 +165,7 @@ class TopicListScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${topic.totalWords} mục từ vựng',
+                          context.l10n.topicsCountWords(topic.totalWords),
                           style: TextStyle(
                             fontSize: 13,
                             color: context.textSecondaryColor,
@@ -202,7 +203,7 @@ class TopicListScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Đã thuộc: ${topic.masteredWords}/${topic.totalWords}',
+                    context.l10n.topicsMasteredCount(topic.masteredWords, topic.totalWords),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

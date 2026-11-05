@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/word_model.dart';
 import '../../widgets/custom_button.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class MatchingItem {
   final int wordId;
@@ -137,7 +138,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Ghép từ & Nghĩa'),
+        title: Text(context.l10n.skillsMatchingGameTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -158,9 +159,9 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildMetric('Thời gian', timeStr, Icons.timer_outlined, AppColors.primary),
-                    _buildMetric('Số bước đi', '$_moves', Icons.touch_app_outlined, AppColors.accent),
-                    _buildMetric('Đã ghép', '$_matchedPairs/$_totalPairs', Icons.check_circle_outline, AppColors.success),
+                    _buildMetric(context.l10n.gameTime, timeStr, Icons.timer_outlined, AppColors.primary),
+                    _buildMetric('Moves', '$_moves', Icons.touch_app_outlined, AppColors.accent),
+                    _buildMetric(context.l10n.skillsCompleted, '$_matchedPairs/$_totalPairs', Icons.check_circle_outline, AppColors.success),
                   ],
                 ),
               ),
@@ -269,18 +270,18 @@ class _MatchingGameScreenState extends State<MatchingGameScreen> {
             const Icon(Icons.stars_rounded, size: 64, color: AppColors.warning),
             const SizedBox(height: 16),
             Text(
-              'Xuất sắc!',
+              context.l10n.quizResultExcellent,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.textPrimaryColor),
             ),
             const SizedBox(height: 8),
             Text(
-              'Bạn đã ghép đúng tất cả các từ trong $timeStr với $_moves lượt chọn.',
+              '${context.l10n.gameCompleted} ($timeStr • $_moves)',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: context.textSecondaryColor),
             ),
             const SizedBox(height: 24),
             CustomButton(
-              text: 'Chơi lại ván mới',
+              text: context.l10n.gamePlayAgain,
               icon: Icons.refresh_rounded,
               onPressed: () {
                 setState(() {

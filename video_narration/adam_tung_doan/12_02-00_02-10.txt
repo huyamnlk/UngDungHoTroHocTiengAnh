@@ -1,0 +1,1 @@
+﻿Các câu tiếp theo kết hợp chọn từ theo nghĩa và điền từ vào ngữ cảnh. Khi chọn sai, ứng dụng đánh dấu phương án sai bằng màu đỏ, đồng thời chỉ ra đáp án đúng để người học nhận biết lỗi.

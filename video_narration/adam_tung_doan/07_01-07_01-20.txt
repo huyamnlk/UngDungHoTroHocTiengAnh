@@ -1,0 +1,1 @@
+﻿Ở phần thông tin, nhóm thay đổi tên hiển thị, nhập giới thiệu bản thân và chọn mục tiêu mười từ mỗi ngày. Form còn có mục tiêu học tập, trường tên đăng nhập và email. Cấp độ hiện tại được hiển thị riêng, không cho sửa trực tiếp tại đây.

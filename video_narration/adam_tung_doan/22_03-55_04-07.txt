@@ -1,0 +1,1 @@
+﻿Ứng dụng thông báo hai trên hai câu đúng, tương ứng một trăm phần trăm. Mỗi câu có phần giải thích giúp người học xác định thông tin trong đoạn văn. Nhóm mở bản dịch tiếng Việt để đối chiếu, sau đó trở lại danh sách bài đọc.

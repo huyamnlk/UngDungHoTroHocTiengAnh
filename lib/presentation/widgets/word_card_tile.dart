@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/services/tts_service.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../data/models/word_model.dart';
 import 'interactive_card.dart';
 
@@ -24,18 +25,19 @@ class WordCardTile extends StatelessWidget {
     Color statusColor;
     String statusLabel;
 
+    final l10n = context.l10n;
     switch (word.status) {
       case AppConstants.statusMastered:
         statusColor = AppColors.success;
-        statusLabel = 'Đã nhớ';
+        statusLabel = l10n.topicFilterMastered;
         break;
       case AppConstants.statusLearning:
         statusColor = AppColors.warning;
-        statusLabel = 'Cần ôn';
+        statusLabel = l10n.topicFilterReview;
         break;
       default:
         statusColor = AppColors.statusNew;
-        statusLabel = 'Mới';
+        statusLabel = l10n.topicFilterNew;
         break;
     }
 
@@ -49,7 +51,7 @@ class WordCardTile extends StatelessWidget {
         children: [
           // Nút loa phát âm
           Tooltip(
-            message: 'Nghe phát âm',
+            message: l10n.homeListenPronunciation,
             child: InkWell(
               onTap: () {
                 TtsService().speak(word.term);

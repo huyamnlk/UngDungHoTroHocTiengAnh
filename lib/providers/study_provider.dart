@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../core/constants/app_constants.dart';
+import '../core/database/database_helper.dart';
+import '../core/services/auth_service.dart';
 import '../data/models/topic_model.dart';
 import '../data/models/word_model.dart';
 import '../data/repositories/vocabulary_repository.dart';
@@ -7,8 +9,39 @@ import '../data/repositories/vocabulary_repository.dart';
 class StudyProvider extends ChangeNotifier {
   final VocabularyRepository _repository;
 
+  static VoidCallback? _onActivityRecordedListener;
+
+  static void notifyActivityRecorded() {
+    _onActivityRecordedListener?.call();
+  }
+
   StudyProvider({VocabularyRepository? repository})
-      : _repository = repository ?? VocabularyRepository();
+      : _repository = repository ?? VocabularyRepository() {
+    _onActivityRecordedListener = () {
+      if (!_isDisposed) {
+        loadWeeklyProgress();
+      }
+    };
+    AuthService.onActiveUserChanged = () {
+      if (!_isDisposed) {
+        loadWeeklyProgress();
+      }
+    };
+  }
+
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,6 +59,7 @@ class StudyProvider extends ChangeNotifier {
     'learning': 0,
     'favorite': 0,
   };
+  Map<String, dynamic> _weeklyProgress = {};
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -37,6 +71,7 @@ class StudyProvider extends ChangeNotifier {
   List<String> get searchHistory => _searchHistory;
   WordModel? get wordOfTheDay => _wordOfTheDay;
   Map<String, int> get overallStats => _overallStats;
+  Map<String, dynamic> get weeklyProgress => _weeklyProgress;
 
   Future<void> init() async {
     await loadInitialData();
@@ -56,6 +91,7 @@ class StudyProvider extends ChangeNotifier {
         loadFavoriteWords(),
         loadOverallStats(),
         loadSearchHistory(),
+        loadWeeklyProgress(notify: false),
       ]);
     } catch (e) {
       _errorMessage = 'Không thể tải dữ liệu: $e';
@@ -64,6 +100,28 @@ class StudyProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<Map<String, dynamic>> loadWeeklyProgress({
+    String? userUid,
+    DateTime? referenceNow,
+    bool notify = true,
+  }) async {
+    try {
+      final effectiveUid = (userUid != null && userUid.trim().isNotEmpty)
+          ? userUid.trim()
+          : AuthService.currentActiveUid;
+      _weeklyProgress = await DatabaseHelper.instance.getWeeklyActivitySummary(
+        userUid: effectiveUid,
+        referenceNow: referenceNow,
+      );
+      if (notify) {
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading weekly progress: $e');
+    }
+    return _weeklyProgress;
   }
 
   Future<void> loadTopics() async {
@@ -163,6 +221,13 @@ class StudyProvider extends ChangeNotifier {
         AppConstants.statusMastered,
         currentInterval: word.intervalDays,
       );
+      await DatabaseHelper.instance.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType: 'word_review',
+        itemId: 'word_${word.id}',
+        wordCount: 1,
+        activityCount: 0,
+      );
       await _syncWordUpdate(word.id, AppConstants.statusMastered);
     } catch (e) {
       debugPrint('Error marking word as mastered: $e');
@@ -176,6 +241,13 @@ class StudyProvider extends ChangeNotifier {
         word.id,
         AppConstants.statusLearning,
         currentInterval: 1,
+      );
+      await DatabaseHelper.instance.recordLearningActivity(
+        userUid: AuthService.currentActiveUid,
+        activityType: 'word_review',
+        itemId: 'word_${word.id}',
+        wordCount: 1,
+        activityCount: 0,
       );
       await _syncWordUpdate(word.id, AppConstants.statusLearning);
     } catch (e) {
@@ -272,6 +344,7 @@ class StudyProvider extends ChangeNotifier {
     await loadReviewWords();
     await loadDueSrsWords();
     await loadOverallStats();
+    await loadWeeklyProgress(notify: false);
     notifyListeners();
   }
 }

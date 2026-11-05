@@ -5,7 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/exam_seed_data.dart';
 import '../../../core/database/skills_seed_data.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/exam_model.dart';
 import '../../../data/models/skill_exercise_model.dart';
 import '../../../data/models/topic_model.dart';
@@ -218,17 +218,17 @@ class _AdminScreenState extends State<AdminScreen>
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.admin_panel_settings_rounded,
               color: AppColors.warning,
               size: 24,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Khu vực Quản trị Hệ thống (Admin)',
+                context.l10n.adminTitle,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -239,7 +239,7 @@ class _AdminScreenState extends State<AdminScreen>
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Làm mới dữ liệu quản trị',
+            tooltip: context.l10n.adminRefresh,
             onPressed: _refreshAllAdminData,
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -252,26 +252,26 @@ class _AdminScreenState extends State<AdminScreen>
           labelColor: context.primaryAccent,
           unselectedLabelColor: context.textSecondaryColor,
           indicatorColor: context.primaryAccent,
-          tabs: const [
+          tabs: [
             Tab(
-              icon: Icon(Icons.people_alt_rounded, size: 19),
-              text: 'Người dùng & Cấp độ',
+              icon: const Icon(Icons.people_alt_rounded, size: 19),
+              text: context.l10n.adminUsers,
             ),
             Tab(
-              icon: Icon(Icons.library_books_rounded, size: 19),
-              text: 'Kho Từ vựng & Chủ đề',
+              icon: const Icon(Icons.library_books_rounded, size: 19),
+              text: context.l10n.adminVocab,
             ),
             Tab(
-              icon: Icon(Icons.chrome_reader_mode_rounded, size: 19),
-              text: 'Bài đọc & Bài nghe',
+              icon: const Icon(Icons.chrome_reader_mode_rounded, size: 19),
+              text: context.l10n.adminExercises,
             ),
             Tab(
-              icon: Icon(Icons.assignment_turned_in_rounded, size: 19),
-              text: 'Đề thi thử (Exams)',
+              icon: const Icon(Icons.assignment_turned_in_rounded, size: 19),
+              text: context.l10n.adminExams,
             ),
             Tab(
-              icon: Icon(Icons.analytics_rounded, size: 19),
-              text: 'Giám sát Hệ thống',
+              icon: const Icon(Icons.analytics_rounded, size: 19),
+              text: context.l10n.adminSystem,
             ),
           ],
         ),
@@ -2330,14 +2330,14 @@ class _AdminScreenState extends State<AdminScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy bỏ'),
+            child: Text(context.l10n.actionCancel),
           ),
           FilledButton(
             style: isDanger
                 ? FilledButton.styleFrom(backgroundColor: AppColors.danger)
                 : null,
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Xác nhận'),
+            child: Text(context.l10n.actionConfirm),
           ),
         ],
       ),

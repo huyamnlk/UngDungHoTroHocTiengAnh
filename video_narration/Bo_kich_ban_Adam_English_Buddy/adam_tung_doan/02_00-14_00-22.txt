@@ -1,0 +1,1 @@
+﻿Đăng nhập thành công, trang chủ hiển thị lời chào theo tên tài khoản, tiến độ học, chuỗi ngày học và các lối tắt. Thanh bên trái giúp chuyển nhanh giữa những chức năng chính.

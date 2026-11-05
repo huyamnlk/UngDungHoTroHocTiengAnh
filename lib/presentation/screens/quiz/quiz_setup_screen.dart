@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../providers/quiz_provider.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -15,17 +16,18 @@ class QuizSetupScreen extends StatefulWidget {
 
 class _QuizSetupScreenState extends State<QuizSetupScreen> {
   int? _selectedTopicId;
-  String _selectedTopicName = 'Tổng hợp tất cả chủ đề';
+  String? _selectedTopicName;
   int _questionCount = 5;
 
   @override
   Widget build(BuildContext context) {
     final studyProvider = Provider.of<StudyProvider>(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Thử thách Quiz'),
+        title: Text(l10n.quizSetupTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -53,23 +55,23 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                   ),
                 ],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.psychology_rounded, color: Colors.white, size: 40),
-                  SizedBox(height: 16),
+                  const Icon(Icons.psychology_rounded, color: Colors.white, size: 40),
+                  const SizedBox(height: 16),
                   Text(
-                    'Kiểm tra trí nhớ phản xạ',
-                    style: TextStyle(
+                    l10n.quizSetupHeader,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Củng cố từ vựng qua các dạng câu hỏi: Chọn nghĩa, chọn từ và điền từ vào câu thực tế.',
-                    style: TextStyle(
+                    l10n.quizSetupSubtitle,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.white70,
                       height: 1.4,
@@ -92,7 +94,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Chọn chủ đề kiểm tra',
+                    l10n.quizSetupSelectTopic,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -104,8 +106,8 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                   // Option: Tổng hợp
                   _buildTopicOption(
                     id: null,
-                    name: 'Tổng hợp tất cả chủ đề',
-                    subtitle: 'Lấy ngẫu nhiên từ toàn bộ kho từ vựng',
+                    name: l10n.quizSetupAllTopics,
+                    subtitle: l10n.quizSetupAllTopicsDesc,
                     icon: Icons.auto_awesome_rounded,
                   ),
                   Divider(height: 20, color: context.borderCol),
@@ -115,7 +117,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                     return _buildTopicOption(
                       id: t.id,
                       name: t.name,
-                      subtitle: '${t.totalWords} từ vựng',
+                      subtitle: l10n.topicsCountWords(t.totalWords),
                       icon: Icons.folder_outlined,
                     );
                   }),
@@ -136,7 +138,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Số lượng câu hỏi',
+                    l10n.quizSetupQuestionCount,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -149,7 +151,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                       Expanded(
                         child: _buildCountOption(
                           count: 5,
-                          label: '5 câu (Nhanh)',
+                          label: l10n.quizSetupCountFast,
                           isSelected: _questionCount == 5,
                         ),
                       ),
@@ -157,7 +159,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                       Expanded(
                         child: _buildCountOption(
                           count: 10,
-                          label: '10 câu (Tiêu chuẩn)',
+                          label: l10n.quizSetupCountStandard,
                           isSelected: _questionCount == 10,
                         ),
                       ),
@@ -170,14 +172,16 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
 
             // Nút Bắt đầu
             CustomButton(
-              text: 'Bắt đầu làm bài',
+              text: l10n.quizSetupStart,
               icon: Icons.play_arrow_rounded,
               height: 52,
               onPressed: () async {
                 final quizProvider = Provider.of<QuizProvider>(context, listen: false);
                 await quizProvider.startQuiz(
                   topicId: _selectedTopicId,
-                  topicName: _selectedTopicName,
+                  topicName: _selectedTopicId == null
+                      ? l10n.quizSetupAllTopics
+                      : (_selectedTopicName ?? l10n.quizSetupAllTopics),
                   count: _questionCount,
                 );
 

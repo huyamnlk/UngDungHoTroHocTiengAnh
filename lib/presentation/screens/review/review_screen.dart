@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/study_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -35,18 +36,19 @@ class _ReviewScreenState extends State<ReviewScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final studyProvider = Provider.of<StudyProvider>(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Ôn tập & Yêu thích'),
+        title: Text(l10n.reviewTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
         actions: [
           IconButton(
             icon: Icon(Icons.bar_chart_rounded, color: context.primaryAccent),
-            tooltip: 'Xem thống kê tiến độ',
+            tooltip: l10n.reviewViewStats,
             onPressed: () {
               Navigator.push(
                 context,
@@ -68,11 +70,11 @@ class _ReviewScreenState extends State<ReviewScreen> with SingleTickerProviderSt
                 indicatorWeight: 3,
                 tabs: [
                   Tab(
-                    text: 'Cần ôn (${studyProvider.reviewWords.length})',
+                    text: l10n.reviewTabNeedReview(studyProvider.reviewWords.length),
                     icon: const Icon(Icons.replay_rounded, size: 20),
                   ),
                   Tab(
-                    text: 'Yêu thích (${studyProvider.favoriteWords.length})',
+                    text: l10n.reviewTabFavorites(studyProvider.favoriteWords.length),
                     icon: const Icon(Icons.favorite_rounded, size: 20),
                   ),
                 ],
@@ -88,20 +90,20 @@ class _ReviewScreenState extends State<ReviewScreen> with SingleTickerProviderSt
           // Tab 1: Danh sách từ cần ôn
           _buildWordList(
             words: studyProvider.reviewWords,
-            emptyTitle: 'Chưa có từ nào cần ôn',
-            emptyDesc: 'Khi bạn đánh dấu từ là "Cần ôn" trong Flashcard hoặc trả lời chưa đúng trong Quiz, từ sẽ tự động xuất hiện ở đây theo thuật toán Spaced Repetition.',
-            buttonTitle: 'Ôn thẻ từ cần nhớ',
-            screenTitle: 'Ôn tập từ vựng',
+            emptyTitle: l10n.reviewEmptyNeedReview,
+            emptyDesc: l10n.reviewEmptyNeedReviewDesc,
+            buttonTitle: l10n.reviewLearnFlashcardsNeed,
+            screenTitle: l10n.reviewTabNeedReview(studyProvider.reviewWords.length),
             isReviewTab: true,
           ),
 
           // Tab 2: Danh sách từ yêu thích
           _buildWordList(
             words: studyProvider.favoriteWords,
-            emptyTitle: 'Chưa có từ yêu thích',
-            emptyDesc: 'Hãy bấm biểu tượng trái tim ở bất kỳ từ vựng nào để lưu lại và xem lại tại đây.',
-            buttonTitle: 'Học thẻ từ yêu thích',
-            screenTitle: 'Từ vựng yêu thích',
+            emptyTitle: l10n.reviewEmptyFavorites,
+            emptyDesc: l10n.reviewEmptyFavoritesDesc,
+            buttonTitle: l10n.reviewLearnFlashcardsFav,
+            screenTitle: l10n.reviewTabFavorites(studyProvider.favoriteWords.length),
             isReviewTab: false,
           ),
         ],
@@ -143,7 +145,7 @@ class _ReviewScreenState extends State<ReviewScreen> with SingleTickerProviderSt
               child: Row(
                 children: [
                   Text(
-                    'Tổng cộng: ${words.length} từ',
+                    context.l10n.reviewTotalWords(words.length),
                     style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,

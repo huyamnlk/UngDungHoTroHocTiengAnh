@@ -1,0 +1,1 @@
+﻿Bài đọc nằm bên trái, câu hỏi bên phải. Phía trên có đồng hồ đếm ngược và bảng số câu; mỗi câu có tùy chọn đánh dấu. Nhóm thử trả lời, chuyển câu và nhấn nộp. Hộp xác nhận giúp tránh nộp nhầm.

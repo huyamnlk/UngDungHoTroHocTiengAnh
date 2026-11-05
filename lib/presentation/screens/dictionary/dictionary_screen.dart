@@ -4,7 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/dictionary_api_service.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/online_dictionary_result.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/dictionary_provider.dart';
@@ -92,8 +92,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       setState(() => _savedOnlineWords.add(term.toLowerCase()));
       UiHelpers.showSnackBar(
         context,
-        message:
-            'Đã lưu "$term" ($meaning) vào kho từ vựng SQLite & danh sách Ôn tập!',
+        message: context.l10n.dictSavedSuccess(term),
       );
     }
   }
@@ -106,7 +105,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Từ điển song ngữ Việt – Anh & Anh – Việt'),
+        title: Text(context.l10n.dictTitleFull),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -137,8 +136,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         style: TextStyle(color: context.textPrimaryColor),
                         onChanged: _onSearch,
                         decoration: InputDecoration(
-                          hintText:
-                              'Tra cứu hai chiều: gõ tiếng Việt (căn hộ) hoặc tiếng Anh (apartment)...',
+                          hintText: context.l10n.dictSearchPlaceholder,
                           hintStyle: TextStyle(color: context.textMutedColor),
                           prefixIcon: Icon(Icons.search_rounded,
                               color: context.primaryAccent),
@@ -195,7 +193,10 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'Chiều tra cứu: ${dictProvider.directionFlag} ${dictProvider.directionLabel}',
+                                    context.l10n.dictSearchDirection(
+                                      dictProvider.directionFlag,
+                                      dictProvider.directionLabel,
+                                    ),
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -209,8 +210,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             Expanded(
                               child: Text(
                                 dictProvider.isVietnameseQuery
-                                    ? 'Nhận diện: Tiếng Việt ➜ Hiển thị từ tiếng Anh tương đương'
-                                    : 'Nhận diện: Tiếng Anh ➜ Hiển thị nghĩa tiếng Việt & định nghĩa',
+                                    ? context.l10n.dictViDetected
+                                    : context.l10n.dictEnDetected,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 12,
@@ -233,7 +234,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child: ActionChip(
                                   avatar: const Icon(Icons.filter_alt_off_rounded, size: 14),
-                                  label: const Text('Đặt lại bộ lọc'),
+                                  label: Text(context.l10n.actionResetFilter),
                                   backgroundColor: context.scaffoldBg,
                                   side: BorderSide(color: AppColors.danger.withValues(alpha: 0.5)),
                                   labelStyle: const TextStyle(
@@ -247,7 +248,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             ...['all', 'A1', 'A2', 'B1', 'B2', 'C1'].map((level) {
                               final isSelected = dictProvider.selectedLevel == level;
                               final label = level == 'all'
-                                  ? 'Tất cả cấp độ'
+                                  ? context.l10n.dictAllLevels
                                   : 'CEFR $level';
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8.0),
@@ -291,7 +292,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: ChoiceChip(
-                                label: const Text('Tất cả chủ đề'),
+                                label: Text(context.l10n.dictAllTopics),
                                 selected: dictProvider.selectedTopicId == 0,
                                 onSelected: (selected) {
                                   if (selected) dictProvider.setTopicFilter(0);
@@ -356,12 +357,12 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            ('all', 'Tất cả từ loại'),
-                            ('noun', 'Danh từ (n)'),
-                            ('verb', 'Động từ (v)'),
-                            ('adjective', 'Tính từ (adj)'),
-                            ('adverb', 'Trạng từ (adv)'),
-                            ('phrase', 'Cụm từ / Thành ngữ'),
+                            ('all', context.l10n.dictAllPos),
+                            ('noun', context.l10n.dictNoun),
+                            ('verb', context.l10n.dictVerb),
+                            ('adjective', context.l10n.dictAdj),
+                            ('adverb', context.l10n.dictAdv),
+                            ('phrase', context.l10n.dictPhrase),
                           ].map((pos) {
                             final isSelected = dictProvider.selectedPos == pos.$1;
                             return Padding(
@@ -422,7 +423,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tra cứu gần đây',
+                              context.l10n.dictRecentSearches,
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.bold,
@@ -431,9 +432,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             ),
                             InkWell(
                               onTap: () => studyProvider.clearSearchHistory(),
-                              child: const Text(
-                                'Xóa lịch sử',
-                                style: TextStyle(
+                              child: Text(
+                                context.l10n.dictClearHistory,
+                                style: const TextStyle(
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.danger,
@@ -529,7 +530,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     ),
                     SizedBox(height: isCompact ? 12 : 16),
                     Text(
-                      'Từ điển song ngữ Việt – Anh & Anh – Việt',
+                      context.l10n.dictTitleFull,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: isCompact ? 16.5 : 18.5,
@@ -539,7 +540,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     ),
                     SizedBox(height: isCompact ? 6 : 8),
                     Text(
-                      'Tra cứu thông minh hai chiều: gõ tiếng Việt để tìm từ tiếng Anh tương đương, hoặc gõ tiếng Anh để tra nghĩa tiếng Việt. Hơn 3.000+ từ vựng chuẩn CEFR A1–C1 offline và mở rộng trực tuyến (Google Translate & Wiktionary có lưu đệm SQLite).',
+                      context.l10n.dictIntroDesc,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: isCompact ? 12.5 : 13.5,
@@ -584,8 +585,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       : const Icon(Icons.travel_explore_rounded, size: 18),
                   label: Text(
                     dictProvider.isVietnameseQuery
-                        ? 'Dịch trực tuyến Việt ➔ Anh cho "${dictProvider.currentQuery}"'
-                        : 'Tra cứu trực tuyến Anh ➔ Việt cho "${dictProvider.currentQuery}"',
+                        ? context.l10n.dictOnlineViEnQuery(dictProvider.currentQuery)
+                        : context.l10n.dictOnlineEnViQuery(dictProvider.currentQuery),
                   ),
                 ),
               ),
@@ -623,7 +624,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         TextButton.icon(
                           onPressed: () => dictProvider.retrySearchOnline(),
                           icon: const Icon(Icons.refresh_rounded, size: 16),
-                          label: const Text('Thử lại'),
+                          label: Text(context.l10n.dictRetry),
                         ),
                       ],
                     ],
@@ -663,7 +664,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           IconButton.filled(
             onPressed: () => TtsService().speak(word.term),
             icon: const Icon(Icons.volume_up_rounded),
-            tooltip: 'Phát âm chuẩn (TTS)',
+            tooltip: context.l10n.dictTtsTooltip,
             style: IconButton.styleFrom(
               backgroundColor: context.primaryContainerCol,
               foregroundColor: context.primaryAccent,
@@ -822,8 +823,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                           UiHelpers.showSnackBar(
                             context,
                             message: isInReview
-                                ? 'Đã đưa "${word.term}" về từ mới'
-                                : 'Đã thêm "${word.term}" vào danh sách Ôn tập!',
+                                ? context.l10n.dictMovedToNew(word.term)
+                                : context.l10n.dictAddedToReview(word.term),
                           );
                         }
                       },
@@ -856,8 +857,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             const SizedBox(width: 4),
                             Text(
                               isInReview
-                                  ? 'Đang ôn tập'
-                                  : 'Thêm vào Ôn tập',
+                                  ? context.l10n.dictInReview
+                                  : context.l10n.dictAddToReview,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -876,7 +877,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
             ),
           ),
           IconButton(
-            tooltip: word.isFavorite ? 'Bỏ yêu thích' : 'Yêu thích từ này',
+            tooltip: word.isFavorite
+                ? context.l10n.dictFavoriteRemove
+                : context.l10n.dictFavoriteAdd,
             icon: Icon(
               word.isFavorite
                   ? Icons.favorite_rounded
@@ -907,7 +910,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                   size: 54, color: context.textMutedColor),
               const SizedBox(height: 14),
               Text(
-                'Không tìm thấy "${dictProvider.currentQuery}" trong kho từ điển nội bộ.',
+                context.l10n.dictNotFoundInternal(dictProvider.currentQuery),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -918,8 +921,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
               const SizedBox(height: 8),
               Text(
                 isVi
-                    ? 'Bạn có thể dịch mở rộng từ nguồn trực tuyến Việt ➔ Anh (tự động tìm từ tiếng Anh tương đương, định nghĩa, phát âm và lưu đệm SQLite).'
-                    : 'Bạn có thể tra cứu mở rộng từ nguồn trực tuyến Anh ➔ Việt (nghĩa tiếng Việt, định nghĩa Anh–Anh, phát âm và lưu đệm SQLite).',
+                    ? context.l10n.dictViEnOnlinePrompt
+                    : context.l10n.dictEnViOnlinePrompt,
                 textAlign: TextAlign.center,
                 style:
                     TextStyle(fontSize: 13, color: context.textSecondaryColor),
@@ -938,8 +941,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     : const Icon(Icons.travel_explore_rounded),
                 label: Text(
                   isVi
-                      ? 'Dịch trực tuyến Việt ➔ Anh'
-                      : 'Tra cứu trực tuyến Anh ➔ Việt',
+                      ? context.l10n.dictOnlineViEn
+                      : context.l10n.dictOnlineEnVi,
                 ),
               ),
               if (dictProvider.onlineResult != null) ...[
@@ -972,7 +975,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         ElevatedButton.icon(
                           onPressed: () => dictProvider.retrySearchOnline(),
                           icon: const Icon(Icons.refresh_rounded, size: 16),
-                          label: const Text('Thử lại kết nối'),
+                          label: Text(context.l10n.dictRetryConnection),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.danger,
                             foregroundColor: Colors.white,
@@ -1053,8 +1056,8 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     ),
                     child: Text(
                       result.isFromCache
-                          ? 'Đã lưu đệm SQLite (Offline)'
-                          : 'Trực tuyến (Live API)',
+                          ? context.l10n.dictCachedBadge
+                          : context.l10n.dictLiveApi,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
@@ -1070,7 +1073,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: 'Nghe phát âm chuẩn tiếng Anh',
+                    tooltip: context.l10n.dictListenWord,
                     icon: Icon(Icons.volume_up_rounded,
                         color: context.primaryAccent),
                     onPressed: () => TtsService().speak(result.word),
@@ -1086,7 +1089,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       size: 17,
                     ),
                     label:
-                        Text(isSaved ? 'Đã lưu' : 'Lưu vào từ vựng & Ôn tập'),
+                        Text(isSaved ? context.l10n.dictSaved : context.l10n.dictSaveToReview),
                   ),
                 ],
               ),
@@ -1097,7 +1100,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           // Hiển thị theo chiều tra cứu Việt-Anh hoặc Anh-Việt
           if (result.isVietnameseToEnglish) ...[
             Text(
-              'Từ khóa tiếng Việt: "${result.displayQuery}"',
+              context.l10n.dictViKeyword(result.displayQuery),
               style: TextStyle(
                 fontSize: 13,
                 color: context.textSecondaryColor,
@@ -1135,7 +1138,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
-                    'Các từ tiếng Anh tương đương:',
+                    context.l10n.dictEquivalentEnWords,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1154,7 +1157,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       backgroundColor: context.scaffoldBg,
                       side: BorderSide(color: context.borderCol),
                       onPressed: () => TtsService().speak(alt),
-                      tooltip: 'Bấm để nghe phát âm: $alt',
+                      tooltip: context.l10n.dictListenTooltip(alt),
                     );
                   }),
                 ],
@@ -1173,7 +1176,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                   border: Border.all(color: context.borderCol),
                 ),
                 child: Text(
-                  'Nghĩa tiếng Việt đối chiếu: ${result.vietnameseTranslation}',
+                  context.l10n.dictViRefMeaning(result.vietnameseTranslation!),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1221,7 +1224,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bản dịch tiếng Việt:',
+                      context.l10n.dictViTranslation,
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.bold,
@@ -1249,7 +1252,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
-                    'Các nghĩa dịch khác:',
+                    context.l10n.dictOtherMeanings,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1277,7 +1280,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           if (result.definitions.isNotEmpty) ...[
             Divider(height: 24, color: context.borderCol),
             Text(
-              'Định nghĩa tiếng Anh từ điển & Ví dụ:',
+              context.l10n.dictEnglishDefinitions,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13.5,
@@ -1303,7 +1306,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 12, top: 3),
                         child: Text(
-                          'VD: "${def.example}"',
+                          context.l10n.dictExamplePrefix(def.example!),
                           style: TextStyle(
                             fontSize: 12.5,
                             fontStyle: FontStyle.italic,
@@ -1315,7 +1318,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 12, top: 3),
                         child: Text(
-                          'Đồng nghĩa: ${def.synonyms.join(", ")}',
+                          context.l10n.dictSynonymsList(def.synonyms.join(", ")),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.primary,
@@ -1343,7 +1346,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Nguồn: ${result.sourceName} • Giấy phép: ${result.license} (${result.sourceUrl})',
+                    context.l10n.dictSourceInfo(result.sourceName, result.license, result.sourceUrl),
                     style: TextStyle(
                       fontSize: 11.5,
                       color: context.textSecondaryColor,

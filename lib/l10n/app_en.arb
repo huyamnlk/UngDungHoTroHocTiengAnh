@@ -1,0 +1,1067 @@
+{
+  "@@locale": "en",
+  "appName": "English Buddy",
+  "@appName": {
+    "description": "Application title"
+  },
+  "navHome": "Home",
+  "navTopics": "Topics",
+  "navListening": "Listening",
+  "navReading": "Reading",
+  "navWriting": "Writing",
+  "navSpeaking": "Speaking",
+  "navShadowing": "Shadowing",
+  "navDictionary": "Vocabulary & Dictionary",
+  "navExam": "Exams",
+  "navGames": "Games",
+  "navReview": "Review",
+  "navStats": "Stats",
+  "navSettings": "Settings",
+  "navAdmin": "Admin",
+  "navSectionSkills": "SKILLS & STUDY",
+  "navSectionSystem": "PROGRESS & SYSTEM",
+  "sidebarExpandTooltip": "English Buddy - Expand sidebar",
+  "sidebarCollapseTooltip": "Collapse sidebar",
+  "mobileMenuTooltip": "Open 13 skills and features menu",
+  "aiChatTooltip": "English Buddy AI Assistant",
+  "aiChatQuickHelp": "Grammar Q&A & translation",
+  "aiChatDesc": "English Buddy AI Assistant (Q&A & Error Correction)",
+  "accessDeniedAdminOnly": "Access denied: Admin area is restricted to Admin accounts only.",
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionConfirm": "Confirm",
+  "actionDelete": "Delete",
+  "actionEdit": "Edit",
+  "actionClose": "Close",
+  "actionBack": "Back",
+  "actionNext": "Next",
+  "actionPrevious": "Previous",
+  "actionContinue": "Continue",
+  "actionRetry": "Retry",
+  "actionSubmit": "Submit",
+  "actionStart": "Start",
+  "actionDone": "Done",
+  "actionSearch": "Search",
+  "actionFilter": "Filter",
+  "actionReset": "Reset",
+  "actionResetFilter": "Reset filters",
+  "actionClear": "Clear",
+  "actionShowAll": "Show all",
+  "actionExpand": "Expand",
+  "actionCollapse": "Collapse",
+  "actionPlay": "Play",
+  "actionPause": "Pause",
+  "actionResume": "Resume",
+  "actionExit": "Exit",
+  "actionUnderstood": "Understood",
+  "actionCopy": "Copy",
+  "statusActive": "Active",
+  "statusLocked": "Locked",
+  "statusCompleted": "Completed",
+  "statusPending": "Pending",
+  "statusAll": "All",
+  "allTopics": "All Topics",
+  "allLevels": "All Levels",
+  "allSkills": "All Skills",
+  "allFormats": "All Formats",
+  "levelA1": "A1 - Beginner",
+  "levelA2": "A2 - Elementary",
+  "levelB1": "B1 - Intermediate",
+  "levelB2": "B2 - Upper Intermediate",
+  "levelC1": "C1 - Advanced",
+  "settingsTitle": "Settings & Preferences",
+  "settingsLanguageSection": "Language & Localization",
+  "settingsLanguageSubtitle": "Select your preferred application language",
+  "settingsLangVi": "Tiếng Việt",
+  "settingsLangViDesc": "Vietnamese",
+  "settingsLangEn": "English",
+  "settingsLangEnDesc": "English",
+  "settingsAccountSection": "Profile & Account",
+  "settingsThemeSection": "Interface & Theme",
+  "settingsThemeSystem": "System Default",
+  "settingsThemeSystemDesc": "Automatically match device appearance",
+  "settingsThemeLight": "Light Mode",
+  "settingsThemeDark": "Dark Mode",
+  "settingsDailyGoalSection": "Daily Learning Goal",
+  "settingsDailyGoalSubtitle": "Select how many words you want to complete each day:",
+  "settingsDailyGoalUnit": "{count} words",
+  "@settingsDailyGoalUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDailyGoalSaved": "Daily goal set to {count} words/day!",
+  "@settingsDailyGoalSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSoundSection": "Sound & Pronunciation",
+  "settingsSoundEnable": "Enable pronunciation audio",
+  "settingsSoundEnableDesc": "Native-speaker Text-to-Speech pronunciation engine",
+  "settingsCopyrightSection": "Data Sources & Copyright",
+  "settingsCopyrightTitle": "Transparent Copyright Policy",
+  "settingsCopyrightDesc1": "• Vocabulary content, sample sentences, and exercises are authored originally based on CEFR levels (A1–C1) and open language frameworks.",
+  "settingsCopyrightDesc2": "• We do not mass-copy copyrighted definitions or content from Cambridge Dictionary, DOL English, or commercial sources.",
+  "settingsCopyrightDesc3": "• Online lookup uses Free Dictionary API (open source, no API key required, licensed under CC BY-SA 3.0).",
+  "settingsAppSubtitle": "Mobile Application Project - Flutter & SQLite",
+  "guestUser": "Guest (Not logged in)",
+  "guestUserDesc": "Not logged in. Log in or create an account to manage your profile and sync progress.",
+  "authenticatedAs": "{email} • Verified ({provider})",
+  "@authenticatedAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "editProfile": "Edit Profile",
+  "adminArea": "Admin Area",
+  "signIn": "Sign In",
+  "signUp": "Create Account",
+  "signOut": "Sign Out",
+  "confirmSignOutTitle": "Confirm Sign Out",
+  "confirmSignOutMessage": "Are you sure you want to sign out of \"{email}\"?\n\nYour current session and token will be removed. Local learning progress on this device is preserved.",
+  "@confirmSignOutMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "accountMenuHeader": "Account ({displayName})",
+  "@accountMenuHeader": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingGuest": "Hello there! 👋",
+  "homeGreetingUser": "Hello, {name}! 👋",
+  "@homeGreetingUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSubtitle": "Ready to expand your vocabulary and English mastery today?",
+  "homeDayStreak": "{days} days",
+  "@homeDayStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeStreakLabel": "Day Streak",
+  "homeMasteredWords": "{mastered}/{total} mastered",
+  "@homeMasteredWords": {
+    "placeholders": {
+      "mastered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "homeProgressSummary": "You have mastered {mastered} out of {total} CEFR words ({percent}% completed).",
+  "@homeProgressSummary": {
+    "placeholders": {
+      "mastered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeGoalTitle": "Daily Goal: {count} words/day",
+  "@homeGoalTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeReviewNow": "Review Now ({count} words)",
+  "@homeReviewNow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeDueSrsCount": "{count} due for review",
+  "@homeDueSrsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeWordsToLearn": "{count} words to memorize",
+  "@homeWordsToLearn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTopicCount": "{count} topics",
+  "@homeTopicCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTopicCefrCount": "{count} CEFR topics",
+  "@homeTopicCefrCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeShortcutsTitle": "Learning Shortcuts",
+  "homeViewAll": "View all",
+  "homeCardTopicsTitle": "Vocabulary Topics",
+  "homeCardTopicsDesc": "Explore CEFR topics",
+  "homeCardReviewTitle": "Review List",
+  "homeCardReviewDesc": "Words currently needing review",
+  "homeCardExamTitle": "IELTS/TOEIC Exam Prep",
+  "homeCardExamDesc": "Timed tests with detailed explanations",
+  "homeCardGamesTitle": "Vocabulary Games",
+  "homeCardGamesDesc": "Matching pairs & speed quiz",
+  "homeCardShadowingTitle": "Reflex Shadowing",
+  "homeCardShadowingDesc": "Sentence stress & linking sounds",
+  "homeCardDictionaryTitle": "English - Vietnamese Dictionary",
+  "homeCardDictionaryDesc": "Look up 3,000+ words",
+  "homeCardAiTitle": "English Buddy AI",
+  "homeCardAiDesc": "Grammar Q&A, lookup & essay feedback",
+  "homeCardStatsTitle": "Progress & Statistics",
+  "homeCardStatsDesc": "Mastered words & quiz history",
+  "homeTodayWord": "Today's Vocabulary",
+  "homeChangeWord": "New Word",
+  "homeSaveFavorite": "Save to Favorites",
+  "homeRemoveFavorite": "Remove from Favorites",
+  "homeListenPronunciation": "Listen to pronunciation",
+  "homeSavedSuccess": "Saved",
+  "topicsTitle": "Study Topics",
+  "topicsSubtitle": "Explore {count} real-life vocabulary topics leveled from A1 to C1.",
+  "@topicsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsCountWords": "{count} vocabulary items",
+  "@topicsCountWords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicsMasteredCount": "Mastered: {mastered}/{total}",
+  "@topicsMasteredCount": {
+    "placeholders": {
+      "mastered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "topicSearchPlaceholder": "Search English word or Vietnamese meaning...",
+  "topicLearnFlashcard": "Learn Flashcards ({count})",
+  "@topicLearnFlashcard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topicFilterAll": "All",
+  "topicFilterNew": "New",
+  "topicFilterReview": "Need Review",
+  "topicFilterMastered": "Mastered",
+  "topicEmptyWord": "No vocabulary found",
+  "topicEmptyWordDesc": "Try searching with different keywords or switch filters.",
+  "addWordTitle": "Add New Word",
+  "addWordTopicTarget": "Into topic: {topicName}",
+  "@addWordTopicTarget": {
+    "placeholders": {
+      "topicName": {
+        "type": "String"
+      }
+    }
+  },
+  "addWordEnglishLabel": "English Word *",
+  "addWordEnglishHint": "e.g.: Innovation",
+  "addWordMeaningLabel": "Vietnamese Meaning *",
+  "addWordMeaningHint": "e.g.: Sự đổi mới, cách tân",
+  "addWordIpaLabel": "IPA Phonetic",
+  "addWordIpaHint": "e.g.: /ˌɪn.əˈveɪ.ʃən/",
+  "addWordPartOfSpeechLabel": "Part of Speech",
+  "addWordExampleEnLabel": "Example Sentence (English)",
+  "addWordExampleEnHint": "e.g.: Innovation drives technology forward.",
+  "addWordExampleViLabel": "Example Sentence Translation",
+  "addWordExampleViHint": "e.g.: Sự đổi mới thúc đẩy công nghệ tiến lên.",
+  "addWordNotesLabel": "Notes / Pronunciation Tips",
+  "addWordNotesHint": "e.g.: Stress on 3rd syllable",
+  "addWordSaveButton": "Save Word",
+  "addWordRequiredEnglish": "Please enter the English word",
+  "addWordRequiredMeaning": "Please enter the Vietnamese meaning",
+  "addWordSuccess": "Added \"{term}\" successfully!",
+  "@addWordSuccess": {
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardTapToFlip": "Tap card to flip to word",
+  "flashcardTapToMeaning": "Tap card to view meaning",
+  "flashcardVietnameseMeaning": "VIETNAMESE MEANING",
+  "flashcardNeedReview": "Need Review",
+  "flashcardMastered": "Mastered",
+  "flashcardCompletedTitle": "Awesome! You have completed!",
+  "flashcardCompletedDesc": "You just finished reviewing {count} flashcards.",
+  "@flashcardCompletedDesc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardReviewAgain": "Review Again",
+  "flashcardBack": "Back to Previous Page",
+  "flashcardEmpty": "No vocabulary available for review.",
+  "quizSetupTitle": "Quiz Challenge",
+  "quizSetupHeader": "Speed & Reflex Quiz",
+  "quizSetupSubtitle": "Reinforce vocabulary through diverse formats: Meaning selection, word selection, and contextual fill-in-the-blank.",
+  "quizSetupSelectTopic": "Select Quiz Topic",
+  "quizSetupAllTopics": "Comprehensive (All Topics)",
+  "quizSetupAllTopicsDesc": "Randomly drawn from entire vocabulary database",
+  "quizSetupQuestionCount": "Number of Questions",
+  "quizSetupCountFast": "5 questions (Quick)",
+  "quizSetupCountStandard": "10 questions (Standard)",
+  "quizSetupStart": "Start Quiz",
+  "quizPlayTitle": "Quiz Challenge",
+  "quizPlayQuestionCounter": "Question {current}/{total}",
+  "@quizPlayQuestionCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quizPlayTypeSelectMeaning": "Select the correct Vietnamese meaning",
+  "quizPlayTypeSelectWord": "Select the correct English word",
+  "quizPlayTypeFillBlank": "Fill in the blank with the correct word",
+  "quizPlayCheck": "Check",
+  "quizPlayNext": "Next Question",
+  "quizPlayViewResult": "View Results",
+  "quizPlayCorrect": "Correct!",
+  "quizPlayIncorrect": "Incorrect!",
+  "quizPlayExitTitle": "Quit quiz?",
+  "quizPlayExitMessage": "Current quiz progress will not be saved if you leave now.",
+  "quizPlayContinue": "Continue Quiz",
+  "quizResultTitle": "Quiz Results",
+  "quizResultScore": "Correct {correct} / {total} questions",
+  "@quizResultScore": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quizResultExcellent": "Outstanding!",
+  "quizResultGood": "Great Job!",
+  "quizResultNeedsWork": "Keep Practicing!",
+  "quizResultDescExcellent": "You have a solid command of the words in this quiz. Keep it up!",
+  "quizResultDescGood": "Well done! Incorrect words have been automatically saved to \"Need Review\" for further practice.",
+  "quizResultDescNeedsWork": "Don't be discouraged! Review the flashcards and give it another try.",
+  "quizResultDetails": "Answer Breakdown",
+  "quizResultRetake": "Retake Quiz",
+  "quizResultHome": "Back to Home",
+  "quizResultUserSelected": "Your choice: {answer}",
+  "@quizResultUserSelected": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "quizResultCorrectIs": "Correct answer: {answer}",
+  "@quizResultCorrectIs": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewTitle": "Review & Favorites",
+  "reviewTabNeedReview": "Need Review ({count})",
+  "@reviewTabNeedReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewTabFavorites": "Favorites ({count})",
+  "@reviewTabFavorites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewEmptyNeedReview": "No words due for review",
+  "reviewEmptyNeedReviewDesc": "When you mark a word as \"Need Review\" in Flashcards or answer incorrectly in Quizzes, it will automatically appear here based on Spaced Repetition.",
+  "reviewEmptyFavorites": "No favorite words yet",
+  "reviewEmptyFavoritesDesc": "Tap the heart icon on any word to bookmark and revisit it here.",
+  "reviewLearnFlashcardsNeed": "Flashcards (Need Review)",
+  "reviewLearnFlashcardsFav": "Flashcards (Favorites)",
+  "reviewTotalWords": "Total: {count} words",
+  "@reviewTotalWords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewViewStats": "View Progress Statistics",
+  "wordDetailTitle": "Word Details",
+  "wordDetailVietnameseDef": "VIETNAMESE DEFINITION",
+  "wordDetailSrsTitle": "Spaced Repetition System (SRS)",
+  "wordDetailInterval": "Interval: {days} days",
+  "@wordDetailInterval": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "wordDetailReviewCount": "Review count: {count}",
+  "@wordDetailReviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordDetailRealWorldExample": "Real-World Context Example",
+  "wordDetailSynonyms": "Synonyms: {synonyms}",
+  "@wordDetailSynonyms": {
+    "placeholders": {
+      "synonyms": {
+        "type": "String"
+      }
+    }
+  },
+  "wordDetailAntonyms": "Antonyms: {antonyms}",
+  "@wordDetailAntonyms": {
+    "placeholders": {
+      "antonyms": {
+        "type": "String"
+      }
+    }
+  },
+  "wordDetailTips": "Memory & Pronunciation Tips",
+  "wordDetailAddedFav": "Added to Favorites",
+  "wordDetailRemovedFav": "Removed from Favorites",
+  "statsTitle": "Statistics & Progress",
+  "statsOverallProgress": "Overall Learning Progress",
+  "statsMasteredRatio": "Mastered {mastered}/{total} words",
+  "@statsMasteredRatio": {
+    "placeholders": {
+      "mastered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTotalWords": "Total Vocabulary",
+  "statsMasteredWords": "Mastered",
+  "statsNeedReviewWords": "Need Review",
+  "statsFavoriteWords": "Favorites",
+  "statsTopicProgress": "Progress by Topic",
+  "statsQuizHistory": "Quiz History",
+  "statsAverageScore": "Avg: {score}%",
+  "@statsAverageScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "statsEmptyQuiz": "No quiz history yet. Take a quiz to test your reflexes!",
+  "statsResetTitle": "Reset data?",
+  "statsResetMessage": "All study states, quiz history, and custom vocabulary will be reset to application defaults.",
+  "statsResetConfirm": "Confirm Reset",
+  "statsResetSuccess": "Successfully restored initial application data!",
+  "dictTitle": "Bilingual Dictionary",
+  "dictSearchPlaceholder": "Bilingual lookup: type Vietnamese (căn hộ) or English (apartment)...",
+  "dictRecentSearches": "Recent Searches",
+  "dictClearHistory": "Clear History",
+  "dictOnlineViEn": "Online Translate Vietnamese ➔ English",
+  "dictOnlineEnVi": "Online Lookup English ➔ Vietnamese",
+  "dictOnlineViEnQuery": "Online Translate Vietnamese ➔ English for \"{query}\"",
+  "@dictOnlineViEnQuery": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "dictOnlineEnViQuery": "Online Lookup English ➔ Vietnamese for \"{query}\"",
+  "@dictOnlineEnViQuery": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "dictNotFoundInternal": "Could not find \"{query}\" in internal dictionary.",
+  "@dictNotFoundInternal": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "dictListenWord": "Listen to native pronunciation",
+  "dictCachedBadge": "SQLite Cached (Offline)",
+  "dictSaveToReview": "Save to Review",
+  "dictSavedSuccess": "Saved \"{term}\" to vocabulary & review list!",
+  "@dictSavedSuccess": {
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "dictEnglishDefinitions": "English Definitions & Examples:",
+  "dictSynonymsList": "Synonyms: {synonyms}",
+  "@dictSynonymsList": {
+    "placeholders": {
+      "synonyms": {
+        "type": "String"
+      }
+    }
+  },
+  "dictNoun": "Noun (n)",
+  "dictVerb": "Verb (v)",
+  "dictAdj": "Adjective (adj)",
+  "dictAdv": "Adverb (adv)",
+  "dictPhrase": "Phrase / Idiom",
+  "skillsHubTitle": "4 Skills & Vocabulary Practice",
+  "skillsHubAllLevels": "Show all levels (A1–C1)",
+  "skillsListening": "Listening",
+  "skillsReading": "Reading",
+  "skillsWriting": "Writing",
+  "skillsSpeaking": "Speaking",
+  "skillsListeningDesc": "Standard (1.0x) or slow (0.75x) audio. Transcripts and translations locked until submission.",
+  "skillsReadingDesc": "Graded A1–C1 texts, multiple-choice & fill-in-the-blank questions, full explanations.",
+  "skillsWritingDesc": "Sentence scramble and rubric-based essay writing with model answers.",
+  "skillsSpeakingDesc": "Pronunciation, sentence stress, linking sounds, and 4-criterion rubric self-evaluation.",
+  "skillsStartLearning": "Practice Now",
+  "skillsProgressText": "Progress: {completed}/{total} lessons completed",
+  "@skillsProgressText": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "skillsCompletedBadge": "Completed • {score}%",
+  "@skillsCompletedBadge": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "skillsLessonList": "Lesson List ({count} lessons)",
+  "@skillsLessonList": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skillsNoLessonLevel": "No lessons available at CEFR {level}.",
+  "@skillsNoLessonLevel": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "skillsOpenShadowing": "Open Shadowing Studio",
+  "skillsMatchingGameTitle": "Matching Pairs Game",
+  "skillsFlashcard3dTitle": "3D Flashcards",
+  "skillsQuizReflexTitle": "Vocabulary Reflex Quiz",
+  "skillsExamHubTitle": "Timed Exam Room",
+  "skillsSrsReviewTitle": "SRS Spaced Repetition",
+  "exerciseListeningTitle": "Listening Comprehension",
+  "exerciseReadingTitle": "Reading Comprehension",
+  "exerciseQuestionsCount": "Comprehension Questions ({count} questions)",
+  "@exerciseQuestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseScoreResult": "Score: {correct}/{total} correct ({percent}%)",
+  "@exerciseScoreResult": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseShowTranscript": "Show Transcript & Translation",
+  "exerciseHideTranscript": "Hide Transcript & Translation",
+  "exerciseReadingPassage": "Reading Passage",
+  "exerciseAudioPlayer": "Audio Player",
+  "exerciseKeyWords": "Key Vocabulary ({count} words)",
+  "@exerciseKeyWords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseSubmitGrade": "Submit & Grade",
+  "exerciseRetake": "Retake Lesson",
+  "exerciseSaveWordSuccess": "Saved \"{term}\" to Review & Favorites!",
+  "@exerciseSaveWordSuccess": {
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "speakingTimerPractice": "Timed Speaking Practice",
+  "speakingRecordPrompt": "Recording ({seconds}s) - Tap to stop",
+  "@speakingRecordPrompt": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "speakingRubricSelfCheck": "Self-Evaluation ({checked}/{total} criteria met)",
+  "@speakingRubricSelfCheck": {
+    "placeholders": {
+      "checked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "speakingSaveSuccess": "Saved speaking self-evaluation ({score}%) to learning history!",
+  "@speakingSaveSuccess": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "writingTabScramble": "1. Sentence Structure & Scramble",
+  "writingTabRubric": "2. Paragraph Writing & Rubric",
+  "writingTapWordToForm": "Tap words below to form a sentence...",
+  "writingCheckSentence": "Check Sentence",
+  "writingWordCountStatus": "Words: {count} / min {min} words",
+  "@writingWordCountStatus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "writingNeedMoreWords": "Need {count} more words",
+  "@writingNeedMoreWords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "writingSaveModelAnswer": "Save Essay & Unlock Model Answer",
+  "writingModelAnswerTitle": "Model Answer (Reference)",
+  "shadowingHubTitle": "Reflex Shadowing Studio",
+  "shadowingMethodTitle": "4-Step Intonation Shadowing Method",
+  "shadowingMethodDesc": "1. Listen to model (1.0x) → 2. Slow listening & liaison analysis (0.75x) → 3. Synchronous shadowing → 4. Honest self-evaluation.",
+  "shadowingLessonsList": "Shadowing Lessons ({count} lessons)",
+  "@shadowingLessonsList": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shadowingPracticeTitle": "Shadowing Practice",
+  "shadowingStep1": "Step 1: Listen to Model (1.0x)",
+  "shadowingStep2": "Step 2: Slow Listening (0.75x)",
+  "shadowingStep3": "Step 3: Synchronous Shadowing",
+  "shadowingStep4": "Step 4: Self-Evaluation (Required)",
+  "shadowingSpeakingStatus": "Shadowing in progress ({seconds}s)...",
+  "@shadowingSpeakingStatus": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "shadowingSaveProgress": "Save Shadowing Progress",
+  "shadowingSavedSuccess": "Saved Shadowing lesson progress ({score}% criteria met) to database!",
+  "@shadowingSavedSuccess": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "gamesHubTitle": "Vocabulary Mini-Games Center",
+  "gamesHubSubtitle": "Boost vocabulary retention through fast-paced typing, reflex arenas, and falling word challenges.",
+  "gamesSelectGame": "Select a game to start:",
+  "gamesSpaceTyperTitle": "Space Typer",
+  "gamesSpaceTyperDesc": "Type letters and words to destroy asteroids. Auto-aligning starship, laser fire, defensive radar.",
+  "gamesArenaTitle": "Vocabulary Arena",
+  "gamesArenaDesc": "7-15s reflex multiple-choice, streak combos, computer number keys 1-4 supported.",
+  "gamesWordRainTitle": "Vocabulary Rain",
+  "gamesWordRainDesc": "Catch falling English raindrops matching the Vietnamese target meaning before they sink.",
+  "gamesPlayNow": "Play Now",
+  "gamesRules": "Rules & Instructions",
+  "gamesHighScore": "High Score: {score} pts",
+  "@gamesHighScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "gamesRecentHistory": "Recent Game History ({count} matches)",
+  "@gamesRecentHistory": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameScorePoints": "{score} pts",
+  "@gameScorePoints": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "gameOver": "Game Over!",
+  "gameCompleted": "Round Completed!",
+  "gamePlayAgain": "Play Again",
+  "gameBackToHub": "Back to Games Hub",
+  "gameAccuracy": "Accuracy",
+  "gameTime": "Time",
+  "gameStreak": "Max Streak",
+  "gameNewRecord": "🎉 NEW PERSONAL RECORD!",
+  "gameDiffEasy": "Easy",
+  "gameDiffMedium": "Medium",
+  "gameDiffHard": "Hard",
+  "examHubTitle": "International Certification Exams",
+  "examHubSubtitle": "Timed Practice & Simulation Tests (IELTS • TOEIC • CEFR)",
+  "examListTitle": "Available Exams ({count} tests)",
+  "@examListTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examPracticeMode": "Practice Mode",
+  "examPracticeModeDesc": "Untimed, view hints and in-depth explanations per question immediately.",
+  "examTimedMode": "Exam Mode (Timed)",
+  "examTimedModeDesc": "Countdown timer, auto-submit when time expires, comprehensive score report.",
+  "examQuestionCounter": "Question {current}/{total}",
+  "@examQuestionCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "examSubmitConfirm": "Submit Exam?",
+  "examSubmitConfirmDesc": "Are you sure you want to finish and submit your exam?",
+  "examResultTitle": "Exam Results & In-Depth Analysis",
+  "examScoreBand": "Estimated Score: {band}",
+  "@examScoreBand": {
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "examCorrectRatio": "Correct: {correct}/{total} questions ({percent}%)",
+  "@examCorrectRatio": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "aiChatTitle": "English Buddy AI Assistant",
+  "aiChatSubtitle": "Grammar Q&A • Sentence Translation • Essay Feedback",
+  "aiChatGreeting": "Hello! How can I assist you with English today?",
+  "aiChatGreetingDesc": "Ask me any grammar question, request sentence translations, or ask for essay feedback!",
+  "aiChatSuggestions": "SUGGESTED PRACTICE QUESTIONS",
+  "aiChatInputPlaceholder": "Type your question, sentence to translate, or essay...",
+  "aiChatClearTitle": "Clear conversation?",
+  "aiChatClearDesc": "All AI chat messages will be wiped from this device. This action cannot be undone.",
+  "aiChatClearSuccess": "Successfully cleared all chat history.",
+  "aiChatThinking": "AI Assistant is thinking...",
+  "authSignInTitle": "Account Sign In",
+  "authSignUpTitle": "Create New Account",
+  "authAccountOrEmail": "Username or Email",
+  "authEmail": "Email Address",
+  "authPassword": "Password",
+  "authConfirmPassword": "Confirm Password",
+  "authDisplayName": "Display Name",
+  "authGoogleSignIn": "Continue with Google",
+  "authProcessing": "Processing...",
+  "authPasswordMismatch": "Passwords do not match!",
+  "authMinPassword": "At least 8 characters",
+  "authInvalidEmail": "Enter a valid email address",
+  "authOr": "OR",
+  "statsResetButton": "Restore initial data",
+  "statsQuizQuestionsCount": "{correct}/{total} questions",
+  "statsTopicWordsProgress": "{mastered}/{total} words ({percent}%)",
+  "dictTitleFull": "Bilingual Dictionary Vietnamese – English & English – Vietnamese",
+  "dictSearchDirection": "Lookup direction: {flag} {label}",
+  "dictViDetected": "Detected: Vietnamese ➜ Showing equivalent English words",
+  "dictEnDetected": "Detected: English ➜ Showing Vietnamese meaning & definitions",
+  "dictAllLevels": "All levels",
+  "dictAllTopics": "All topics",
+  "dictAllPos": "All parts of speech",
+  "dictIntroDesc": "Smart two-way lookup: type Vietnamese to find equivalent English terms, or type English for Vietnamese meanings. Over 3,000+ CEFR A1–C1 words offline with online expansion (Google Translate & Wiktionary cached in SQLite).",
+  "dictViEnOnlinePrompt": "You can expand translation online from Vietnamese ➔ English (automatically fetches equivalent English words, definitions, pronunciation, and caches in SQLite).",
+  "dictEnViOnlinePrompt": "You can expand lookup online from English ➔ Vietnamese (Vietnamese meaning, English definitions, pronunciation, and caches in SQLite).",
+  "dictRetry": "Retry",
+  "dictRetryConnection": "Retry connection",
+  "dictTtsTooltip": "Standard pronunciation (TTS)",
+  "dictInReview": "In review",
+  "dictAddToReview": "Add to Review",
+  "dictMovedToNew": "Moved \"{term}\" to new words",
+  "dictAddedToReview": "Added \"{term}\" to Review list!",
+  "dictFavoriteAdd": "Favorite this word",
+  "dictFavoriteRemove": "Remove from favorites",
+  "dictLiveApi": "Online (Live API)",
+  "dictSaved": "Saved",
+  "dictViKeyword": "Vietnamese keyword: \"{query}\"",
+  "dictEquivalentEnWords": "Equivalent English words:",
+  "dictListenTooltip": "Tap to listen: {word}",
+  "dictViRefMeaning": "Cross-reference Vietnamese meaning: {meaning}",
+  "dictViTranslation": "Vietnamese translation:",
+  "dictOtherMeanings": "Other translations:",
+  "dictSourceInfo": "Source: {source} • License: {license} ({url})",
+  "dictExamplePrefix": "Ex: \"{example}\"",
+  "avatarChangePhoto": "Change avatar",
+  "avatarSelectFromDevice": "Choose from device / Gallery",
+  "avatarSelectFromUrl": "Enter image URL directly",
+  "avatarResetDefault": "Reset to default avatar",
+  "avatarEnterUrlTitle": "Enter avatar URL",
+  "avatarUrlPlaceholder": "https://example.com/avatar.jpg",
+  "avatarInvalidUrl": "Invalid URL or not an image",
+  "skillsSelectSkill": "Select a skill to practice:",
+  "skillsAllLevels": "All levels",
+  "skillsQuestionsCount": "{count} questions",
+  "skillsExerciseCount": "{count} exercises",
+  "skillsStartPractice": "Start practice",
+  "skillsTranscriptLocked": "Transcript locked",
+  "skillsTranscriptUnlocked": "Listening Transcript",
+  "skillsSubmitExercise": "Submit exercise",
+  "skillsCompleted": "Completed",
+  "skillsScore": "Score: {score}/{total}",
+  "skillsTryAgain": "Try again",
+  "skillsNextExercise": "Next exercise",
+  "skillsListenNormal": "Normal speed 1.0x",
+  "skillsListenSlow": "Slow speed 0.75x",
+  "skillsExplanation": "Detailed explanation",
+  "skillsMatchingPairs": "Match words with their meanings",
+  "skillsSpeakingPrompt": "Read the following passage aloud",
+  "skillsWritingPrompt": "Write according to prompt",
+  "gameDifficulty": "Difficulty: {diff}",
+  "gameScore": "Score: {score}",
+  "gameHighScore": "High score: {score}",
+  "gameExit": "Exit game",
+  "gameCombo": "Combo x{multiplier}",
+  "gameWpm": "Speed: {wpm} WPM",
+  "gameStart": "Start Game",
+  "gamePause": "Pause",
+  "gameResume": "Resume",
+  "gameRestart": "Restart",
+  "gameLives": "Lives: {lives}",
+  "gameLevel": "Level: {level}",
+  "examMode": "Exam mode",
+  "examTimeRemaining": "Time remaining: {time}",
+  "examSubmit": "Submit exam",
+  "examPassed": "Passed",
+  "examFailed": "Needs improvement",
+  "examScoreBreakdown": "Score breakdown",
+  "examReviewAnswers": "Review answers & Explanations",
+  "examRetake": "Retake exam",
+  "examBackToHub": "Back to Exam Hub",
+  "shadowingListen1": "Step 1: Listen model (1.0x)",
+  "shadowingListen2": "Step 2: Listen slow (0.75x)",
+  "shadowingRecord": "Step 3: Shadow the audio",
+  "shadowingStop": "Stop recording",
+  "shadowingSelfEval": "Step 4: Self evaluation",
+  "shadowingNext": "Next sentence",
+  "shadowingComplete": "Shadowing practice completed!",
+  "authLogin": "Sign In",
+  "authRegister": "Sign Up",
+  "authNoAccount": "Don't have an account? Sign up",
+  "authAlreadyHaveAccount": "Already have an account? Sign in",
+  "authLogout": "Sign Out",
+  "authLogoutConfirm": "Are you sure you want to sign out?",
+  "profileTitle": "User Profile",
+  "profileEdit": "Edit Profile",
+  "profileSave": "Save Profile Changes",
+  "profileDisplayName": "Display Name",
+  "profileEmail": "Email",
+  "profileRole": "Role",
+  "profileJoined": "Joined Date",
+  "adminTitle": "System Administration (Admin)",
+  "adminUsers": "Users & Levels",
+  "adminVocab": "Vocabulary & Topics",
+  "adminExercises": "Reading & Listening",
+  "adminExams": "Practice Exams",
+  "adminSystem": "System Monitoring",
+  "adminForbidden": "Admin Only Area (403 Forbidden)",
+  "adminRefresh": "Refresh admin data",
+  "aiChatAsk": "Ask AI",
+  "settingsSelectLanguage": "Select App Language",
+  "@settingsSelectLanguage": {
+    "description": "settingsSelectLanguage"
+  },
+  "settingsSearchLanguage": "Search language...",
+  "@settingsSearchLanguage": {
+    "description": "settingsSearchLanguage"
+  },
+  "settingsAllLanguages": "See all 13 languages",
+  "@settingsAllLanguages": {
+    "description": "settingsAllLanguages"
+  },
+  "settingsAllLanguagesSubtitle": "Chinese, Japanese, Korean, French, German, Spanish, Russian...",
+  "@settingsAllLanguagesSubtitle": {
+    "description": "settingsAllLanguagesSubtitle"
+  },
+  "settingsDefaultBadge": "Default",
+  "@settingsDefaultBadge": {
+    "description": "settingsDefaultBadge"
+  },
+  "profileUsernameLabel": "Login Username",
+  "profileUsernameHint": "Enter username (3–30 chars: a-z, 0-9, ., _, -)",
+  "profileUsernameHelperPassword": "You can sign in using either this username or your email with your password.",
+  "profileUsernameHelperGoogle": "Google accounts continue signing in with Google; this username serves as your unique account handle.",
+  "profileEmailReadOnlyHelper": "Login email (read-only, unchanged when updating display name or username)",
+  "weeklyProgressTitle": "Weekly Progress",
+  "weeklyProgressActiveDays": "{count}/7 active days",
+  "@weeklyProgressActiveDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyProgressWordsStudied": "{count} words studied/reviewed",
+  "@weeklyProgressWordsStudied": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyProgressActivitiesDone": "{count} activities completed",
+  "@weeklyProgressActivitiesDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyProgressTodayGoal": "Today word goal: {current}/{goal} words",
+  "@weeklyProgressTodayGoal": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "weeklyProgressTodayBadge": "Today",
+  "weeklyProgressEmptyTitle": "No learning activity recorded this week yet",
+  "weeklyProgressEmptyDesc": "Study or review vocabulary, complete a quiz, or practice skills to see your weekly chart update immediately!",
+  "weeklyProgressStartCta": "Review vocabulary now",
+  "weeklyProgressScopeNote": "Tracks real timestamped learning events for the current account (Monday – Sunday in local time).",
+  "weeklyProgressUnitWords": "words",
+  "weeklyProgressUnitActivities": "acts",
+  "aiChatErrorGeneral": "Unable to receive AI response",
+  "authRegisterSuccessPleaseLogin": "Registration successful! Please log in to continue.",
+  "@authRegisterSuccessPleaseLogin": {
+    "description": "Success message shown after registration prompting user to sign in"
+  }
+}

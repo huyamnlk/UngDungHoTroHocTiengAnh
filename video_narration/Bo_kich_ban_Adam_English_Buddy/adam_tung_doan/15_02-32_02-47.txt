@@ -1,0 +1,1 @@
+﻿Chế độ học thẻ hiển thị từ tiếng Anh, từ loại, phiên âm và nút nghe phát âm. Chạm vào thẻ để lật sang nghĩa tiếng Việt cùng câu ví dụ. Sau mỗi từ, người học chọn Cần ôn tập hoặc Đã nhớ. Thanh phía trên cho biết vị trí hiện tại trong bộ thẻ.

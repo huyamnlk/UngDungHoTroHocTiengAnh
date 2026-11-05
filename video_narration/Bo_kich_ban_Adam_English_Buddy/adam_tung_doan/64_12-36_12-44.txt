@@ -1,0 +1,1 @@
+﻿Cuối video, nhóm mở menu tài khoản và xác nhận đăng xuất. Ứng dụng quay về màn hình đăng nhập, đồng thời thông báo dữ liệu học trên thiết bị vẫn được giữ lại.

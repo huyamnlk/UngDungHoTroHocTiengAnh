@@ -7,6 +7,7 @@ class SettingsService {
   SettingsService._internal();
 
   static const String _keyThemeMode = 'app_theme_mode';
+  static const String _keyLanguageCode = 'app_language_code';
   static const String _keyDailyGoal = 'daily_word_goal';
   static const String _keySoundEnabled = 'sound_enabled';
   static const String _keyOnboardingDone = 'onboarding_done';
@@ -14,15 +15,28 @@ class SettingsService {
   static const String _keyLastActiveDate = 'last_active_date';
   static const String _keyAuthSessionUser = 'auth_session_user';
   static const String _keyAuthIdToken = 'auth_id_token';
+  static const String _keyAuthRefreshToken = 'auth_refresh_token';
 
   late SharedPreferences _prefs;
   bool _isInitialized = false;
 
   Future<void> init() async {
-    if (_isInitialized) return;
     _prefs = await SharedPreferences.getInstance();
     _isInitialized = true;
     _updateStreak();
+  }
+
+  String getLanguageCode() {
+    if (!_isInitialized) return 'vi';
+    return _prefs.getString(_keyLanguageCode) ?? 'vi';
+  }
+
+  Future<void> setLanguageCode(String code) async {
+    if (!_isInitialized) {
+      _prefs = await SharedPreferences.getInstance();
+      _isInitialized = true;
+    }
+    await _prefs.setString(_keyLanguageCode, code);
   }
 
   ThemeMode getThemeMode() {
@@ -93,11 +107,15 @@ class SettingsService {
   Future<void> saveAuthSession({
     required String sessionJson,
     required String idToken,
+    String? refreshToken,
   }) async {
     if (!_isInitialized) return;
     await _prefs.setString(_keyAuthSessionUser, sessionJson);
     if (idToken.isNotEmpty) {
       await _prefs.setString(_keyAuthIdToken, idToken);
+    }
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      await _prefs.setString(_keyAuthRefreshToken, refreshToken);
     }
   }
 
@@ -111,10 +129,16 @@ class SettingsService {
     return _prefs.getString(_keyAuthIdToken);
   }
 
+  String? getSavedAuthRefreshToken() {
+    if (!_isInitialized) return null;
+    return _prefs.getString(_keyAuthRefreshToken);
+  }
+
   Future<void> clearAuthSession() async {
     if (!_isInitialized) return;
     await _prefs.remove(_keyAuthSessionUser);
     await _prefs.remove(_keyAuthIdToken);
+    await _prefs.remove(_keyAuthRefreshToken);
   }
 
   void _updateStreak() {

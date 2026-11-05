@@ -1,0 +1,1 @@
+﻿Nhóm mở Thử thách Quiz. Người dùng có thể kiểm tra tổng hợp hoặc chọn một chủ đề, đồng thời chọn năm hay mười câu hỏi. Ở đây, chúng em chọn Sức khỏe và Thể thao, với bài kiểm tra nhanh gồm năm câu.

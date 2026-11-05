@@ -4,5 +4,12 @@
   "main": ".\\backend\\turnstile-worker.js",
   "ai": {
     "binding": "AI"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "english-buddy-db",
+      "database_id": "e026c066-2ab2-458b-9349-54542a20683e"
+    }
+  ]
 }

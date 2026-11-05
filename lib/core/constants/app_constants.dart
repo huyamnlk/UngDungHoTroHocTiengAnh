@@ -4,7 +4,7 @@ class AppConstants {
   static const String appName = 'English Buddy';
   static const String appTagline = 'Học từ vựng tiếng Anh thông minh mỗi ngày';
   static const String dbName = 'english_buddy.db';
-  static const int dbVersion = 7; // Version 7: Mở rộng kho từ vựng lên 3.000+ từ phân cấp CEFR A1-C1
+  static const int dbVersion = 8; // Version 8: Bổ sung username hồ sơ và bảng learning_activity_log cho Tiến độ hằng tuần
 
   // Vai trò tài khoản (RBAC)
   static const String roleUser = 'user';

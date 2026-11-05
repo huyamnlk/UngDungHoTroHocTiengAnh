@@ -1,0 +1,1 @@
+﻿Mỗi đề có chế độ thi tính giờ và luyện tập tự do. Nhóm chọn luyện tập cho bài nghe. Trình phát chia thành nhiều phần, có tốc độ chuẩn và chậm. Dãy số phía trên giúp chuyển câu; yêu cầu số từ được ghi rõ cạnh nội dung câu hỏi.

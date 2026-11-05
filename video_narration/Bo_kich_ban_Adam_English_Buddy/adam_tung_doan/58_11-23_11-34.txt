@@ -1,0 +1,1 @@
+﻿Trong lượt ôn, chạm vào thẻ để xem nghĩa và ví dụ, rồi chọn Đã nhớ hoặc Cần ôn tập. Nhóm đánh dấu lại mức độ ghi nhớ của từng từ. Khi quay về danh sách, số từ cần ôn đã thay đổi theo kết quả vừa thao tác.

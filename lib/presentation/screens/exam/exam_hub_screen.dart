@@ -6,6 +6,7 @@ import '../../../providers/skills_provider.dart';
 import '../../widgets/interactive_card.dart';
 import 'exam_attempt_screen.dart';
 import 'exam_result_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class ExamHubScreen extends StatefulWidget {
   const ExamHubScreen({super.key});
@@ -48,7 +49,7 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Luyện thi IELTS • TOEIC • CEFR'),
+        title: Text(context.l10n.examHubTitle),
         backgroundColor: context.cardBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -90,20 +91,20 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
                             ),
                           ),
                           const SizedBox(width: 14),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Phòng Luyện Thi Thực Chiến (Timed Practice & Mini-Tests)',
-                                  style: TextStyle(
+                                  context.l10n.examHubSubtitle,
+                                  style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
+                                const SizedBox(height: 4),
+                                const Text(
                                   'Đồng hồ đếm ngược, đánh dấu câu hỏi (🚩), khóa transcript khi làm bài nghe và giải thích chi tiết từng câu.',
                                   style: TextStyle(
                                     fontSize: 13,
@@ -152,7 +153,7 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
                   children: categories.map((cat) {
                     final isSelected =
                         skillsProvider.selectedExamCategory == cat;
-                    final label = cat == 'All' ? 'Tất cả định dạng' : cat;
+                    final label = cat == 'All' ? context.l10n.allFormats : cat;
                     return ChoiceChip(
                       label: Text(label),
                       selected: isSelected,
@@ -178,7 +179,7 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
                   runSpacing: 8,
                   children: skills.map((sk) {
                     final isSelected = skillsProvider.selectedExamSkill == sk;
-                    final label = sk == 'All' ? 'Tất cả kỹ năng' : sk;
+                    final label = sk == 'All' ? context.l10n.allSkills : sk;
                     return ChoiceChip(
                       label: Text(label),
                       selected: isSelected,
@@ -190,7 +191,7 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
 
                 // Danh sách đề luyện tập
                 Text(
-                  'Danh sách đề thi (${exams.length} đề)',
+                  context.l10n.examListTitle(exams.length),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -577,9 +578,9 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
                 child:
                     const Icon(Icons.timer_outlined, color: AppColors.primary),
               ),
-              title: const Text(
-                'Thi thử tính giờ (Exam Mode)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5),
+              title: Text(
+                context.l10n.examTimedMode,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5),
               ),
               subtitle: Text(
                 'Đồng hồ đếm ngược ${exam.durationMinutes} phút, tự động nộp bài khi hết giờ, có bảng điểm và giải thích sau khi hoàn thành.',
@@ -616,12 +617,12 @@ class _ExamHubScreenState extends State<ExamHubScreen> {
                 child: const Icon(Icons.psychology_outlined,
                     color: AppColors.success),
               ),
-              title: const Text(
-                'Luyện tập tự do (Practice Mode)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5),
+              title: Text(
+                context.l10n.examPracticeMode,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5),
               ),
               subtitle: Text(
-                'Không giới hạn thời gian, có thể xem ngay gợi ý & đáp án giải thích chi tiết trong lúc làm từng câu.',
+                context.l10n.examPracticeModeDesc,
                 style:
                     TextStyle(fontSize: 12, color: context.textSecondaryColor),
               ),

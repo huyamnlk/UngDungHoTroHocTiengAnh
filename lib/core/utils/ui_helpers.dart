@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
+export '../../l10n/app_localizations.dart';
+
+extension ContextL10nExtension on BuildContext {
+  AppLocalizations get l10n =>
+      AppLocalizations.of(this) ?? lookupAppLocalizations(const Locale('vi'));
+}
 
 class UiHelpers {
   UiHelpers._();
@@ -91,19 +99,27 @@ class UiHelpers {
     );
   }
 
-  /// Định dạng chuỗi ngày tháng ISO sang dd/MM/yyyy HH:mm
-  static String formatDateTime(String? isoString) {
-    if (isoString == null || isoString.isEmpty) return 'Chưa học';
+  /// Định dạng chuỗi ngày tháng ISO sang chuẩn phù hợp locale
+  static String formatDateTime(String? isoString, {BuildContext? context, String? locale}) {
+    if (isoString == null || isoString.isEmpty) {
+      if (context != null) return context.l10n.statusPending;
+      return 'Chưa học';
+    }
     try {
       final dt = DateTime.parse(isoString);
-      final day = dt.day.toString().padLeft(2, '0');
-      final month = dt.month.toString().padLeft(2, '0');
-      final year = dt.year;
-      final hour = dt.hour.toString().padLeft(2, '0');
-      final minute = dt.minute.toString().padLeft(2, '0');
-      return '$day/$month/$year $hour:$minute';
+      final currentLocale = locale ?? (context != null ? Localizations.localeOf(context).toString() : 'vi');
+      if (currentLocale.startsWith('vi')) {
+        return DateFormat('dd/MM/yyyy HH:mm').format(dt);
+      }
+      return DateFormat.yMd(currentLocale).add_jm().format(dt);
     } catch (_) {
       return isoString;
     }
+  }
+
+  /// Định dạng số nguyên/thực theo chuẩn locale
+  static String formatNumber(num number, {BuildContext? context, String? locale}) {
+    final currentLocale = locale ?? (context != null ? Localizations.localeOf(context).toString() : 'vi');
+    return NumberFormat.decimalPattern(currentLocale).format(number);
   }
 }

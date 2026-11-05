@@ -1,0 +1,1 @@
+﻿Nếu trả lời sai, phương án đã chọn chuyển đỏ, đáp án đúng được tô xanh và có giải thích kèm phát âm. Khi trả lời đúng liên tiếp, chuỗi kết hợp tăng và tạo điểm thưởng. Người chơi vừa cần chính xác, vừa phải chú ý đồng hồ, vì mỗi câu chỉ có một khoảng thời gian ngắn.

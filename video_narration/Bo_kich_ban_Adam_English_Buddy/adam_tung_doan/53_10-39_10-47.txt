@@ -1,0 +1,1 @@
+﻿Bảng tổng kết hiển thị điểm, số câu đúng, độ chính xác, chuỗi cao nhất và thời gian. Các từ cần ôn được liệt kê riêng, kèm nút nghe lại trước khi chơi tiếp.

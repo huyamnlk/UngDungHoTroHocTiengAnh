@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/shadowing_model.dart';
 import '../../../providers/skills_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -175,7 +175,7 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
       UiHelpers.showSnackBar(
         context,
         message:
-            'Đã lưu tiến độ bài Shadowing (${score.round()}% tiêu chí đạt) vào cơ sở dữ liệu!',
+            context.l10n.shadowingSavedSuccess(score.round()),
       );
       Navigator.pop(context);
     }
@@ -202,7 +202,7 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Text(
-                'Câu ${_currentIndex + 1}/${segments.length}',
+                context.l10n.examQuestionCounter(_currentIndex + 1, segments.length),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -404,8 +404,8 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                                 ? Icons.stop_rounded
                                 : Icons.play_arrow_rounded),
                             label: Text(_isPlaying && !_isSlow
-                                ? 'Dừng phát'
-                                : 'Bước 1: Nghe mẫu (1.0x)'),
+                                ? context.l10n.shadowingStop
+                                : context.l10n.shadowingStep1),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
@@ -420,8 +420,8 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                                 ? Icons.stop_rounded
                                 : Icons.slow_motion_video_rounded),
                             label: Text(_isPlaying && _isSlow
-                                ? 'Dừng'
-                                : 'Bước 2: Nghe chậm (0.75x)'),
+                                ? context.l10n.shadowingStop
+                                : context.l10n.shadowingStep2),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 12),
@@ -433,8 +433,8 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                                 ? Icons.stop_circle_outlined
                                 : Icons.record_voice_over_rounded),
                             label: Text(_isShadowingActive
-                                ? 'Đang nói đuổi theo (${_shadowingElapsedSeconds}s)...'
-                                : 'Bước 3: Bắt đầu nói đuổi theo mẫu'),
+                                ? context.l10n.shadowingSpeakingStatus(_shadowingElapsedSeconds)
+                                : context.l10n.shadowingStep3),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isShadowingActive
                                   ? AppColors.danger
@@ -591,7 +591,7 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                               size: 18,
                             ),
                             label: Text(
-                                _showFullTranscript ? 'Thu gọn' : 'Xem tất cả'),
+                                _showFullTranscript ? context.l10n.actionCollapse : context.l10n.homeViewAll),
                           ),
                         ],
                       ),
@@ -648,7 +648,7 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                     if (_currentIndex > 0)
                       Expanded(
                         child: CustomButton(
-                          text: 'Câu trước',
+                          text: context.l10n.actionPrevious,
                           isOutlined: true,
                           onPressed: () {
                             _shadowingTimer?.cancel();
@@ -664,8 +664,8 @@ class _ShadowingPracticeScreenState extends State<ShadowingPracticeScreen> {
                     Expanded(
                       child: CustomButton(
                         text: _currentIndex < segments.length - 1
-                            ? 'Câu tiếp theo'
-                            : 'Lưu tiến độ Shadowing',
+                            ? context.l10n.shadowingNext
+                            : context.l10n.shadowingSaveProgress,
                         icon: _currentIndex < segments.length - 1
                             ? Icons.arrow_forward_rounded
                             : Icons.check_circle_rounded,

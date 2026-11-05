@@ -11,6 +11,7 @@ import '../../../providers/games_provider.dart';
 import '../../widgets/custom_button.dart';
 import 'space_typer_screen.dart';
 
+
 enum TyperSpeedMode {
   slow,
   normal,

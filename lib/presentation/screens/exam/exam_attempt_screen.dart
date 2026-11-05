@@ -8,6 +8,7 @@ import '../../../providers/skills_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/ielts_chart_widget.dart';
 import 'exam_result_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class ExamAttemptScreen extends StatefulWidget {
   final ExamModel exam;
@@ -221,7 +222,7 @@ class _ExamAttemptScreenState extends State<ExamAttemptScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Xác nhận nộp bài thi?'),
+        title: Text(context.l10n.examSubmitConfirm),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1404,7 +1405,7 @@ class _ExamAttemptScreenState extends State<ExamAttemptScreen>
               else
                 Expanded(
                   child: CustomButton(
-                    text: 'Nộp bài thi',
+                    text: context.l10n.examSubmit,
                     icon: Icons.check_circle_outline_rounded,
                     onPressed: _confirmSubmitDialog,
                   ),

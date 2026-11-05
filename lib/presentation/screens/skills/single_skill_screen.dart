@@ -8,6 +8,7 @@ import '../shadowing/shadowing_hub_screen.dart';
 import 'exercise_detail_screen.dart';
 import 'speaking_exercise_screen.dart';
 import 'writing_exercise_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class SingleSkillScreen extends StatefulWidget {
   final SkillType skillType;
@@ -31,29 +32,29 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
     });
   }
 
-  String get _skillTitle {
+  String _getSkillTitle(BuildContext context) {
     switch (widget.skillType) {
       case SkillType.listening:
-        return 'Luyện nghe hiểu (Listening Practice)';
+        return context.l10n.skillsListening;
       case SkillType.reading:
-        return 'Luyện đọc hiểu (Reading Practice)';
+        return context.l10n.skillsReading;
       case SkillType.writing:
-        return 'Luyện viết câu & Đoạn văn (Writing & Rubric)';
+        return context.l10n.skillsWriting;
       case SkillType.speaking:
-        return 'Luyện nói & Phát âm (Speaking Practice)';
+        return context.l10n.skillsSpeaking;
     }
   }
 
-  String get _skillSubtitle {
+  String _getSkillSubtitle(BuildContext context) {
     switch (widget.skillType) {
       case SkillType.listening:
-        return 'Nghe audio tốc độ chuẩn (1.0x) hoặc chậm (0.75x). Lời thoại (Transcript) và bản dịch khóa cho đến khi bạn nộp bài.';
+        return context.l10n.skillsListeningDesc;
       case SkillType.reading:
-        return 'Đọc văn bản phân cấp A1–C1, trả lời câu hỏi trắc nghiệm & điền từ, xem giải thích và lưu từ vựng trọng tâm.';
+        return context.l10n.skillsReadingDesc;
       case SkillType.writing:
-        return 'Kết hợp sắp xếp cấu trúc câu (Sentence Scramble) và viết đoạn văn theo Rubric 4 tiêu chí kèm bài mẫu tham khảo.';
+        return context.l10n.skillsWritingDesc;
       case SkillType.speaking:
-        return 'Luyện phát âm, trọng âm câu, nối âm và tự đánh giá trung thực theo bảng kiểm 4 tiêu chí.';
+        return context.l10n.skillsSpeakingDesc;
     }
   }
 
@@ -116,7 +117,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: Text(_skillTitle),
+        title: Text(_getSkillTitle(context)),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -133,9 +134,9 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                   );
                 },
                 icon: const Icon(Icons.graphic_eq_rounded, size: 18),
-                label: const Text(
-                  'Mở phòng Shadowing',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                label: Text(
+                  context.l10n.skillsOpenShadowing,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -177,7 +178,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Tiến độ: $completedForSkill/${allForSkill.length} bài học đã hoàn thành',
+                                  context.l10n.skillsProgressText(completedForSkill, allForSkill.length),
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.bold,
@@ -186,7 +187,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _skillSubtitle,
+                                  _getSkillSubtitle(context),
                                   style: TextStyle(
                                     fontSize: 13.5,
                                     color: context.textSecondaryColor,
@@ -213,7 +214,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Đề xuất học tiếp: [${recommended.level}] ${recommended.title}',
+                                '[${recommended.level}] ${recommended.title}',
                                 style: TextStyle(
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w700,
@@ -231,7 +232,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text('Học ngay'),
+                              child: Text(context.l10n.skillsStartLearning),
                             ),
                           ],
                         ),
@@ -258,7 +259,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                     ..._cefrLevels.map((lvl) {
                       final isSelected = skillsProvider.selectedLevel == lvl;
                       return ChoiceChip(
-                        label: Text(lvl == 'All' ? 'Tất cả' : lvl),
+                        label: Text(lvl == 'All' ? context.l10n.topicFilterAll : lvl),
                         selected: isSelected,
                         onSelected: (_) =>
                             skillsProvider.setSelectedLevel(lvl),
@@ -269,7 +270,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                 const SizedBox(height: 18),
 
                 Text(
-                  'Danh sách bài học (${exercises.length} bài)',
+                  context.l10n.skillsLessonList(exercises.length),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -289,14 +290,14 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Chưa có bài học nào ở trình độ ${skillsProvider.selectedLevel}.',
+                          context.l10n.skillsNoLessonLevel(skillsProvider.selectedLevel),
                           style: TextStyle(color: context.textSecondaryColor),
                         ),
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed: () =>
                               skillsProvider.setSelectedLevel('All'),
-                          child: const Text('Hiển thị tất cả trình độ'),
+                          child: Text(context.l10n.skillsAllLevels),
                         ),
                       ],
                     ),
@@ -409,7 +410,7 @@ class _SingleSkillScreenState extends State<SingleSkillScreen> {
                                                 BorderRadius.circular(6),
                                           ),
                                           child: Text(
-                                            'Đã hoàn thành • ${bestScore.round()}%',
+                                            context.l10n.skillsCompletedBadge(bestScore.round()),
                                             style: const TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/skill_exercise_model.dart';
 import '../../../providers/skills_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -104,7 +104,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
       UiHelpers.showSnackBar(
         context,
         message:
-            'Đã lưu kết quả tự đánh giá Luyện nói (${score.round()}%) vào lịch sử học tập!',
+            context.l10n.speakingSaveSuccess(score.round()),
       );
       Navigator.pop(context);
     }
@@ -127,7 +127,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                'Câu ${_currentIndex + 1}/${widget.exercise.writingSentences.length}',
+                context.l10n.examQuestionCounter(_currentIndex + 1, widget.exercise.writingSentences.length),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -218,7 +218,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                               icon: Icon(_isSpeaking && !_isSlow
                                   ? Icons.volume_up_rounded
                                   : Icons.play_arrow_rounded),
-                              label: const Text('Nghe mẫu chuẩn (1.0x)'),
+                              label: Text(context.l10n.skillsListenNormal),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
@@ -233,7 +233,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                               onPressed: () =>
                                   _speakCurrentSentence(slow: true),
                               icon: const Icon(Icons.slow_motion_video_rounded),
-                              label: const Text('Nghe chậm (0.75x)'),
+                              label: Text(context.l10n.skillsListenSlow),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 12),
@@ -254,10 +254,10 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                               ),
                               label: Text(
                                 _isPracticeActive
-                                    ? 'Đang luyện nói (${_practiceSeconds}s) - Bấm để dừng'
+                                    ? context.l10n.speakingRecordPrompt(_practiceSeconds)
                                     : (_practiceSeconds > 0
                                         ? 'Luyện nói lại (Lần trước: ${_practiceSeconds}s)'
-                                        : 'Bấm giờ tự luyện nói'),
+                                        : context.l10n.speakingTimerPractice),
                               ),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -318,7 +318,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tự đánh giá câu nói (${checkedSet.length}/${_speakingRubricCriteria.length} tiêu chí đạt)',
+                              context.l10n.speakingRubricSelfCheck(checkedSet.length, _speakingRubricCriteria.length),
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -384,7 +384,7 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                       if (_currentIndex > 0)
                         Expanded(
                           child: CustomButton(
-                            text: 'Câu trước',
+                            text: context.l10n.actionPrevious,
                             isOutlined: true,
                             onPressed: () {
                               _practiceTimer?.cancel();
@@ -401,8 +401,8 @@ class _SpeakingExerciseScreenState extends State<SpeakingExerciseScreen> {
                         child: CustomButton(
                           text: _currentIndex <
                                   widget.exercise.writingSentences.length - 1
-                              ? 'Câu tiếp theo'
-                              : 'Lưu kết quả & Hoàn thành',
+                              ? context.l10n.quizPlayNext
+                              : context.l10n.actionSave,
                           icon: _currentIndex <
                                   widget.exercise.writingSentences.length - 1
                               ? Icons.arrow_forward_rounded

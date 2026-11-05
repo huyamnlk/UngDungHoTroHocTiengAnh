@@ -1,0 +1,23 @@
+﻿Video nguồn: Screen Recording 2026-11-02 211524.mp4.
+Thời lượng đo từ tệp: 12 phút 48,733 giây; 1920 × 1080, 30 hình/giây.
+Kịch bản bám theo khung hình và thao tác quan sát trong video. Không thêm phần quản trị, giao diện điện thoại hoặc đăng nhập Google thành một màn demo vì video không thực hiện các luồng đó.
+
+CÁCH GHÉP GIỌNG ADAM
+1. Tạo giọng theo từng đoạn đánh số. Chỉ dán phần “Lời đọc”; không đưa tiêu đề, mốc thời gian hay ghi chú dựng vào công cụ đọc.
+2. Dùng giọng thuyết trình rõ ràng, lịch sự, tự nhiên. Giữ cùng giọng và cấu hình xuyên suốt. Các dấu phẩy, dấu chấm đã được đặt để chia nhịp câu.
+3. Đặt mỗi clip giọng tại mốc Bắt đầu. Cột “Nghỉ cuối” là khoảng lặng chủ động dự kiến trước cảnh tiếp theo; có thể chèn khoảng lặng trong trình dựng. Không đọc thành tiếng các chỉ dẫn nghỉ.
+4. Thời lượng lời đọc mục tiêu = thời lượng đoạn trừ khoảng nghỉ cuối. Sau khi Adam xuất âm thanh, đo độ dài thực tế và điều chỉnh tốc độ/nhịp đọc nhẹ cho từng đoạn. Hệ số tốc độ dựng = thời lượng âm thanh thực tế / thời lượng lời đọc mục tiêu. Nếu cần chỉnh quá nhiều, xuất lại đoạn đó với nhịp đọc phù hợp thay vì kéo giãn cực đoan.
+5. Mốc cảnh đã đối chiếu theo video; thời lượng giọng là mục tiêu dựng, chưa được xác nhận bằng bản âm thanh Adam. Không thể bảo đảm một lần dán toàn bộ văn bản sẽ tự khớp chính xác 12:48,733.
+6. Không chèn thêm intro trước video: phần chào thầy đã bắt đầu tại 00:00. Đoạn đầu có nhiều thao tác nhanh nên cần đọc gọn, rõ. Kết thúc lời cảm ơn trước 12:48,733.
+7. Nếu giữ âm thanh ứng dụng, hạ nhỏ dưới lời thuyết minh. Ở các đoạn nghe mẫu, có thể dùng khoảng nghỉ ghi trong kịch bản để tiếng mẫu nổi lên; không để hai giọng cùng lớn.
+8. Giữ cách phát âm nhất quán cho English Buddy, Quiz, Flashcard, Shadowing, IELTS và TOEIC. Nếu công cụ đọc sai, chỉnh phát âm theo tính năng mà công cụ của bạn hỗ trợ; không giả định mọi công cụ Adam đều hiểu thẻ SSML.
+
+ĐỘ CHÍNH XÁC NỘI DUNG
+- Đăng ký chuyển về đăng nhập; sau đó mới đăng nhập vào Trang chủ.
+- Video thay tên hiển thị và ảnh đại diện; không trình diễn đổi username thành công.
+- Tiến độ tuần trong cảnh hồ sơ chưa có hoạt động; không tạo lời mô tả thành tích giả.
+- Luyện nói và Shadowing dùng tự đánh giá; không mô tả là AI chấm phát âm tự động.
+- Đoạn văn nhập minh họa khác chủ đề email: kịch bản nêu rõ, không khẳng định đúng yêu cầu đề.
+- Bài thi đọc mới có 0/4 câu đúng; không nói đó là lượt làm đạt kết quả cao. Điểm band hiển thị chỉ là tham khảo của ứng dụng.
+- Lịch sử chat có lời giải ngữ pháp chưa chuẩn; kịch bản không lặp lại hoặc xác nhận lời giải đó là đúng.
+- Các chức năng chỉ thấy nút mà chưa được thao tác được giới thiệu là lựa chọn có trên giao diện, không phải kết quả đã thực hiện.

@@ -1,0 +1,1 @@
+﻿Bài này gồm hai câu trắc nghiệm và một câu điền từ. Nhóm chọn thành phố, môn thể thao, rồi nhập từ còn thiếu trong câu. Phần từ vựng trọng tâm cung cấp nghĩa, ví dụ, nút phát âm và chức năng lưu từ. Hoàn tất câu trả lời, chúng em nhấn Nộp bài và Chấm điểm.

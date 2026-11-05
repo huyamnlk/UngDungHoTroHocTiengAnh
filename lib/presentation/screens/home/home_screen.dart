@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/topic_model.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/auth_provider.dart';
@@ -46,9 +46,15 @@ class HomeScreen extends StatelessWidget {
           },
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 920;
+              final screenWidth = MediaQuery.sizeOf(context).width;
+              final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+              final isDesktop = constraints.maxWidth >= 820 ||
+                  (screenWidth >= 960 && constraints.maxWidth >= 720);
+              final useFourColStats =
+                  constraints.maxWidth >= 860 && textScale <= 1.15;
               final isTablet = constraints.maxWidth >= 640;
-              final isCompact = constraints.maxWidth < 520;
+              final isCompact =
+                  constraints.maxWidth < 860 || textScale > 1.15;
               final horizontalPadding = isDesktop ? 32.0 : 20.0;
 
               return SingleChildScrollView(
@@ -70,7 +76,7 @@ class HomeScreen extends StatelessWidget {
                           isDesktop: isDesktop,
                           isCompact: isCompact,
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 22),
 
                         // 2. Hero Card: Tiến độ tổng quan & Mục tiêu hằng ngày
                         _buildHeroProgressBanner(
@@ -82,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                           progressRate: progressRate,
                           isTablet: isTablet,
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 22),
 
                         // 3. Hàng Thống kê Nhanh (4 chỉ số thực tế)
                         _buildStatsOverviewGrid(
@@ -94,60 +100,88 @@ class HomeScreen extends StatelessWidget {
                           dueSrsCount: dueSrsCount,
                           topicCount: studyProvider.topics.length,
                           progressRate: progressRate,
-                          isDesktop: isDesktop,
+                          isDesktop: useFourColStats,
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
 
-                        // 4. Khu vực Trung tâm: Từ vựng hôm nay & Lối tắt học tập
-                        if (isDesktop && wordOfDay != null)
+                        // 4. Bố cục chính:
+                        // - Desktop: Hai cột độc lập căn đầu hàng:
+                        //   + Cột trái: Từ vựng hôm nay -> Khám phá chủ đề CEFR (ngay bên dưới thẻ từ vựng, không chờ cột phải kết thúc)
+                        //   + Cột phải: Lối tắt học tập (bao gồm cả thẻ Trợ lý AI)
+                        // - Mobile / Tablet dọc: Một cột theo thứ tự: Từ vựng hôm nay -> Lối tắt học tập -> Khám phá chủ đề CEFR
+                        if (isDesktop)
                           Row(
+                            key: const Key('home_desktop_two_column_layout'),
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 flex: 11,
-                                child: _buildWordOfTheDaySection(
-                                  context,
-                                  wordOfDay: wordOfDay,
-                                  studyProvider: studyProvider,
+                                child: Column(
+                                  key: const Key('home_desktop_left_column'),
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (wordOfDay != null) ...[
+                                      _buildWordOfTheDaySection(
+                                        context,
+                                        wordOfDay: wordOfDay,
+                                        studyProvider: studyProvider,
+                                      ),
+                                      const SizedBox(height: 22),
+                                    ],
+                                    _buildFeaturedTopicsSection(
+                                      context,
+                                      topics: studyProvider.topics,
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(width: 24),
                               Expanded(
                                 flex: 10,
-                                child: _buildQuickActionsSection(
-                                  context,
-                                  topicCount: studyProvider.topics.length,
-                                  totalWords: total,
-                                  learningWords: learning,
+                                child: Column(
+                                  key: const Key('home_desktop_right_column'),
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildQuickActionsSection(
+                                      context,
+                                      topicCount: studyProvider.topics.length,
+                                      totalWords: total,
+                                      learningWords: learning,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           )
-                        else ...[
-                          if (wordOfDay != null) ...[
-                            _buildWordOfTheDaySection(
-                              context,
-                              wordOfDay: wordOfDay,
-                              studyProvider: studyProvider,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                          _buildQuickActionsSection(
-                            context,
-                            topicCount: studyProvider.topics.length,
-                            totalWords: total,
-                            learningWords: learning,
+                        else
+                          Column(
+                            key: const Key('home_mobile_single_column_layout'),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (wordOfDay != null) ...[
+                                _buildWordOfTheDaySection(
+                                  context,
+                                  wordOfDay: wordOfDay,
+                                  studyProvider: studyProvider,
+                                ),
+                                const SizedBox(height: 22),
+                              ],
+                              _buildQuickActionsSection(
+                                context,
+                                topicCount: studyProvider.topics.length,
+                                totalWords: total,
+                                learningWords: learning,
+                              ),
+                              const SizedBox(height: 22),
+                              _buildFeaturedTopicsSection(
+                                context,
+                                topics: studyProvider.topics,
+                              ),
+                            ],
                           ),
-                        ],
 
-                        const SizedBox(height: 28),
-
-                        // 5. Khu vực Khám phá Chủ đề
-                        _buildFeaturedTopicsSection(
-                          context,
-                          topics: studyProvider.topics,
-                          isWide: isTablet,
-                        ),
                         const SizedBox(height: 16),
                       ],
                     ),
@@ -167,6 +201,7 @@ class HomeScreen extends StatelessWidget {
     required bool isDesktop,
     required bool isCompact,
   }) {
+    final l10n = context.l10n;
     AuthProvider? authProvider;
     try {
       authProvider = Provider.of<AuthProvider>(context);
@@ -181,100 +216,102 @@ class HomeScreen extends StatelessWidget {
     final greeting = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-              Text(
-                displayName != null
-                    ? 'Xin chào, $displayName! 👋'
-                    : 'Xin chào bạn! 👋',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.4,
-                      color: context.textPrimaryColor,
-                    ),
+        Text(
+          displayName != null
+              ? l10n.homeGreetingUser(displayName)
+              : l10n.homeGreetingGuest,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.4,
+                color: context.textPrimaryColor,
               ),
-              const SizedBox(height: 4),
-              if (!isCompact)
-                Text(
-                'Sẵn sàng bứt phá vốn từ vựng và kỹ năng tiếng Anh hôm nay?',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.textSecondaryColor,
-                ),
-              ),
-            ],
-          );
-    final actions = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Huy hiệu Streak chuỗi học
-            Tooltip(
-              message: 'Chuỗi ngày học liên tiếp',
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: context.warningLightCol,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.45)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.local_fire_department_rounded,
-                      color: AppColors.warning,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$streakDays ngày',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+        ),
+        const SizedBox(height: 4),
+        if (!isCompact)
+          Text(
+            l10n.homeSubtitle,
+            style: TextStyle(
+              fontSize: 14,
+              color: context.textSecondaryColor,
             ),
-            const SizedBox(width: 8),
-            // Nút mở Thống kê
-            Tooltip(
-              message: 'Thống kê tiến độ',
-              child: IconButton(
-                icon: Icon(Icons.bar_chart_rounded, color: context.textPrimaryColor, size: 22),
-                style: IconButton.styleFrom(
-                  backgroundColor: context.cardBg,
-                  padding: const EdgeInsets.all(10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: context.borderCol),
+          ),
+      ],
+    );
+    final actions = Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        // Huy hiệu Streak chuỗi học
+        Tooltip(
+          message: l10n.homeStreakLabel,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: context.warningLightCol,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.warning.withValues(alpha: 0.45)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: AppColors.warning,
+                  size: 20,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    l10n.homeDayStreak(streakDays),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: context.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                onPressed: () => onTabChange(11),
+              ],
+            ),
+          ),
+        ),
+        // Nút mở Thống kê
+        Tooltip(
+          message: l10n.statsTitle,
+          child: IconButton(
+            icon: Icon(Icons.bar_chart_rounded, color: context.textPrimaryColor, size: 22),
+            style: IconButton.styleFrom(
+              backgroundColor: context.cardBg,
+              padding: const EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: context.borderCol),
               ),
             ),
-            const SizedBox(width: 8),
-            // Nút mở Cài đặt
-            Tooltip(
-              message: 'Cài đặt & Giao diện',
-              child: IconButton(
-                icon: Icon(Icons.settings_outlined, color: context.textPrimaryColor, size: 22),
-                style: IconButton.styleFrom(
-                  backgroundColor: context.cardBg,
-                  padding: const EdgeInsets.all(10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: context.borderCol),
-                  ),
-                ),
-                onPressed: () => onTabChange(12),
+            onPressed: () => onTabChange(11),
+          ),
+        ),
+        // Nút mở Cài đặt
+        Tooltip(
+          message: l10n.settingsTitle,
+          child: IconButton(
+            icon: Icon(Icons.settings_outlined, color: context.textPrimaryColor, size: 22),
+            style: IconButton.styleFrom(
+              backgroundColor: context.cardBg,
+              padding: const EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: context.borderCol),
               ),
             ),
-            const SizedBox(width: 8),
-            // Nút Ảnh đại diện & Menu Chỉnh sửa hồ sơ / Đăng xuất ở góc trên bên phải
-            TopProfileMenuButton(compact: !isDesktop),
-          ],
-        );
+            onPressed: () => onTabChange(12),
+          ),
+        ),
+        // Nút Ảnh đại diện & Menu Chỉnh sửa hồ sơ / Đăng xuất ở góc trên bên phải
+        TopProfileMenuButton(compact: !isDesktop || isCompact),
+      ],
+    );
 
     if (isCompact) {
       return Column(
@@ -290,7 +327,17 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [Expanded(child: greeting), const SizedBox(width: 12), actions],
+      children: [
+        Expanded(flex: 5, child: greeting),
+        const SizedBox(width: 12),
+        Flexible(
+          flex: 7,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: actions,
+          ),
+        ),
+      ],
     );
   }
 
@@ -303,6 +350,7 @@ class HomeScreen extends StatelessWidget {
     required double progressRate,
     required bool isTablet,
   }) {
+    final l10n = context.l10n;
     final percentInt = (progressRate * 100).toInt();
 
     return Container(
@@ -327,7 +375,6 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Họa tiết vòng tròn trang trí tinh tế
           Positioned(
             right: -30,
             top: -30,
@@ -379,12 +426,15 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        const Text(
-                          'Tiến độ & Mục tiêu học tập',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Flexible(
+                          child: Text(
+                            l10n.statsOverallProgress,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -397,7 +447,7 @@ class HomeScreen extends StatelessWidget {
                         border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
                       ),
                       child: Text(
-                        'Mục tiêu: $dailyGoal từ/ngày',
+                        l10n.homeGoalTitle(dailyGoal),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -409,7 +459,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Bạn đã làm chủ $mastered trên tổng số $total từ vựng CEFR ($percentInt% hoàn thành).',
+                  l10n.homeProgressSummary(mastered, total, percentInt),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -439,9 +489,9 @@ class HomeScreen extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.quiz_rounded, size: 18),
-                      label: const Text(
-                        'Làm Quiz phản xạ',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      label: Text(
+                        l10n.quizPlayTitle,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -457,7 +507,7 @@ class HomeScreen extends StatelessWidget {
                       onPressed: () => onTabChange(10), // Tab Ôn tập
                       icon: const Icon(Icons.replay_rounded, size: 18, color: Colors.white),
                       label: Text(
-                        learning > 0 ? 'Ôn tập ngay ($learning từ)' : 'Danh sách ôn tập',
+                        learning > 0 ? l10n.homeReviewNow(learning) : l10n.homeCardReviewTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -493,17 +543,18 @@ class HomeScreen extends StatelessWidget {
     required double progressRate,
     required bool isDesktop,
   }) {
+    final l10n = context.l10n;
     final cards = [
       StatCard(
-        title: 'Kho từ vựng CEFR',
+        title: l10n.homeCardTopicsTitle,
         value: '$total',
-        subtitle: '$topicCount chủ đề',
+        subtitle: l10n.homeTopicCount(topicCount),
         icon: Icons.library_books_rounded,
         color: AppColors.primary,
         onTap: () => onTabChange(1),
       ),
       StatCard(
-        title: 'Từ đã thuộc lòng',
+        title: l10n.statsMasteredWords,
         value: '$mastered',
         subtitle: '${(progressRate * 100).toInt()}%',
         icon: Icons.check_circle_rounded,
@@ -511,17 +562,17 @@ class HomeScreen extends StatelessWidget {
         onTap: () => onTabChange(11),
       ),
       StatCard(
-        title: 'Từ đang cần ôn',
+        title: l10n.statsNeedReviewWords,
         value: '$learning',
-        subtitle: dueSrsCount > 0 ? '$dueSrsCount đến hạn' : 'SRS',
+        subtitle: dueSrsCount > 0 ? l10n.homeDueSrsCount(dueSrsCount) : 'SRS',
         icon: Icons.replay_circle_filled_rounded,
         color: AppColors.warning,
         onTap: () => onTabChange(10),
       ),
       StatCard(
-        title: 'Từ vựng yêu thích',
+        title: l10n.statsFavoriteWords,
         value: '$favorite',
-        subtitle: 'Đã lưu',
+        subtitle: l10n.homeSavedSuccess,
         icon: Icons.favorite_rounded,
         color: AppColors.danger,
         onTap: () => onTabChange(10),
@@ -568,25 +619,32 @@ class HomeScreen extends StatelessWidget {
     required WordModel wordOfDay,
     required StudyProvider studyProvider,
   }) {
+    final l10n = context.l10n;
     return Column(
+      key: const Key('home_word_of_the_day_section'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.wb_incandescent_rounded, color: AppColors.warning, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Từ vựng hôm nay',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: context.textPrimaryColor,
+            Expanded(
+              child: Row(
+                children: [
+                  const Icon(Icons.wb_incandescent_rounded, color: AppColors.warning, size: 20),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      l10n.homeTodayWord,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: context.textPrimaryColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             TextButton.icon(
               onPressed: () {
@@ -594,7 +652,7 @@ class HomeScreen extends StatelessWidget {
               },
               icon: Icon(Icons.refresh_rounded, size: 16, color: context.primaryAccent),
               label: Text(
-                'Đổi từ mới',
+                l10n.homeChangeWord,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -623,7 +681,7 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Tooltip(
-                    message: 'Nghe phát âm chuẩn',
+                    message: l10n.homeListenPronunciation,
                     child: IconButton.filled(
                       onPressed: () => TtsService().speak(wordOfDay.term),
                       icon: const Icon(Icons.volume_up_rounded),
@@ -713,7 +771,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   Tooltip(
-                    message: wordOfDay.isFavorite ? 'Bỏ yêu thích' : 'Lưu vào yêu thích',
+                    message: wordOfDay.isFavorite ? l10n.homeRemoveFavorite : l10n.homeSaveFavorite,
                     child: IconButton(
                       icon: Icon(
                         wordOfDay.isFavorite
@@ -786,7 +844,9 @@ class HomeScreen extends StatelessWidget {
     required int totalWords,
     required int learningWords,
   }) {
+    final l10n = context.l10n;
     return Column(
+      key: const Key('home_quick_actions_section'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
@@ -795,12 +855,15 @@ class HomeScreen extends StatelessWidget {
             children: [
               Icon(Icons.bolt_rounded, color: context.primaryAccent, size: 22),
               const SizedBox(width: 6),
-              Text(
-                'Lối tắt học tập',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: context.textPrimaryColor,
+              Flexible(
+                child: Text(
+                  l10n.homeShortcutsTitle,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: context.textPrimaryColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -812,8 +875,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Chủ đề từ vựng',
-                subtitle: '$topicCount chủ đề CEFR',
+                title: l10n.homeCardTopicsTitle,
+                subtitle: l10n.homeTopicCefrCount(topicCount),
                 icon: Icons.grid_view_rounded,
                 color: AppColors.primary,
                 onTap: () => onTabChange(1),
@@ -823,8 +886,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Shadowing phản xạ',
-                subtitle: 'Trọng âm & nối âm',
+                title: l10n.homeCardShadowingTitle,
+                subtitle: l10n.homeCardShadowingDesc,
                 icon: Icons.spatial_audio_off_rounded,
                 color: const Color(0xFF0D9488),
                 onTap: () => onTabChange(6),
@@ -838,8 +901,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Từ điển Anh - Việt',
-                subtitle: 'Tra cứu $totalWords+ từ',
+                title: l10n.homeCardDictionaryTitle,
+                subtitle: l10n.homeCardDictionaryDesc,
                 icon: Icons.auto_stories_rounded,
                 color: AppColors.secondary,
                 onTap: () => onTabChange(7),
@@ -849,8 +912,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Từ cần ôn tập',
-                subtitle: '$learningWords từ cần nhớ',
+                title: l10n.homeCardReviewTitle,
+                subtitle: l10n.homeWordsToLearn(learningWords),
                 icon: Icons.replay_rounded,
                 color: AppColors.success,
                 onTap: () => onTabChange(10),
@@ -864,8 +927,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Luyện thi IELTS/TOEIC',
-                subtitle: 'Đề bấm giờ & giải thích',
+                title: l10n.homeCardExamTitle,
+                subtitle: l10n.homeCardExamDesc,
                 icon: Icons.workspace_premium_rounded,
                 color: const Color(0xFFE11D48),
                 onTap: () => onTabChange(8),
@@ -875,8 +938,8 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: _buildActionTile(
                 context,
-                title: 'Trò chơi từ vựng',
-                subtitle: 'Ghép cặp & Quiz phản xạ',
+                title: l10n.homeCardGamesTitle,
+                subtitle: l10n.homeCardGamesDesc,
                 icon: Icons.sports_esports_rounded,
                 color: AppColors.warning,
                 onTap: () => onTabChange(9),
@@ -887,8 +950,8 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 12),
         _buildActionTile(
           context,
-          title: 'Trợ lý AI English Buddy',
-          subtitle: 'Giải đáp ngữ pháp, tra từ, góp ý bài viết',
+          title: l10n.homeCardAiTitle,
+          subtitle: l10n.homeCardAiDesc,
           icon: Icons.smart_toy_rounded,
           color: const Color(0xFF6366F1),
           onTap: () {
@@ -905,73 +968,109 @@ class HomeScreen extends StatelessWidget {
   Widget _buildFeaturedTopicsSection(
     BuildContext context, {
     required List<TopicModel> topics,
-    required bool isWide,
   }) {
-    final displayedTopics = topics.take(isWide ? 4 : 3).toList();
+    final l10n = context.l10n;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, sectionConstraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+        // Bố trí chủ đề 1 hoặc 2 cột tùy chiều rộng thực tế của vùng chứa để chữ không bị chật
+        final useTwoColumns =
+            sectionConstraints.maxWidth >= 520 && textScale <= 1.25;
+        final displayedTopics = topics.take(4).toList();
+
+        final List<Widget> topicRows = [];
+        if (useTwoColumns) {
+          for (var i = 0; i < displayedTopics.length; i += 2) {
+            if (i > 0) {
+              topicRows.add(const SizedBox(height: 14));
+            }
+            final first = displayedTopics[i];
+            final second =
+                (i + 1 < displayedTopics.length) ? displayedTopics[i + 1] : null;
+            topicRows.add(
+              Row(
+                key: Key('home_topics_two_col_row_${i ~/ 2}'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildTopicItemCard(context, first)),
+                  const SizedBox(width: 14),
+                  if (second != null)
+                    Expanded(child: _buildTopicItemCard(context, second))
+                  else
+                    const Expanded(child: SizedBox.shrink()),
+                ],
+              ),
+            );
+          }
+        } else {
+          for (var i = 0; i < displayedTopics.length; i++) {
+            if (i > 0) {
+              topicRows.add(const SizedBox(height: 12));
+            }
+            topicRows.add(
+              KeyedSubtree(
+                key: Key('home_topics_single_col_$i'),
+                child: _buildTopicItemCard(context, displayedTopics[i]),
+              ),
+            );
+          }
+        }
+
+        return Column(
+          key: const Key('home_featured_topics_section'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.explore_rounded, color: context.primaryAccent, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Khám phá chủ đề',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: context.textPrimaryColor,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.explore_rounded,
+                        color: context.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          l10n.homeCardTopicsDesc,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: context.textPrimaryColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => onTabChange(1),
+                  icon: Text(l10n.homeViewAll),
+                  label: const Icon(Icons.arrow_forward_rounded, size: 16),
+                  style: TextButton.styleFrom(
+                    foregroundColor: context.primaryAccent,
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
             ),
-            TextButton.icon(
-              onPressed: () => onTabChange(1),
-              icon: const Text('Xem tất cả'),
-              label: const Icon(Icons.arrow_forward_rounded, size: 16),
-              style: TextButton.styleFrom(
-                foregroundColor: context.primaryAccent,
-                textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-              ),
-            ),
+            const SizedBox(height: 8),
+            ...topicRows,
           ],
-        ),
-        const SizedBox(height: 8),
-        if (isWide)
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: displayedTopics.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              mainAxisExtent: 112,
-            ),
-            itemBuilder: (context, index) {
-              return _buildTopicItemCard(context, displayedTopics[index]);
-            },
-          )
-        else
-          Column(
-            children: displayedTopics
-                .map(
-                  (topic) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildTopicItemCard(context, topic),
-                  ),
-                )
-                .toList(),
-          ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildTopicItemCard(BuildContext context, TopicModel topic) {
+    final l10n = context.l10n;
     final topicColor = UiHelpers.hexToColor(topic.colorHex);
     final iconData = UiHelpers.getIconData(topic.iconName);
     final percent = (topic.progressPercentage * 100).toInt();
@@ -1003,12 +1102,13 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
+                    Expanded(
                       child: Text(
                         topic.name,
                         style: TextStyle(
@@ -1016,9 +1116,11 @@ class HomeScreen extends StatelessWidget {
                           fontSize: 15,
                           color: context.textPrimaryColor,
                         ),
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       '$percent%',
                       style: TextStyle(
@@ -1031,7 +1133,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${topic.masteredWords}/${topic.totalWords} từ đã thuộc',
+                  l10n.homeMasteredWords(topic.masteredWords, topic.totalWords),
                   style: TextStyle(fontSize: 12, color: context.textSecondaryColor),
                 ),
                 const SizedBox(height: 8),
@@ -1069,6 +1171,7 @@ class HomeScreen extends StatelessWidget {
       hoverBorderColor: color.withValues(alpha: 0.6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1088,7 +1191,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
             title,
             style: TextStyle(
@@ -1096,7 +1199,7 @@ class HomeScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: context.textPrimaryColor,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
@@ -1106,7 +1209,7 @@ class HomeScreen extends StatelessWidget {
               fontSize: 12,
               color: context.textSecondaryColor,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ],

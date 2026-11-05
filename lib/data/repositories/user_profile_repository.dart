@@ -52,7 +52,9 @@ class UserProfileRepository {
     this.ensureDbOpen = false,
   }) : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
-  bool get _useSqlite => ensureDbOpen || _dbHelper.isInitialized;
+  bool get _useSqlite =>
+      (ensureDbOpen || _dbHelper.isInitialized) &&
+      !DatabaseHelper.isInFakeAsyncZone;
 
   UserProfileModel _buildDefaultLocalLearner() {
     final nowIso = DateTime.now().toIso8601String();
@@ -120,10 +122,12 @@ class UserProfileRepository {
   Future<UserProfileModel> syncAuthenticatedUserProfile({
     required String uid,
     required String email,
+    String? username,
     required String displayName,
     required String providerId,
     String? verifiedRoleFromServerOrToken,
     bool isBootstrapAdmin = false,
+    bool preferIncomingDisplayName = false,
   }) async {
     final cleanUid = uid.trim();
     if (cleanUid.isEmpty) {
@@ -132,6 +136,8 @@ class UserProfileRepository {
 
     final existing = await _readRowByUid(cleanUid);
     final nowIso = DateTime.now().toIso8601String();
+    final normalizedIncomingUsername =
+        UserProfileModel.normalizeUsername(username);
 
     if (existing != null) {
       if (!existing.isActive) {
@@ -146,11 +152,21 @@ class UserProfileRepository {
         resolvedRole = AppConstants.roleAdmin;
       }
 
+      final resolvedDisplayName = (preferIncomingDisplayName &&
+              displayName.trim().isNotEmpty)
+          ? displayName.trim()
+          : (existing.displayName.trim().isNotEmpty
+              ? existing.displayName
+              : (displayName.trim().isNotEmpty ? displayName.trim() : 'Learner'));
+
+      final resolvedUsername = normalizedIncomingUsername.isNotEmpty
+          ? normalizedIncomingUsername
+          : existing.username;
+
       final updated = existing.copyWith(
         email: email.trim().isNotEmpty ? email.trim() : existing.email,
-        displayName: existing.displayName.trim().isNotEmpty
-            ? existing.displayName
-            : (displayName.trim().isNotEmpty ? displayName.trim() : 'Learner'),
+        username: resolvedUsername,
+        displayName: resolvedDisplayName,
         providerId: providerId.trim().isNotEmpty
             ? providerId.trim()
             : existing.providerId,
@@ -170,6 +186,7 @@ class UserProfileRepository {
     final created = UserProfileModel(
       uid: cleanUid,
       email: email.trim(),
+      username: normalizedIncomingUsername,
       displayName: displayName.trim().isNotEmpty
           ? displayName.trim()
           : (email.contains('@') ? email.split('@').first : 'Learner'),
@@ -189,6 +206,31 @@ class UserProfileRepository {
 
     await _writeProfile(created);
     return created;
+  }
+
+  /// Tra cứu hồ sơ theo tên đăng nhập (phục vụ kiểm tra cục bộ và test)
+  Future<UserProfileModel?> findProfileByUsername(String rawUsername) async {
+    final normalized = UserProfileModel.normalizeUsername(rawUsername);
+    if (normalized.isEmpty) return null;
+
+    if (!_useSqlite) {
+      for (final profile in _memoryProfiles.values) {
+        if (UserProfileModel.normalizeUsername(profile.username) == normalized) {
+          return profile;
+        }
+      }
+      return null;
+    }
+
+    final db = await _dbHelper.database;
+    final rows = await db.query(
+      'user_profiles',
+      where: 'LOWER(username) = ?',
+      whereArgs: [normalized],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return UserProfileModel.fromMap(rows.first);
   }
 
   /// Kiểm tra nghiêm ngặt quyền Admin ở tầng dữ liệu / API nội bộ
@@ -267,6 +309,7 @@ class UserProfileRepository {
     required String actorUid,
     required String targetUid,
     required String displayName,
+    String? username,
     required String bio,
     required String learningGoal,
     required String avatarData,
@@ -292,6 +335,7 @@ class UserProfileRepository {
 
     final validationError = UserProfileModel.validateProfileInput(
       displayName: displayName,
+      username: username,
       bio: bio,
       learningGoal: learningGoal,
       avatarData: avatarData,
@@ -318,6 +362,20 @@ class UserProfileRepository {
         'Tài khoản của bạn đã bị khóa, không thể chỉnh sửa hồ sơ.',
         statusCode: 403,
       );
+    }
+
+    String nextUsername = existing.username;
+    if (username != null) {
+      final normalizedUsername = UserProfileModel.normalizeUsername(username);
+      if (normalizedUsername.isNotEmpty) {
+        final conflict = await findProfileByUsername(normalizedUsername);
+        if (conflict != null && conflict.uid != existing.uid) {
+          throw ProfileValidationException(
+            'Tên đăng nhập "$normalizedUsername" đã có người sử dụng. Vui lòng chọn tên đăng nhập khác.',
+          );
+        }
+        nextUsername = normalizedUsername;
+      }
     }
 
     // Kiểm tra bảo mật: chặn user thường tự nâng quyền hoặc tự đổi cấp độ CEFR
@@ -358,6 +416,7 @@ class UserProfileRepository {
 
     final nowIso = DateTime.now().toIso8601String();
     final updated = existing.copyWith(
+      username: nextUsername,
       displayName: displayName.trim(),
       bio: bio.trim(),
       learningGoal: learningGoal.trim(),

@@ -291,7 +291,7 @@ void main() {
     expect(navState.canPop(), false);
   });
 
-  testWidgets('AuthScreen navigates to HomeScreen on successful Email/Password Registration and Google Sign-In', (WidgetTester tester) async {
+  testWidgets('AuthScreen switches to SignIn tab on successful Registration, prompts user to sign in, and navigates to HomeScreen only upon successful Sign-In / Google Sign-In', (WidgetTester tester) async {
     final fakeAuthService = _ConfigurableAuthService(shouldSucceed: true);
     final fakeAntiBotService = _ConfigurableAntiBotService(configured: true, verified: true);
     final authProvider = AuthProvider(
@@ -325,7 +325,8 @@ void main() {
     expect(find.byType(AuthScreen), findsOneWidget);
     expect(find.textContaining('Vui lòng xác minh token chống bot'), findsOneWidget);
 
-    // Sau khi xác minh CAPTCHA phía server -> Tạo tài khoản thành công -> Tự động về Trang chủ
+    // Sau khi xác minh CAPTCHA phía server -> Tạo tài khoản thành công
+    // -> KHÔNG vào Trang chủ, chuyển sang tab Đăng nhập và điền sẵn username/email
     await authProvider.verifyAntiBotToken(
       tokenFromProviderWidget: 'valid_turnstile_token',
       action: 'register',
@@ -336,6 +337,28 @@ void main() {
     await tester.tap(registerBtn);
     await tester.pumpAndSettle();
 
+    // Vẫn ở AuthScreen, KHÔNG chuyển vào HomeScreen
+    expect(find.byType(AuthScreen), findsOneWidget);
+    expect(find.byType(MainNavigationScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsNothing);
+    expect(authProvider.isAuthenticated, false);
+
+    // Hiển thị thông báo đăng ký thành công
+    expect(find.text('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.'), findsOneWidget);
+
+    // Đã chuyển sang tab Đăng nhập (nút Đăng nhập xuất hiện, trường identifier điền sẵn HocVienMoi)
+    final loginBtn = find.widgetWithText(CustomButton, 'Đăng nhập');
+    expect(loginBtn, findsOneWidget);
+    expect(find.text('HocVienMoi'), findsOneWidget);
+
+    // Nhập mật khẩu và đăng nhập bằng tài khoản vừa tạo
+    final passwordField = find.byType(TextField).at(1);
+    await tester.enterText(passwordField, 'MatKhauAnToan123');
+    await tester.ensureVisible(loginBtn);
+    await tester.tap(loginBtn);
+    await tester.pumpAndSettle();
+
+    // Đăng nhập thành công -> vào Trang chủ
     expect(find.byType(MainNavigationScreen), findsOneWidget);
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(AuthScreen), findsNothing);
@@ -1174,7 +1197,7 @@ void main() {
   });
 }
 
-class _ConfigurableAuthService implements AuthService {
+class _ConfigurableAuthService extends AuthService {
   bool shouldSucceed;
   String returnedRole;
   String returnedUid;
@@ -1184,7 +1207,7 @@ class _ConfigurableAuthService implements AuthService {
     this.shouldSucceed = true,
     this.returnedRole = AppConstants.roleUser,
     this.returnedUid = 'uid_1',
-  });
+  }) : super.custom();
 
   @override
   bool get isPasswordAuthConfigured => true;
@@ -1264,6 +1287,50 @@ class _ConfigurableAuthService implements AuthService {
         providerId: 'google.com',
         idToken: 'google_jwt',
       ),
+    );
+  }
+
+  @override
+  Future<AuthOperationResult> fetchServerProfile(
+    AuthenticatedUser user, {
+    dynamic httpClient,
+  }) async {
+    return AuthOperationResult(
+      isSuccess: true,
+      statusCode: 200,
+      message: 'Synced',
+      user: user,
+    );
+  }
+
+  @override
+  Future<AuthOperationResult> updateServerProfile({
+    required AuthenticatedUser user,
+    String? targetUid,
+    required String displayName,
+    String? username,
+    required String bio,
+    required String learningGoal,
+    required String avatarData,
+    String? cefrLevel,
+    dynamic httpClient,
+  }) async {
+    if ((targetUid ?? user.uid).trim() != user.uid.trim()) {
+      return const AuthOperationResult(
+        isSuccess: false,
+        statusCode: 403,
+        message: 'Forbidden',
+      );
+    }
+    final updatedUser = user.copyWith(
+      displayName: displayName.trim(),
+      username: username?.trim().toLowerCase() ?? user.username,
+    );
+    return AuthOperationResult(
+      isSuccess: true,
+      statusCode: 200,
+      message: 'Đã lưu cập nhật hồ sơ cá nhân thành công!',
+      user: updatedUser,
     );
   }
 }

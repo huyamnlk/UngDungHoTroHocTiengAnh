@@ -7,6 +7,7 @@ import '../../widgets/interactive_card.dart';
 import '../games/vocabulary_arena_screen.dart';
 import '../games/word_rain_screen.dart';
 import '../games/space_typer_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class GamesHubScreen extends StatefulWidget {
   const GamesHubScreen({super.key});
@@ -53,7 +54,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
       return;
     }
 
-    String topicName = 'Tất cả chủ đề';
+    String topicName = context.l10n.allTopics;
     if (_selectedTopicId > 0) {
       final found = studyProvider.topics.where((t) => t.id == _selectedTopicId).firstOrNull;
       if (found != null) topicName = found.name;
@@ -100,7 +101,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
 
     switch (gameKey) {
       case 'space_typer':
-        title = 'Chiến Cơ Vũ Trụ (Space Typer)';
+        title = context.l10n.gamesSpaceTyperTitle;
         icon = Icons.rocket_launch_rounded;
         color = const Color(0xFF38BDF8);
         rules = [
@@ -113,7 +114,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
         ];
         break;
       case 'arena':
-        title = 'Đấu trường từ vựng (Vocabulary Arena)';
+        title = context.l10n.gamesArenaTitle;
         icon = Icons.sports_kabaddi_rounded;
         color = AppColors.primary;
         rules = [
@@ -125,7 +126,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
         ];
         break;
       case 'rain':
-        title = 'Mưa Từ Vựng (Vocabulary Rain)';
+        title = context.l10n.gamesWordRainTitle;
         icon = Icons.water_drop_rounded;
         color = const Color(0xFF06B6D4);
         rules = [
@@ -167,7 +168,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Đóng'),
+            child: Text(context.l10n.actionClose),
           ),
           ElevatedButton(
             onPressed: () {
@@ -175,7 +176,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
               _launchGame(gameKey);
             },
             style: ElevatedButton.styleFrom(backgroundColor: color),
-            child: const Text('Bắt đầu chơi ngay', style: TextStyle(color: Colors.white)),
+            child: Text(context.l10n.gameStart, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -191,7 +192,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Trung tâm Trò chơi Từ vựng (Mini Games)'),
+        title: Text(context.l10n.gamesHubTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -268,7 +269,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
-                                  'Học từ vựng qua phản xạ tốc độ cao, gõ phím phi thuyền, bắt giọt mưa và nghe chính tả âm thanh thực tế.',
+                                  context.l10n.gamesHubSubtitle,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: context.textSecondaryColor,
@@ -326,7 +327,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                         runSpacing: 8,
                         children: ['All', 'A1', 'A2', 'B1', 'B2', 'C1'].map((lvl) {
                           return ChoiceChip(
-                            label: Text(lvl == 'All' ? 'Tất cả cấp độ' : lvl),
+                            label: Text(lvl == 'All' ? context.l10n.allLevels : lvl),
                             selected: _selectedLevel == lvl,
                             onSelected: (_) => setState(() => _selectedLevel = lvl),
                           );
@@ -434,7 +435,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                           _buildCustomTag('Radar Mini-map', const Color(0xFFAA6EFF)),
                           _buildCustomTag('Khiên & Phòng tuyến', const Color(0xFFFFC828)),
                           if (gamesProvider.spaceHighScore > 0)
-                            _buildCustomTag('Kỷ lục: ${gamesProvider.spaceHighScore} đ', const Color(0xFFFFC828)),
+                            _buildCustomTag(context.l10n.gamesHighScore(gamesProvider.spaceHighScore), const Color(0xFFFFC828)),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -475,7 +476,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
 
                 // Danh sách 3 Trò chơi Từ vựng
                 Text(
-                  'Chọn 1 trong 3 trò chơi để bắt đầu:',
+                  context.l10n.gamesSelectGame,
                   style: TextStyle(
                     fontSize: 16.5,
                     fontWeight: FontWeight.w800,
@@ -488,9 +489,8 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                 _buildGameCard(
                   context,
                   gameKey: 'space_typer',
-                  title: '1. Chiến Cơ Vũ Trụ (Space Typer)',
-                  subtitle:
-                      'Gõ chữ cái/từ vựng phá hủy thiên thạch vũ trụ. Tàu tự động lướt ngang căn hàng, đạn laze bắn theo từng phím, radar phòng thủ và 3 cấp độ Dễ - Trung bình - Khó.',
+                  title: '1. ${context.l10n.gamesSpaceTyperTitle}',
+                  subtitle: context.l10n.gamesSpaceTyperDesc,
                   icon: Icons.rocket_launch_rounded,
                   accentColor: const Color(0xFF38BDF8),
                   highScore: gamesProvider.spaceHighScore,
@@ -503,9 +503,8 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                 _buildGameCard(
                   context,
                   gameKey: 'arena',
-                  title: '2. Đấu trường từ vựng (Vocabulary Arena)',
-                  subtitle:
-                      'Trắc nghiệm phản xạ 7-15s theo cấp độ Dễ/Trung bình/Khó, chuỗi combo điểm số cao, lọc từ ngắn đến dài và hỗ trợ phím tắt 1-4 trên máy tính.',
+                  title: '2. ${context.l10n.gamesArenaTitle}',
+                  subtitle: context.l10n.gamesArenaDesc,
                   icon: Icons.sports_kabaddi_rounded,
                   accentColor: AppColors.primary,
                   highScore: gamesProvider.arenaHighScore,
@@ -518,9 +517,8 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                 _buildGameCard(
                   context,
                   gameKey: 'rain',
-                  title: '3. Mưa Từ Vựng (Vocabulary Rain)',
-                  subtitle:
-                      'Xem nghĩa tiếng Việt ở khung trung tâm, nhanh tay bắt các giọt mưa tiếng Anh đang rơi trước khi chìm xuống hồ nước đáy với 3 mức độ khó linh hoạt.',
+                  title: '3. ${context.l10n.gamesWordRainTitle}',
+                  subtitle: context.l10n.gamesWordRainDesc,
                   icon: Icons.water_drop_rounded,
                   accentColor: const Color(0xFF06B6D4),
                   highScore: gamesProvider.rainHighScore,
@@ -535,7 +533,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Lịch sử đấu game gần đây (${gamesProvider.recentHistory.length} lượt)',
+                        context.l10n.gamesRecentHistory(gamesProvider.recentHistory.length),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -571,7 +569,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              '${record.score} đ',
+                              context.l10n.gameScorePoints(record.score),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -673,7 +671,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'Kỷ lục: $highScore đ',
+                                  context.l10n.gamesHighScore(highScore),
                                   style: const TextStyle(
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.bold,
@@ -724,7 +722,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                         ElevatedButton.icon(
                           onPressed: onPlay,
                           icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                          label: const Text('Chơi ngay'),
+                          label: Text(context.l10n.gamesPlayNow),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: accentColor,
                             foregroundColor: Colors.white,
@@ -752,7 +750,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                       child: TextButton.icon(
                         onPressed: () => _showGameGuide(gameKey),
                         icon: const Icon(Icons.help_outline_rounded, size: 16),
-                        label: const Text('Xem luật chơi'),
+                        label: Text(context.l10n.gamesRules),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -760,7 +758,7 @@ class _GamesHubScreenState extends State<GamesHubScreen> {
                       child: ElevatedButton.icon(
                         onPressed: onPlay,
                         icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                        label: const Text('Chơi ngay'),
+                        label: Text(context.l10n.gamesPlayNow),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: Colors.white,

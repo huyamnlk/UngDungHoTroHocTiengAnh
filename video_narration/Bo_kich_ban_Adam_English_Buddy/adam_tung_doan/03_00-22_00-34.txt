@@ -1,0 +1,1 @@
+﻿Trong cài đặt, người dùng có thể thay đổi ngôn ngữ giao diện. Nhóm lần lượt chọn tiếng Anh, tiếng Trung và tiếng Nhật. Các nhãn trên trang và thanh điều hướng thay đổi theo lựa chọn, sau đó chúng em chuyển về tiếng Việt.

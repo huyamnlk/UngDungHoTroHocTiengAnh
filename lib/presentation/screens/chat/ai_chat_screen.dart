@@ -9,6 +9,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../data/models/chat_message_model.dart';
 import '../../../providers/ai_chat_provider.dart';
 import '../../../providers/auth_provider.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -90,9 +91,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (chatProvider.isLoading) return;
 
     String? idToken;
+    Future<String?> Function()? onRefreshToken;
     try {
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      idToken = auth.idToken;
+      if (auth.isAuthenticated) {
+        idToken = auth.idToken;
+        onRefreshToken = () => auth.refreshSessionToken();
+      }
     } catch (_) {}
 
     _textController.clear();
@@ -100,9 +105,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
       _canSend = false;
     });
 
-    chatProvider.sendMessage(trimmed, idToken: idToken).then((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    });
+    chatProvider
+        .sendMessage(
+          trimmed,
+          idToken: idToken,
+          onRefreshToken: onRefreshToken,
+        )
+        .then((_) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _scrollToBottom(),
+          );
+        });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
@@ -111,25 +124,25 @@ class _AiChatScreenState extends State<AiChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.delete_outline_rounded, color: AppColors.danger),
-            SizedBox(width: 8),
-            Text('Xóa cuộc trò chuyện?'),
+            const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+            const SizedBox(width: 8),
+            Text(context.l10n.aiChatClearTitle),
           ],
         ),
-        content: const Text(
-          'Toàn bộ câu hỏi và giải đáp của Trợ lý AI sẽ bị xóa sạch khỏi thiết bị. Hành động này không thể hoàn tác.',
+        content: Text(
+          context.l10n.aiChatClearDesc,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy'),
+            child: Text(context.l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Xác nhận xóa'),
+            child: Text(context.l10n.actionDelete),
           ),
         ],
       ),
@@ -140,9 +153,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
       await chatProvider.clearChat();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã xóa toàn bộ lịch sử trò chuyện.'),
-            duration: Duration(seconds: 2),
+          SnackBar(content: Text(context.l10n.aiChatClearSuccess),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -201,7 +213,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Đã hiểu'),
+            child: Text(context.l10n.actionUnderstood),
           ),
         ],
       ),
@@ -226,7 +238,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_rounded, color: context.textPrimaryColor),
-          tooltip: 'Quay lại',
+          tooltip: context.l10n.actionBack,
           onPressed: () => Navigator.maybePop(context),
         ),
         title: Row(
@@ -253,7 +265,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          'Trợ lý AI English Buddy',
+                          context.l10n.aiChatTitle,
                           style: TextStyle(
                             fontSize: 15.5,
                             fontWeight: FontWeight.bold,
@@ -283,7 +295,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     ],
                   ),
                   Text(
-                    'Hỏi đáp ngữ pháp • Dịch câu • Góp ý bài viết',
+                    context.l10n.aiChatSubtitle,
                     style: TextStyle(
                       fontSize: 11.5,
                       color: context.textSecondaryColor,
@@ -304,7 +316,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           if (messages.isNotEmpty)
             IconButton(
               icon: Icon(Icons.delete_outline_rounded, color: context.textSecondaryColor),
-              tooltip: 'Xóa cuộc trò chuyện',
+              tooltip: context.l10n.aiChatClearTitle,
               onPressed: _confirmClearChat,
             ),
           const SizedBox(width: 6),
@@ -393,7 +405,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Chào bạn! Mình có thể giúp gì cho việc học tiếng Anh?',
+            context.l10n.aiChatGreeting,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 17,
@@ -403,7 +415,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Hãy hỏi mình bất kỳ thắc mắc ngữ pháp, yêu cầu dịch câu, sửa bài viết hay giải thích từ vựng!',
+            context.l10n.aiChatGreetingDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -414,7 +426,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'GỢI Ý CÂU HỎI THỰC HÀNH',
+              context.l10n.aiChatSuggestions,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -519,7 +531,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Trợ lý AI đang suy nghĩ...',
+                    context.l10n.aiChatThinking,
                     style: TextStyle(
                       fontSize: 13,
                       color: context.textSecondaryColor,
@@ -553,23 +565,25 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 18),
-                        SizedBox(width: 6),
-                        Text(
-                          'Không thể nhận câu trả lời',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.danger,
+                        const Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 18),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            context.l10n.aiChatErrorGeneral,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.danger,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      message.errorMessage ?? 'Đã có lỗi xảy ra trong quá trình kết nối.',
+                      message.errorMessage ?? context.l10n.aiChatErrorGeneral,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFF991B1B),
@@ -579,26 +593,44 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     InkWell(
                       onTap: () {
                         String? idToken;
+                        Future<String?> Function()? onRefreshToken;
                         try {
-                          final auth = Provider.of<AuthProvider>(context, listen: false);
-                          idToken = auth.idToken;
+                          final auth = Provider.of<AuthProvider>(
+                            context,
+                            listen: false,
+                          );
+                          if (auth.isAuthenticated) {
+                            idToken = auth.idToken;
+                            onRefreshToken = () => auth.refreshSessionToken();
+                          }
                         } catch (_) {}
-                        provider.retryMessage(message.id, idToken: idToken);
+                        provider.retryMessage(
+                          message.id,
+                          idToken: idToken,
+                          onRefreshToken: onRefreshToken,
+                        );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.danger.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.refresh_rounded, size: 14, color: AppColors.danger),
-                            SizedBox(width: 4),
+                            const Icon(
+                              Icons.refresh_rounded,
+                              size: 14,
+                              color: AppColors.danger,
+                            ),
+                            const SizedBox(width: 4),
                             Text(
-                              'Thử gửi lại',
-                              style: TextStyle(
+                              context.l10n.actionRetry,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.danger,
@@ -763,7 +795,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   decoration: InputDecoration(
                     hintText: _isDesktopOrWeb
                         ? 'Nhập câu hỏi, câu cần dịch hoặc bài viết... (Enter để gửi, Shift+Enter xuống dòng)'
-                        : 'Nhập câu hỏi, câu cần dịch hoặc bài viết...',
+                        : context.l10n.aiChatInputPlaceholder,
                     hintStyle: TextStyle(
                       fontSize: 13,
                       color: context.textMutedColor,

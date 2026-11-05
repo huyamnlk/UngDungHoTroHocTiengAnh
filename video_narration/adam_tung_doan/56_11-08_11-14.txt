@@ -1,0 +1,1 @@
+﻿Kết thúc lượt chơi, bảng kết quả thống kê thành tích và những từ bỏ lỡ, cho phép nghe lại hoặc bắt đầu lượt mới.

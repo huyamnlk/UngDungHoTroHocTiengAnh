@@ -1,0 +1,1 @@
+﻿Bài kiểm tra có thanh tiến độ và các phương án trả lời. Người học chọn đáp án rồi bấm Kiểm tra. Câu đúng được tô xanh, đi kèm câu hoàn chỉnh và nghĩa tiếng Việt để đối chiếu ngay.

@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/utils/avatar_picker.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/user_profile_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/study_provider.dart';
@@ -14,6 +17,7 @@ import '../../widgets/top_profile_menu_button.dart';
 import '../../widgets/user_avatar_widget.dart';
 import '../admin/admin_screen.dart';
 import '../auth/auth_screen.dart';
+import '../review/review_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   /// Nếu truyền targetUid khác với activeUid của người dùng hiện tại,
@@ -29,6 +33,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _displayNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _bioController = TextEditingController();
   final _learningGoalController = TextEditingController();
   final _customUrlController = TextEditingController();
@@ -59,13 +65,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _displayNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
     _bioController.dispose();
     _learningGoalController.dispose();
     _customUrlController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadProfileData() async {
+  Future<void> _loadProfileData({bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoadingProfile = true;
@@ -96,34 +104,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    final profile = await authProvider.loadActiveProfile();
-    if (!mounted) return;
+    // Tải tiến độ hằng tuần độc lập ở nền, không chặn việc hiển thị hồ sơ
+    try {
+      unawaited(
+        context.read<StudyProvider>().loadWeeklyProgress(userUid: activeUid),
+      );
+    } catch (_) {}
 
-    if (profile == null) {
-      setState(() {
-        _isLoadingProfile = false;
-        _isStatusSuccess = false;
-        _statusMessage = 'Chưa có thông tin hồ sơ cho tài khoản này.';
-      });
-      return;
-    }
-
-    setState(() {
-      _loadedProfile = profile;
-      _displayNameController.text = profile.displayName;
-      _bioController.text = profile.bio;
-      _learningGoalController.text = profile.learningGoal;
-      _savedAvatarData = profile.avatarData.isNotEmpty
-          ? profile.avatarData
-          : 'preset:scholar_blue';
-      _previewAvatarData = _savedAvatarData;
-      _selectedAdminCefrLevel = profile.cefrLevel;
-      if (_savedAvatarData.startsWith('http://') ||
-          _savedAvatarData.startsWith('https://')) {
-        _customUrlController.text = _savedAvatarData;
+    UserProfileModel? profile;
+    try {
+      profile = await authProvider
+          .loadActiveProfile(forceRefresh: forceRefresh)
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () => authProvider.currentProfile,
+          );
+    } catch (_) {
+      profile = authProvider.currentProfile;
+    } finally {
+      if (mounted) {
+        final effectiveProfile = profile ?? authProvider.currentProfile;
+        if (effectiveProfile == null) {
+          setState(() {
+            _isLoadingProfile = false;
+            _isStatusSuccess = false;
+            _statusMessage = 'Chưa có thông tin hồ sơ cho tài khoản này.';
+          });
+        } else {
+          setState(() {
+            _loadedProfile = effectiveProfile;
+            _displayNameController.text = effectiveProfile.displayName;
+            _usernameController.text = effectiveProfile.username.isNotEmpty
+                ? effectiveProfile.username
+                : (authProvider.currentUser?.username ?? '');
+            _emailController.text = effectiveProfile.email;
+            _bioController.text = effectiveProfile.bio;
+            _learningGoalController.text = effectiveProfile.learningGoal;
+            _savedAvatarData = effectiveProfile.avatarData.isNotEmpty
+                ? effectiveProfile.avatarData
+                : 'preset:scholar_blue';
+            _previewAvatarData = _savedAvatarData;
+            _selectedAdminCefrLevel = effectiveProfile.cefrLevel;
+            if (_savedAvatarData.startsWith('http://') ||
+                _savedAvatarData.startsWith('https://')) {
+              _customUrlController.text = _savedAvatarData;
+            }
+            if (authProvider.hasProfileLoadError) {
+              _isStatusSuccess = false;
+              _statusMessage = authProvider.profileLoadError;
+            }
+            _isLoadingProfile = false;
+          });
+        }
       }
-      _isLoadingProfile = false;
-    });
+    }
   }
 
   Future<void> _handlePickImageFromDevice() async {
@@ -198,6 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final validationErr = UserProfileModel.validateProfileInput(
       displayName: _displayNameController.text,
+      username: _usernameController.text,
       bio: _bioController.text,
       learningGoal: _learningGoalController.text,
       avatarData: _previewAvatarData,
@@ -218,6 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ok = await authProvider.updateOwnProfile(
       targetUid: requestedTargetUid,
       displayName: _displayNameController.text,
+      username: _usernameController.text,
       bio: _bioController.text,
       learningGoal: _learningGoalController.text,
       avatarData: _previewAvatarData,
@@ -230,6 +266,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isSaving = false;
       if (ok && authProvider.currentProfile != null) {
         _loadedProfile = authProvider.currentProfile;
+        _displayNameController.text = _loadedProfile!.displayName;
+        _usernameController.text = _loadedProfile!.username;
+        _emailController.text = _loadedProfile!.email;
         _savedAvatarData = _loadedProfile!.avatarData;
         _previewAvatarData = _savedAvatarData;
         _pickedFileSummary = null;
@@ -349,7 +388,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 22),
 
-                            // 2. Thẻ Cấp độ Năng lực CEFR Hiện tại (Read-only cho User, Editable cho Admin)
+                            // 2. Thẻ Tiến độ hằng tuần (Weekly Progress)
+                            _buildWeeklyProgressCard(
+                              context,
+                              studyProvider: studyProvider,
+                            ),
+                            const SizedBox(height: 22),
+
+                            // 3. Thẻ Cấp độ Năng lực CEFR Hiện tại (Read-only cho User, Editable cho Admin)
                             _buildCefrLevelCard(
                               context,
                               authProvider: authProvider,
@@ -357,7 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 22),
 
-                            // 3. Biểu mẫu Chỉnh sửa Thông tin Profile
+                            // 4. Biểu mẫu Chỉnh sửa Thông tin Profile & Tên đăng nhập
                             _buildProfileFormCard(
                               context,
                               authProvider: authProvider,
@@ -367,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             // 4. Nút Lưu thay đổi
                             CustomButton(
-                              text: 'Lưu thay đổi hồ sơ',
+                              text: context.l10n.profileSave,
                               icon: Icons.save_rounded,
                               isLoading: _isSaving,
                               onPressed: _isSaving ? null : _handleSaveProfile,
@@ -529,6 +575,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bgColor = _isStatusSuccess
         ? context.successLightCol
         : context.dangerLightCol;
+    final authProvider = context.read<AuthProvider>();
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -557,6 +604,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+          if (!_isStatusSuccess && authProvider.hasProfileLoadError) ...[
+            const SizedBox(width: 8),
+            TextButton.icon(
+              key: const Key('profile_retry_load_button'),
+              onPressed: () => _loadProfileData(forceRefresh: true),
+              icon: const Icon(Icons.refresh_rounded, size: 16),
+              label: Text(context.l10n.actionRetry),
+            ),
+          ],
         ],
       ),
     );
@@ -711,7 +767,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 6),
                     Text(
                       authProvider.isAuthenticated
-                          ? '${authProvider.currentUser!.email} • UID: ${authProvider.currentUser!.uid}'
+                          ? '${(profile?.username.isNotEmpty == true ? "@${profile!.username} • " : "")}${authProvider.currentUser!.email} • UID: ${authProvider.currentUser!.uid}'
                           : 'Chế độ học cục bộ trên thiết bị • Tiến độ lưu an toàn trong SQLite',
                       style: TextStyle(
                         fontSize: 12.5,
@@ -893,6 +949,648 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildWeeklyProgressCard(
+    BuildContext context, {
+    required StudyProvider studyProvider,
+  }) {
+    final l10n = context.l10n;
+    final localeCode = Localizations.localeOf(context).languageCode;
+    final rawSummary = studyProvider.weeklyProgress;
+
+    final nowLocal = DateTime.now().toLocal();
+    final todayStart = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
+    final mondayOffset = todayStart.weekday - DateTime.monday;
+    final defaultWeekStart = DateTime(
+      todayStart.year,
+      todayStart.month,
+      todayStart.day - mondayOffset,
+    );
+    final defaultWeekEnd = DateTime(
+      defaultWeekStart.year,
+      defaultWeekStart.month,
+      defaultWeekStart.day + 6,
+    );
+
+    DateTime weekStart = defaultWeekStart;
+    DateTime weekEnd = defaultWeekEnd;
+    try {
+      if (rawSummary['weekStartDate'] != null) {
+        weekStart = DateTime.parse(rawSummary['weekStartDate'].toString()).toLocal();
+      }
+      if (rawSummary['weekEndDate'] != null) {
+        weekEnd = DateTime.parse(rawSummary['weekEndDate'].toString()).toLocal();
+      }
+    } catch (_) {}
+
+    String weekRangeText;
+    try {
+      final dateFormatter = DateFormat('dd/MM', localeCode);
+      final yearFormatter = DateFormat('dd/MM/yyyy', localeCode);
+      weekRangeText =
+          '${dateFormatter.format(weekStart)} – ${yearFormatter.format(weekEnd)}';
+    } catch (_) {
+      weekRangeText =
+          '${weekStart.day.toString().padLeft(2, '0')}/${weekStart.month.toString().padLeft(2, '0')} – ${weekEnd.day.toString().padLeft(2, '0')}/${weekEnd.month.toString().padLeft(2, '0')}/${weekEnd.year}';
+    }
+
+    final int activeDaysCount = (rawSummary['activeDaysCount'] as num?)?.toInt() ?? 0;
+    final int totalWordsInWeek = (rawSummary['totalWordsInWeek'] as num?)?.toInt() ?? 0;
+    final int totalActivitiesInWeek =
+        (rawSummary['totalActivitiesInWeek'] as num?)?.toInt() ?? 0;
+    final int todayWordsCount = (rawSummary['todayWordsCount'] as num?)?.toInt() ?? 0;
+    final bool hasAnyActivity =
+        (rawSummary['hasAnyActivityInWeek'] as bool?) ??
+        (totalWordsInWeek > 0 || totalActivitiesInWeek > 0);
+
+    final List<Map<String, dynamic>> days = [];
+    final rawDays = rawSummary['days'];
+    if (rawDays is List && rawDays.length == 7) {
+      for (final item in rawDays) {
+        if (item is Map) {
+          days.add(Map<String, dynamic>.from(item));
+        }
+      }
+    }
+    if (days.length != 7) {
+      days.clear();
+      for (int i = 0; i < 7; i++) {
+        final d = DateTime(
+          defaultWeekStart.year,
+          defaultWeekStart.month,
+          defaultWeekStart.day + i,
+        );
+        days.add({
+          'weekday': d.weekday,
+          'date': d.toIso8601String(),
+          'wordCount': 0,
+          'activityCount': 0,
+          'isActive': false,
+          'isToday': d.year == todayStart.year &&
+              d.month == todayStart.month &&
+              d.day == todayStart.day,
+        });
+      }
+    }
+
+    // Mục tiêu hằng ngày chỉ so sánh đúng với số từ đã học/ôn (wordCount), không trộn điểm quiz hay số bài
+    final int effectiveDailyWordGoal = _dailyGoal > 0 ? _dailyGoal : 10;
+    int maxBarScale = effectiveDailyWordGoal;
+    for (final day in days) {
+      final w = (day['wordCount'] as num?)?.toInt() ?? 0;
+      final a = (day['activityCount'] as num?)?.toInt() ?? 0;
+      if (w > maxBarScale) maxBarScale = w;
+      if (a > maxBarScale) maxBarScale = a;
+    }
+    if (maxBarScale < 5) maxBarScale = 5;
+
+    final bool reachedTodayWordGoal = todayWordsCount >= effectiveDailyWordGoal;
+
+    return Container(
+      key: const Key('weekly_progress_card'),
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: context.borderCol),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header: Tiêu đề + Khoảng ngày của tuần hiện tại + Mục tiêu từ hôm nay
+          Wrap(
+            spacing: 12,
+            runSpacing: 10,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: context.primaryContainerCol,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.bar_chart_rounded,
+                      color: context.primaryAccent,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.weeklyProgressTitle,
+                        style: TextStyle(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w800,
+                          color: context.textPrimaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        weekRangeText,
+                        key: const Key('weekly_progress_date_range'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: context.textSecondaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                key: const Key('weekly_progress_today_word_goal_badge'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: reachedTodayWordGoal
+                      ? context.successLightCol
+                      : context.primaryContainerCol,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: reachedTodayWordGoal
+                        ? AppColors.success
+                        : context.activeNavBorder,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      reachedTodayWordGoal
+                          ? Icons.verified_rounded
+                          : Icons.track_changes_rounded,
+                      size: 15,
+                      color: reachedTodayWordGoal
+                          ? AppColors.success
+                          : context.primaryAccent,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      l10n.weeklyProgressTodayGoal(
+                        todayWordsCount,
+                        effectiveDailyWordGoal,
+                      ),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: reachedTodayWordGoal
+                            ? AppColors.success
+                            : context.primaryAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // 3 chỉ số tổng hợp trong tuần
+          LayoutBuilder(
+            builder: (ctx, constraints) {
+              final isCompact = constraints.maxWidth < 540;
+              final items = [
+                _buildWeeklyMetricTile(
+                  context,
+                  tileKey: const Key('weekly_metric_active_days'),
+                  icon: Icons.calendar_today_rounded,
+                  label: l10n.weeklyProgressActiveDays(activeDaysCount),
+                  color: AppColors.warning,
+                ),
+                _buildWeeklyMetricTile(
+                  context,
+                  tileKey: const Key('weekly_metric_words'),
+                  icon: Icons.menu_book_rounded,
+                  label: l10n.weeklyProgressWordsStudied(totalWordsInWeek),
+                  color: AppColors.primary,
+                ),
+                _buildWeeklyMetricTile(
+                  context,
+                  tileKey: const Key('weekly_metric_activities'),
+                  icon: Icons.task_alt_rounded,
+                  label: l10n.weeklyProgressActivitiesDone(
+                    totalActivitiesInWeek,
+                  ),
+                  color: AppColors.secondary,
+                ),
+              ];
+
+              if (isCompact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    items[0],
+                    const SizedBox(height: 8),
+                    items[1],
+                    const SizedBox(height: 8),
+                    items[2],
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: items[0]),
+                  const SizedBox(width: 10),
+                  Expanded(child: items[1]),
+                  const SizedBox(width: 10),
+                  Expanded(child: items[2]),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 18),
+
+          // Chú giải đơn vị biểu đồ
+          Wrap(
+            spacing: 16,
+            runSpacing: 6,
+            alignment: WrapAlignment.end,
+            children: [
+              _buildLegendDot(
+                context,
+                color: AppColors.primary,
+                label:
+                    '${l10n.weeklyProgressUnitWords} (${l10n.profileDisplayName == "Tên hiển thị" ? "Từ đã học/ôn" : l10n.weeklyProgressUnitWords})',
+              ),
+              _buildLegendDot(
+                context,
+                color: AppColors.secondary,
+                label:
+                    '${l10n.weeklyProgressUnitActivities} (Quiz / Skills / Exam / Game)',
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Biểu đồ 7 ngày Thứ Hai -> Chủ Nhật
+          Container(
+            key: const Key('weekly_progress_7day_chart'),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+            decoration: BoxDecoration(
+              color: context.scaffoldBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: context.borderCol),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: List.generate(days.length, (index) {
+                final day = days[index];
+                final words = (day['wordCount'] as num?)?.toInt() ?? 0;
+                final acts = (day['activityCount'] as num?)?.toInt() ?? 0;
+                final isToday = day['isToday'] == true;
+                final isActive = day['isActive'] == true;
+
+                DateTime dayDate = DateTime(
+                  weekStart.year,
+                  weekStart.month,
+                  weekStart.day + index,
+                );
+                try {
+                  if (day['date'] != null) {
+                    dayDate = DateTime.parse(day['date'].toString()).toLocal();
+                  }
+                } catch (_) {}
+
+                final weekdayLabel = _formatWeekdayShort(
+                  dayDate,
+                  localeCode: localeCode,
+                );
+                final dayNumberLabel =
+                    '${dayDate.day.toString().padLeft(2, '0')}/${dayDate.month.toString().padLeft(2, '0')}';
+
+                final double wordRatio = (words / maxBarScale).clamp(0.0, 1.0);
+                final double actRatio = (acts / maxBarScale).clamp(0.0, 1.0);
+                final double wordBarHeight = words > 0
+                    ? (14.0 + wordRatio * 68.0)
+                    : 4.0;
+                final double actBarHeight = acts > 0
+                    ? (14.0 + actRatio * 68.0)
+                    : 4.0;
+
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Container(
+                      key: Key('weekly_day_column_${index + 1}'),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isToday
+                            ? context.primaryContainerCol.withValues(alpha: 0.55)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: isToday
+                            ? Border.all(color: AppColors.primary, width: 1.5)
+                            : null,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isToday)
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                l10n.weeklyProgressTodayBadge,
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          else
+                            const SizedBox(height: 17),
+                          Text(
+                            '$words ${l10n.weeklyProgressUnitWords}',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: words > 0
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: words > 0
+                                  ? context.primaryAccent
+                                  : context.textMutedColor,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            '$acts ${l10n.weeklyProgressUnitActivities}',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: acts > 0
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: acts > 0
+                                  ? AppColors.secondary
+                                  : context.textMutedColor,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          SizedBox(
+                            height: 84,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 260),
+                                  width: 10,
+                                  height: wordBarHeight,
+                                  decoration: BoxDecoration(
+                                    color: words > 0
+                                        ? AppColors.primary
+                                        : context.borderCol,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 260),
+                                  width: 10,
+                                  height: actBarHeight,
+                                  decoration: BoxDecoration(
+                                    color: acts > 0
+                                        ? AppColors.secondary
+                                        : context.borderCol.withValues(
+                                            alpha: 0.65,
+                                          ),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            weekdayLabel,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: isToday || isActive
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              color: isToday
+                                  ? AppColors.primary
+                                  : context.textPrimaryColor,
+                            ),
+                          ),
+                          Text(
+                            dayNumberLabel,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: context.textSecondaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+
+          // Trạng thái rỗng kèm nút hành động (CTA) khi chưa có hoạt động trong tuần
+          if (!hasAnyActivity) ...[
+            const SizedBox(height: 14),
+            Container(
+              key: const Key('weekly_progress_empty_state'),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: context.primaryContainerCol.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: context.activeNavBorder),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.auto_graph_rounded,
+                        color: context.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.weeklyProgressEmptyTitle,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.bold,
+                            color: context.textPrimaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.weeklyProgressEmptyDesc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.textSecondaryColor,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: FilledButton.tonalIcon(
+                      key: const Key('weekly_progress_cta_button'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ReviewScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.play_lesson_rounded, size: 17),
+                      label: Text(l10n.weeklyProgressStartCta),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 10),
+          Text(
+            l10n.weeklyProgressScopeNote,
+            style: TextStyle(
+              fontSize: 11,
+              color: context.textSecondaryColor,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyMetricTile(
+    BuildContext context, {
+    required Key tileKey,
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      key: tileKey,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: context.scaffoldBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.borderCol),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: context.textPrimaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendDot(
+    BuildContext context, {
+    required Color color,
+    required String label,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: context.textSecondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatWeekdayShort(DateTime date, {required String localeCode}) {
+    if (localeCode == 'vi') {
+      const viLabels = {
+        DateTime.monday: 'T2',
+        DateTime.tuesday: 'T3',
+        DateTime.wednesday: 'T4',
+        DateTime.thursday: 'T5',
+        DateTime.friday: 'T6',
+        DateTime.saturday: 'T7',
+        DateTime.sunday: 'CN',
+      };
+      return viLabels[date.weekday] ?? 'T2';
+    }
+    try {
+      return DateFormat.E(localeCode).format(date);
+    } catch (_) {
+      const enLabels = {
+        DateTime.monday: 'Mon',
+        DateTime.tuesday: 'Tue',
+        DateTime.wednesday: 'Wed',
+        DateTime.thursday: 'Thu',
+        DateTime.friday: 'Fri',
+        DateTime.saturday: 'Sat',
+        DateTime.sunday: 'Sun',
+      };
+      return enLabels[date.weekday] ?? 'Mon';
+    }
+  }
+
   Widget _buildCefrLevelCard(
     BuildContext context, {
     required AuthProvider authProvider,
@@ -1060,15 +1758,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Tên hiển thị
+          // 1. Tên hiển thị (Display Name)
           TextFormField(
+            key: const Key('profile_display_name_input'),
             controller: _displayNameController,
             maxLength: 60,
+            onChanged: (_) => setState(() {}),
             style: TextStyle(color: context.textPrimaryColor),
-            decoration: const InputDecoration(
-              labelText: 'Tên hiển thị *',
+            decoration: InputDecoration(
+              labelText: '${context.l10n.profileDisplayName} *',
               hintText: 'Nhập tên hiển thị của bạn (2 - 60 ký tự)',
-              prefixIcon: Icon(Icons.badge_outlined),
+              prefixIcon: const Icon(Icons.badge_outlined),
             ),
             validator: (val) {
               final clean = val?.trim() ?? '';
@@ -1086,7 +1786,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 14),
 
-          // Bio / Giới thiệu bản thân
+          // 2. Bio / Giới thiệu bản thân
           TextFormField(
             controller: _bioController,
             maxLength: 300,
@@ -1108,7 +1808,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 14),
 
-          // Mục tiêu học tập
+          // 3. Mục tiêu học tập
           TextFormField(
             controller: _learningGoalController,
             maxLength: 150,
@@ -1124,6 +1824,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
               return null;
             },
+          ),
+          const SizedBox(height: 14),
+
+          // 4. Tên đăng nhập (Login Username - có thể dùng để đăng nhập kèm mật khẩu)
+          TextFormField(
+            key: const Key('profile_username_input'),
+            controller: _usernameController,
+            maxLength: 30,
+            style: TextStyle(color: context.textPrimaryColor),
+            decoration: InputDecoration(
+              labelText: context.l10n.profileUsernameLabel,
+              hintText: context.l10n.profileUsernameHint,
+              helperText: (profile?.providerId == 'google.com' ||
+                      authProvider.currentUser?.providerId == 'google.com')
+                  ? context.l10n.profileUsernameHelperGoogle
+                  : context.l10n.profileUsernameHelperPassword,
+              helperMaxLines: 2,
+              prefixIcon: const Icon(Icons.alternate_email_rounded),
+            ),
+            validator: (val) {
+              return UserProfileModel.validateUsername(val, allowEmpty: true);
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // 5. Email đăng nhập (Read-only, giữ nguyên khi đổi tên hiển thị hoặc username)
+          TextFormField(
+            key: const Key('profile_email_readonly_input'),
+            controller: _emailController,
+            readOnly: true,
+            style: TextStyle(color: context.textSecondaryColor),
+            decoration: InputDecoration(
+              labelText: context.l10n.profileEmail,
+              helperText: context.l10n.profileEmailReadOnlyHelper,
+              helperMaxLines: 2,
+              prefixIcon: const Icon(Icons.mail_lock_outlined),
+              suffixIcon: Tooltip(
+                message: context.l10n.profileEmailReadOnlyHelper,
+                child: const Icon(Icons.lock_outline_rounded, size: 18),
+              ),
+            ),
           ),
           const SizedBox(height: 14),
 

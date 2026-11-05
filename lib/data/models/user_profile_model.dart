@@ -3,6 +3,7 @@ import '../../core/constants/app_constants.dart';
 class UserProfileModel {
   final String uid;
   final String email;
+  final String username;
   final String displayName;
   final String providerId;
   final String role; // 'user' or 'admin'
@@ -15,9 +16,29 @@ class UserProfileModel {
   final String createdAt;
   final String updatedAt;
 
+  static const Set<String> reservedUsernames = {
+    'admin',
+    'root',
+    'system',
+    'support',
+    'guest',
+    'local_learner',
+    'null',
+    'undefined',
+    'api',
+    'auth',
+    'profile',
+    'login',
+    'register',
+    'settings',
+    'englishbuddy',
+    'english_buddy',
+  };
+
   const UserProfileModel({
     required this.uid,
     required this.email,
+    this.username = '',
     required this.displayName,
     this.providerId = 'password',
     this.role = AppConstants.roleUser,
@@ -30,6 +51,38 @@ class UserProfileModel {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  static String normalizeUsername(String? raw) {
+    return (raw ?? '').trim().toLowerCase();
+  }
+
+  /// Kiểm tra định dạng tên đăng nhập (username) chuẩn hóa
+  static String? validateUsername(
+    String? rawUsername, {
+    bool allowEmpty = true,
+  }) {
+    final normalized = normalizeUsername(rawUsername);
+    if (normalized.isEmpty) {
+      return allowEmpty ? null : 'Tên đăng nhập không được để trống.';
+    }
+    if (normalized.length < 3 || normalized.length > 30) {
+      return 'Tên đăng nhập phải từ 3 đến 30 ký tự.';
+    }
+    if (normalized.contains('@')) {
+      return 'Tên đăng nhập không được chứa ký tự @.';
+    }
+    if (!RegExp(r'^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])?$')
+        .hasMatch(normalized)) {
+      return 'Tên đăng nhập chỉ được gồm chữ thường (a-z), số (0-9), dấu chấm (.), gạch dưới (_) hoặc gạch ngang (-), bắt đầu và kết thúc bằng chữ hoặc số.';
+    }
+    if (RegExp(r'[._-]{2,}').hasMatch(normalized)) {
+      return 'Tên đăng nhập không được chứa các ký tự đặc biệt liên tiếp.';
+    }
+    if (reservedUsernames.contains(normalized)) {
+      return 'Tên đăng nhập này đã được hệ thống đặt trước, vui lòng chọn tên khác.';
+    }
+    return null;
+  }
 
   bool get isAdmin => role == AppConstants.roleAdmin;
   bool get isRegularUser => role != AppConstants.roleAdmin;
@@ -71,6 +124,7 @@ class UserProfileModel {
   /// Kiểm tra tính hợp lệ của dữ liệu hồ sơ khi người dùng hoặc admin lưu
   static String? validateProfileInput({
     required String displayName,
+    String? username,
     required String bio,
     required String learningGoal,
     required String avatarData,
@@ -84,6 +138,12 @@ class UserProfileModel {
     }
     if (cleanName.length > 60) {
       return 'Tên hiển thị không được vượt quá 60 ký tự.';
+    }
+    if (username != null && username.trim().isNotEmpty) {
+      final usernameError = validateUsername(username, allowEmpty: true);
+      if (usernameError != null) {
+        return usernameError;
+      }
     }
     if (bio.trim().length > 300) {
       return 'Phần giới thiệu (Bio) không được vượt quá 300 ký tự.';
@@ -110,6 +170,7 @@ class UserProfileModel {
   UserProfileModel copyWith({
     String? uid,
     String? email,
+    String? username,
     String? displayName,
     String? providerId,
     String? role,
@@ -125,6 +186,7 @@ class UserProfileModel {
     return UserProfileModel(
       uid: uid ?? this.uid,
       email: email ?? this.email,
+      username: username != null ? normalizeUsername(username) : this.username,
       displayName: displayName ?? this.displayName,
       providerId: providerId ?? this.providerId,
       role: role ?? this.role,
@@ -143,6 +205,7 @@ class UserProfileModel {
     return {
       'uid': uid,
       'email': email,
+      'username': normalizeUsername(username),
       'display_name': displayName,
       'provider_id': providerId,
       'role': role == AppConstants.roleAdmin
@@ -172,6 +235,7 @@ class UserProfileModel {
     return UserProfileModel(
       uid: (map['uid'] ?? '').toString(),
       email: (map['email'] ?? '').toString(),
+      username: normalizeUsername((map['username'] ?? '').toString()),
       displayName: (map['display_name'] ?? map['displayName'] ?? 'Learner')
           .toString(),
       providerId:

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/tts_service.dart';
-import '../../../core/utils/ui_helpers.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 import '../../../data/models/skill_exercise_model.dart';
 import '../../../data/models/word_model.dart';
 import '../../../providers/skills_provider.dart';
@@ -124,7 +124,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     if (mounted) {
       UiHelpers.showSnackBar(
         context,
-        message: 'Đã lưu kết quả: $correct/$total câu đúng (${score.toInt()}%)!',
+        message: context.l10n.exerciseScoreResult(correct, total, score.toInt()),
       );
     }
   }
@@ -157,7 +157,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
       setState(() => _savedTerms.add(kw.term));
       UiHelpers.showSnackBar(
         context,
-        message: 'Đã thêm "${kw.term}" vào danh sách Ôn tập & Yêu thích!',
+        message: context.l10n.exerciseSaveWordSuccess(kw.term),
       );
     }
   }
@@ -215,7 +215,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         border: Border.all(color: context.borderCol),
                       ),
                       child: Text(
-                        isListening ? 'Kỹ năng Nghe hiểu' : 'Kỹ năng Đọc hiểu',
+                        isListening ? context.l10n.exerciseListeningTitle : context.l10n.exerciseReadingTitle,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -270,7 +270,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Kết quả bài làm: $_correctCount/$totalQ câu đúng ($scorePercent%)',
+                                context.l10n.exerciseScoreResult(_correctCount, totalQ, scorePercent),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -325,7 +325,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Trình phát Audio bài nghe (Audio Player)',
+                                    context.l10n.exerciseAudioPlayer,
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
@@ -459,8 +459,8 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             size: 17,
                           ),
                           label: Text(_showTranscript
-                              ? 'Ẩn lời thoại (Transcript) & Bản dịch đối chiếu'
-                              : 'Hiện lời thoại (Transcript) & Bản dịch đối chiếu'),
+                              ? context.l10n.exerciseHideTranscript
+                              : context.l10n.exerciseShowTranscript),
                         ),
 
                         if (_showTranscript) ...[
@@ -554,7 +554,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Văn bản đọc hiểu (Reading Passage)',
+                                    context.l10n.exerciseReadingPassage,
                                     style: TextStyle(
                                       fontSize: 15.5,
                                       fontWeight: FontWeight.bold,
@@ -635,7 +635,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                 // Danh sách câu hỏi kiểm tra (hỗ trợ cả Trắc nghiệm & Điền từ ngắn)
                 Text(
-                  'Câu hỏi kiểm tra mức độ hiểu bài (${widget.exercise.questions.length} câu)',
+                  context.l10n.exerciseQuestionsCount(widget.exercise.questions.length),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -852,7 +852,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 size: 20, color: AppColors.primary),
                             const SizedBox(width: 8),
                             Text(
-                              'Từ vựng trọng tâm trong bài (${widget.exercise.keyWords.length} từ)',
+                              context.l10n.exerciseKeyWords(widget.exercise.keyWords.length),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -879,7 +879,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                   icon: const Icon(Icons.volume_up_rounded,
                                       color: AppColors.primary, size: 20),
                                   onPressed: () => TtsService().speak(kw.term),
-                                  tooltip: 'Nghe phát âm',
+                                  tooltip: context.l10n.homeListenPronunciation,
                                 ),
                                 Expanded(
                                   child: Column(
@@ -961,7 +961,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                         : Icons.bookmark_add_outlined,
                                     size: 16,
                                   ),
-                                  label: Text(isSaved ? 'Đã lưu' : 'Lưu từ'),
+                                  label: Text(isSaved ? context.l10n.dictSaved : context.l10n.actionSave),
                                 ),
                               ],
                             ),
@@ -975,13 +975,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                 const SizedBox(height: 16),
                 if (!_isSubmitted)
                   CustomButton(
-                    text: 'Nộp bài & Chấm điểm',
+                    text: context.l10n.exerciseSubmitGrade,
                     icon: Icons.check_rounded,
                     onPressed: _submitAnswers,
                   )
                 else
                   CustomButton(
-                    text: 'Làm lại bài này',
+                    text: context.l10n.exerciseRetake,
                     icon: Icons.refresh_rounded,
                     onPressed: () {
                       setState(() {

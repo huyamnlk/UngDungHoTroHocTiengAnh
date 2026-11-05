@@ -1,0 +1,1 @@
+﻿Người học đọc lại phản hồi, đối chiếu cách diễn đạt và tiếp tục làm rõ yêu cầu. Ô nhập phía dưới giúp gửi câu hỏi mới. Phía trên có thông tin trợ lý và nút xóa hội thoại khi cần bắt đầu cuộc trao đổi khác.

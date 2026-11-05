@@ -14,6 +14,7 @@ import 'exercise_detail_screen.dart';
 import 'matching_game_screen.dart';
 import 'speaking_exercise_screen.dart';
 import 'writing_exercise_screen.dart';
+import 'package:english_buddy/core/utils/ui_helpers.dart';
 
 class SkillsHubScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -76,7 +77,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
     return Scaffold(
       backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        title: const Text('Luyện tập 4 kỹ năng & Từ vựng'),
+        title: Text(context.l10n.skillsHubTitle),
         backgroundColor: context.surfaceBg,
         elevation: 0,
         foregroundColor: context.textPrimaryColor,
@@ -92,9 +93,9 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               },
               icon: const Icon(Icons.workspace_premium_rounded,
                   size: 18, color: AppColors.primary),
-              label: const Text(
-                'Luyện thi IELTS/TOEIC',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              label: Text(
+                context.l10n.skillsExamHubTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -112,7 +113,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                 child: Row(
                   children: [
                     Text(
-                      'Trình độ CEFR:',
+                      'CEFR:',
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.bold,
@@ -126,7 +127,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                         padding: const EdgeInsets.only(right: 6),
                         child: ChoiceChip(
                           visualDensity: VisualDensity.compact,
-                          label: Text(lvl == 'All' ? 'Tất cả' : lvl),
+                          label: Text(lvl == 'All' ? context.l10n.statusAll : lvl),
                           selected: isSelected,
                           onSelected: (_) =>
                               skillsProvider.setSelectedLevel(lvl),
@@ -143,26 +144,26 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                 indicatorColor: context.primaryAccent,
                 indicatorWeight: 3,
                 isScrollable: true,
-                tabs: const [
+                tabs: [
                   Tab(
-                    text: 'Nghe (Listening)',
-                    icon: Icon(Icons.headphones_rounded, size: 19),
+                    text: context.l10n.skillsListening,
+                    icon: const Icon(Icons.headphones_rounded, size: 19),
                   ),
                   Tab(
-                    text: 'Nói (Speaking)',
-                    icon: Icon(Icons.record_voice_over_rounded, size: 19),
+                    text: context.l10n.skillsSpeaking,
+                    icon: const Icon(Icons.record_voice_over_rounded, size: 19),
                   ),
                   Tab(
-                    text: 'Đọc (Reading)',
-                    icon: Icon(Icons.menu_book_rounded, size: 19),
+                    text: context.l10n.skillsReading,
+                    icon: const Icon(Icons.menu_book_rounded, size: 19),
                   ),
                   Tab(
-                    text: 'Viết (Writing)',
-                    icon: Icon(Icons.edit_note_rounded, size: 19),
+                    text: context.l10n.skillsWriting,
+                    icon: const Icon(Icons.edit_note_rounded, size: 19),
                   ),
                   Tab(
-                    text: 'Từ vựng & Luyện thi',
-                    icon: Icon(Icons.style_rounded, size: 19),
+                    text: '${context.l10n.navTopics} & ${context.l10n.navExam}',
+                    icon: const Icon(Icons.style_rounded, size: 19),
                   ),
                 ],
               ),
@@ -179,7 +180,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
             context,
             skillsProvider: skillsProvider,
             list: skillsProvider.listeningExercises,
-            emptyHint: 'Không có bài Nghe nào ở trình độ này.',
+            emptyHint: context.l10n.skillsNoLessonLevel('Listening'),
           ),
 
           // Tab 2: Nói & Phát âm
@@ -187,7 +188,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
             context,
             skillsProvider: skillsProvider,
             list: skillsProvider.speakingExercises,
-            emptyHint: 'Không có bài Nói nào ở trình độ này.',
+            emptyHint: context.l10n.skillsNoLessonLevel('Speaking'),
           ),
 
           // Tab 3: Đọc hiểu
@@ -195,7 +196,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
             context,
             skillsProvider: skillsProvider,
             list: skillsProvider.readingExercises,
-            emptyHint: 'Không có bài Đọc nào ở trình độ này.',
+            emptyHint: context.l10n.skillsNoLessonLevel('Reading'),
           ),
 
           // Tab 4: Viết & Rubric
@@ -203,7 +204,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
             context,
             skillsProvider: skillsProvider,
             list: skillsProvider.writingExercises,
-            emptyHint: 'Không có bài Viết nào ở trình độ này.',
+            emptyHint: context.l10n.skillsNoLessonLevel('Writing'),
           ),
 
           // Tab 5: Từ vựng, Luyện thi & Lịch sử kết quả
@@ -248,7 +249,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Đề xuất học tiếp • Tiến độ kỹ năng: $completedCount/$totalCount bài đã hoàn thành',
+                  context.l10n.skillsProgressText(completedCount, totalCount),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -277,7 +278,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Học ngay'),
+            child: Text(context.l10n.skillsStartLearning),
           ),
         ],
       ),
@@ -317,7 +318,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                       TextButton(
                         onPressed: () =>
                             skillsProvider.setSelectedLevel('All'),
-                        child: const Text('Hiển thị tất cả trình độ (A1–C1)'),
+                        child: Text(context.l10n.skillsHubAllLevels),
                       ),
                     ],
                   ),
@@ -384,7 +385,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               // Lối tắt nổi bật đến Phòng Luyện Thi IELTS / TOEIC / CEFR
               _buildSkillCard(
                 context,
-                title: 'Phòng Luyện Thi IELTS • TOEIC • CEFR (Có bấm giờ)',
+                title: context.l10n.skillsExamHubTitle,
                 subtitle:
                     'Làm đề đọc hiểu, nghe hiểu và mini-test theo thời gian thực kèm giải thích chi tiết từng câu.',
                 icon: Icons.workspace_premium_rounded,
@@ -400,7 +401,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               const SizedBox(height: 14),
               _buildSkillCard(
                 context,
-                title: 'Thẻ ghi nhớ Flashcard 3D',
+                title: context.l10n.skillsFlashcard3dTitle,
                 subtitle:
                     'Lật thẻ kiểm tra phản xạ từ vựng với hiệu ứng 3D, phát âm IPA và đánh dấu mức độ thuộc từ.',
                 icon: Icons.flip_to_front_rounded,
@@ -412,7 +413,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                       context,
                       MaterialPageRoute(
                         builder: (_) => FlashcardScreen(
-                          title: 'Ôn tập thẻ từ vựng',
+                          title: context.l10n.skillsFlashcard3dTitle,
                           words: studyProvider.currentTopicWords,
                         ),
                       ),
@@ -424,7 +425,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                           context,
                           MaterialPageRoute(
                             builder: (_) => FlashcardScreen(
-                              title: 'Ôn tập thẻ từ vựng',
+                              title: context.l10n.skillsFlashcard3dTitle,
                               words: studyProvider.currentTopicWords,
                             ),
                           ),
@@ -437,7 +438,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               const SizedBox(height: 14),
               _buildSkillCard(
                 context,
-                title: 'Thử thách Quiz trắc nghiệm từ vựng',
+                title: context.l10n.skillsQuizReflexTitle,
                 subtitle:
                     '3 dạng câu hỏi phản xạ: Chọn nghĩa tiếng Việt, chọn từ tiếng Anh và điền từ khuyết.',
                 icon: Icons.quiz_rounded,
@@ -453,12 +454,12 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               const SizedBox(height: 14),
               _buildSkillCard(
                 context,
-                title: 'Trò chơi Ghép từ & Nghĩa (Matching Pairs)',
+                title: context.l10n.skillsMatchingGameTitle,
                 subtitle:
                     'Lật thẻ và nối nhanh các cặp từ tiếng Anh tương ứng với nghĩa tiếng Việt.',
                 icon: Icons.extension_rounded,
                 color: AppColors.accent,
-                level: 'Mọi cấp độ',
+                level: 'A1 - C1',
                 onTap: () {
                   if (studyProvider.currentTopicWords.isNotEmpty) {
                     Navigator.push(
@@ -489,12 +490,12 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                   Expanded(
                     child: _buildSkillCard(
                       context,
-                      title: 'Tra từ điển Offline & Online',
+                      title: context.l10n.dictTitle,
                       subtitle:
                           '520+ từ vựng CEFR có sẵn & tra cứu mở rộng có bộ nhớ đệm.',
                       icon: Icons.search_rounded,
                       color: AppColors.secondary,
-                      level: 'Từ điển',
+                      level: 'Dictionary',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -510,7 +511,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
               _buildSkillCard(
                 context,
                 title:
-                    'Ôn tập lặp lại ngắt quãng SRS & Từ yêu thích (${studyProvider.dueSrsWords.length} từ cần ôn)',
+                    '${context.l10n.skillsSrsReviewTitle} (${studyProvider.dueSrsWords.length})',
                 subtitle:
                     'Ôn lại các từ mới đã lưu từ bài đọc/nghe và danh sách từ vựng yêu thích của bạn.',
                 icon: Icons.bookmark_added_rounded,
@@ -659,7 +660,7 @@ class _SkillsHubScreenState extends State<SkillsHubScreen>
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          'Đã hoàn thành • ${bestScore.round()}%',
+                          context.l10n.skillsCompletedBadge(bestScore.round()),
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,

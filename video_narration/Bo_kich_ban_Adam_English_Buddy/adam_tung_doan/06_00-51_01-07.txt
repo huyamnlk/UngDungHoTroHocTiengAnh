@@ -1,0 +1,1 @@
+﻿Trang hồ sơ hiển thị tên, email, vai trò, cấp độ và chuỗi ngày học. Ảnh đại diện có thể chọn từ thiết bị, đường dẫn ảnh hoặc mẫu có sẵn. Bên dưới là tiến độ bảy ngày, số ngày hoạt động, số từ đã học hoặc ôn và bài hoàn thành. Tuần này chưa có hoạt động nên biểu đồ đang trống.
